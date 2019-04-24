@@ -19,6 +19,14 @@ public class Memory {
         return (readByte(location+1) << 8) + readByte(location);
     }
     
+    public int readDoubleWord(int location) {
+    	return (readWord(location + 2) << 16) + readWord(location);
+    }
+    
+    public long readQuadWord(int location) {
+    	return (readDoubleWord(location + 4) << 32) + readDoubleWord(location);
+    }
+    
     public void writeByte(int location, int toWrite){
         mem[location] = toWrite & 0xFF;
     }
