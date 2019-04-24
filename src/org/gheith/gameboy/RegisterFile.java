@@ -1,5 +1,7 @@
 package org.gheith.gameboy;
 
+import java.security.InvalidParameterException;
+
 interface Readable {
     int read();
 }
@@ -12,9 +14,11 @@ interface ReadWritable extends Readable, Writable {}
 
 interface Register extends ReadWritable {}
 
+interface ShortRegister extends Register {}
+
 class LongRegister implements Register {
     private int value;
-    Register lowerByte = new Register() {
+    ShortRegister lowerByte = new ShortRegister() {
         @Override
         public int read() {
             return LongRegister.this.value & 0xff;
@@ -28,7 +32,7 @@ class LongRegister implements Register {
         }
     };
 
-    Register upperByte = new Register() {
+    ShortRegister upperByte = new ShortRegister() {
         @Override
         public int read() {
             return (LongRegister.this.value & 0xff00) >> 8;
@@ -53,33 +57,50 @@ class LongRegister implements Register {
 
 public class RegisterFile {
     public LongRegister AF, BC, DE, HL, SP, PC;
-    public Register A, F, B, C, D, E, H, L;
+    public ShortRegister A, F, B, C, D, E, H, L;
+    
+    public static final int ZFLAG = 7;
+    public static final int NFLAG = 6;
+    public static final int HFLAG = 5;
+    public static final int CFLAG = 4;
+    
+    public FlagSet flags;
     
     public class FlagSet {
         private Register flagReg;
+        
+        boolean[] flagWritable = new boolean[8];
+
+        private boolean ZWritable = true, NWritable = true, HWritable = true, CWritable = true;
+        
+        public void enableFlagWrites(boolean z, boolean n, boolean h, boolean c){
+            flagWritable[ZFLAG] = z;
+            flagWritable[NFLAG] = n;
+            flagWritable[HFLAG] = h;
+            flagWritable[CFLAG] = c;
+        }
         
         public FlagSet(Register r) {
             this.flagReg = r;
         }
         
-        public boolean getZ() {
-            return ((flagReg.read() >> 7) & 1) == 1;
-        }
-
-        public boolean getN() {
-            return ((flagReg.read() >> 6) & 1) == 1;
-        }
-
-        public boolean getH() {
-            return ((flagReg.read() >> 5) & 1) == 1;
-        }
-
-        public boolean getC() {
-            return ((flagReg.read() >> 4) & 1) == 1;
+        public boolean getFlag(int flagNum) {
+            if(flagNum < 4) throw new InvalidParameterException("bad flag number");
+            
+            return ((flagReg.read() >> flagNum) & 1) == 1;
         }
         
-        public void setZ(boolean z){
-            //TODO: stub
+        public void setFlag(int flagNum, boolean val){
+            if(flagWritable[flagNum]){
+                int flags = flagReg.read();
+                if(val){
+                    flags |= 1 << flagNum;
+                }else{
+                    flags &= ~(1 << flagNum);
+                }
+                
+                flagReg.write(flags);
+            }
         }
     }
 
@@ -102,5 +123,7 @@ public class RegisterFile {
         
         SP = new LongRegister();
         PC = new LongRegister();
+        
+        flags = new FlagSet(F);
     }
 }
