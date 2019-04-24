@@ -1,9 +1,16 @@
 package org.gheith.gameboy;
 
-interface Register {
+interface Readable {
     int read();
+}
+
+interface Writable {
     void write(int val);
 }
+
+interface ReadWritable extends Readable, Writable {}
+
+interface Register extends ReadWritable {}
 
 class LongRegister implements Register {
     private int value;
