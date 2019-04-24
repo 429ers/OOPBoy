@@ -8,7 +8,7 @@ public class TileSet {
 	
 	public TileSet(Memory memory, int startAddress, int numTiles, boolean isSetOne) {
 		tiles = new HashMap<Integer, Tile>();
-		int tileNum = isSetOne ? 0 : -127;
+		int tileNum = isSetOne ? 0 : -128;
 		for (int i = 0; i < numTiles; i++) {
 			int tileAddress = startAddress + i * 16;
 			long upperData = memory.readQuadWord(tileAddress);
@@ -16,6 +16,10 @@ public class TileSet {
 			tiles.put(tileNum, new Tile(upperData, lowerData));
 			tileNum++;
 		}
+	}
+	
+	public Tile getTile(int tileNumber) {
+		return tiles.get(tileNumber);
 	}
 	
 }
