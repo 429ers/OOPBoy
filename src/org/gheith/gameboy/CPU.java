@@ -25,6 +25,8 @@ public class CPU {
     public static final int HFLAG = RegisterFile.HFLAG;
     public static final int CFLAG = RegisterFile.CFLAG;
     
+    boolean halted = false;
+    
     int LD (Writable dest, Readable src){
         int val = src.read();
         dest.write(val);
@@ -231,5 +233,204 @@ public class CPU {
         op.write(result);
         
         return result;
+    }
+    
+    int DAA() {
+        int original = regs.A.read();
+        int decimalVal = original % 100;
+        
+        int tens = decimalVal / 10;
+        int ones = decimalVal % 10;
+        
+        int result = (tens << 4) | ones;
+        
+        regs.flags.setFlag(ZFLAG, (decimalVal == 0)); //may be wrong
+        regs.flags.setFlag(CFLAG, decimalVal == original);
+        
+        regs.A.write(result);
+        
+        return result;
+    }
+    
+    int CPL() {
+        int original = regs.A.read();
+        int result = (~original) & 0xff;
+        
+        regs.A.write(result);
+        
+        return result;
+    }
+    
+    int CCF() {
+        regs.flags.setFlag(CFLAG, !regs.flags.getFlag(CFLAG));
+        
+        return 0;
+    }
+    
+    int SCF() {
+        regs.flags.setFlag(CFLAG, true);
+        
+        return 0;
+    }
+    
+    int NOP(){
+        return 0;
+    }
+    
+    int HALT() {
+        halted = true;
+        
+        return 0;
+    }
+    
+    int STOP() {
+        halted = true;
+        
+        return 0;
+    }
+    
+    int DI() {
+        throw new UnsupportedOperationException("not implemented yet");
+    }
+    
+    int EI() {
+        throw new UnsupportedOperationException("not implemented yet");
+    }
+    
+    //rotates op left by one bit, puts 7th bit in C
+    int RLC(ReadWritable op){
+        int original = op.read();
+        int bit7 = (original >> 7) & 1;
+        
+        regs.flags.setFlag(CFLAG, bit7 == 1);
+        
+        int result = (original << 1) | bit7;
+        
+        regs.flags.setFlag(ZFLAG, result == 0);
+        
+        op.write(result);
+        
+        return result;
+    }
+    
+    //rotates op left, with C treated as bit 8
+    int RL(ReadWritable op) {
+        int original = op.read();
+        int bit7 = (original >> 7) & 1;
+        
+        int carryBit = (regs.flags.getFlag(CFLAG)? 1 : 0);
+        
+        int result = (original << 1) | carryBit;
+        
+        regs.flags.setFlag(CFLAG, bit7 == 1);
+        regs.flags.setFlag(ZFLAG, result == 0);
+        
+        op.write(result);
+        
+        return result;
+    }
+    
+    //rotates op right, C holds original 0th bit
+    int RRC(ReadWritable op){
+        int original = op.read();
+        int bit0 = original & 1;
+        
+        regs.flags.setFlag(CFLAG, bit0 == 1);
+        
+        int result = (original >> 1) | (bit0 << 7);
+        
+        regs.flags.setFlag(ZFLAG, result == 0);
+        
+        op.write(result);
+        
+        return result;
+    }
+    
+    //rotates op right, with C treated as the -1th bit
+    int RR(ReadWritable op){
+        int original = op.read();
+        int bit0 = original & 1;
+
+        int carryBit = (regs.flags.getFlag(CFLAG)? 1 : 0);
+        
+        int result = (original >> 1) | (carryBit << 7);
+        
+        regs.flags.setFlag(CFLAG, bit0 == 1);
+        regs.flags.setFlag(ZFLAG, result == 0);
+        
+        op.write(result);
+        
+        return result;
+    }
+    
+    int SLA(ReadWritable op){
+        int original = op.read();
+        int bit7 = (original >> 7) & 1;
+
+        int result = (original << 1);
+
+        regs.flags.setFlag(CFLAG, bit7 == 1);
+        regs.flags.setFlag(ZFLAG, result == 0);
+
+        op.write(result);
+
+        return result;
+    }
+    
+    int SRA(ReadWritable op) {
+        int original = op.read();
+        int bit0 = original & 1;
+        int bit7 = (original << 7) & 1;
+
+        int result = (original >> 1) | (bit7 << 7);
+
+        regs.flags.setFlag(CFLAG, bit0 == 1);
+        regs.flags.setFlag(ZFLAG, result == 0);
+
+        op.write(result);
+
+        return result;
+    }
+
+    int SRL(ReadWritable op) {
+        int original = op.read();
+        int bit0 = original & 1;
+
+        int result = (original >> 1);
+
+        regs.flags.setFlag(CFLAG, bit0 == 1);
+        regs.flags.setFlag(ZFLAG, result == 0);
+
+        op.write(result);
+
+        return result;
+    }
+    
+    int BIT(int bitnum, Readable op) {
+        int val = op.read();
+        
+        regs.flags.setFlag(ZFLAG, ((val >> bitnum) & 1) == 0);
+        
+        return val;
+    }
+    
+    int SET(int bitnum, ReadWritable op) {
+        int val = op.read();
+        
+        val |= (1 << bitnum);
+        
+        op.write(val);
+        
+        return val;
+    }
+    
+    int RES(int bitnum, ReadWritable op) {
+        int val = op.read();
+
+        val &= ~(1 << bitnum);
+        
+        op.write(val);
+        
+        return val;
     }
 }
