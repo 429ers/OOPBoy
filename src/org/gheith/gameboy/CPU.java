@@ -42,6 +42,9 @@ public class CPU {
     int ADD(Register dest, Readable src){
         int op1 = src.read(), op2 = dest.read();
         
+        int sum = op1 + op2;
+        int result = sum & 0xff;
+        
         //TODO: stub
         
         return op1+op2;

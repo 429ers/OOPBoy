@@ -54,6 +54,34 @@ class LongRegister implements Register {
 public class RegisterFile {
     public LongRegister AF, BC, DE, HL, SP, PC;
     public Register A, F, B, C, D, E, H, L;
+    
+    public class FlagSet {
+        private Register flagReg;
+        
+        public FlagSet(Register r) {
+            this.flagReg = r;
+        }
+        
+        public boolean getZ() {
+            return ((flagReg.read() >> 7) & 1) == 1;
+        }
+
+        public boolean getN() {
+            return ((flagReg.read() >> 6) & 1) == 1;
+        }
+
+        public boolean getH() {
+            return ((flagReg.read() >> 5) & 1) == 1;
+        }
+
+        public boolean getC() {
+            return ((flagReg.read() >> 4) & 1) == 1;
+        }
+        
+        public void setZ(boolean z){
+            //TODO: stub
+        }
+    }
 
     public RegisterFile(){
         AF = new LongRegister();
