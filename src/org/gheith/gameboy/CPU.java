@@ -23,7 +23,12 @@ public class CPU {
     
     Memory mem = new Memory();
     RegisterFile regs = new RegisterFile();
-    int clockCycles = 0;
+
+    public int getClockCycles() {
+        return clockCycles;
+    }
+
+    private int clockCycles = 0;
 
     public static final int ZFLAG = RegisterFile.ZFLAG;
     public static final int NFLAG = RegisterFile.NFLAG;
