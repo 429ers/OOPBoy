@@ -56,24 +56,28 @@ public class Memory {
         }
     }
 
-    public Location registerLocation(Register r) {
+    public Location shortRegisterLocation(Register r) {
+        return new Location(0xff00 + r.read());
+    }
+    
+    public Location registerLocation(Readable r) {
         return new Location(r.read());
     }
 
-    public Readable a8Location(Register pc){
+    public ReadWritable a8Location(Register pc){
         int address = 0xff00;
         address += readByte(pc.read()+1);
         
         return new Location(address);
     }
 
-    public Readable a16Location(Register pc) {
+    public ReadWritable a16Location(Register pc) {
         int address = readWord(pc.read()+1);
         
         return new Location(address);
     }
 
-    public Readable SPr8Location(Register sp, Register pc) {
+    public ReadWritable SPr8Location(Register sp, Register pc) {
         int address = sp.read() + (byte)readByte(pc.read()+1); //r8 is a signed byte value
 
         return new Location(address);
