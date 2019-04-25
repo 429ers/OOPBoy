@@ -675,9 +675,12 @@ public class CPU {
         }
     }
     
-    //push current pc onto stack and jump to n
+    //push next pc onto stack and jump to n
     int RST(int n){ //n = 0, 8, 16, 24, 32, ... 56
-        PUSH(regs.PC);
+        LongRegister nextPC = new LongRegister();
+        nextPC.write(regs.PC.read() + 1); //an RST instruction is one byte long
+        
+        PUSH(nextPC);
         
         LongRegister temp = new LongRegister();
         temp.write(n);
