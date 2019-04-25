@@ -42,11 +42,14 @@ def convert_op(op): #converts the operand to the Java equivalent
     exit(1)
 
 def generate_lambda(mnemonic, operands):
+    if len(operands) == 0:
+        return 'this::' + mnemonic
+
     operands = map(convert_op, operands)
 
-    statement = mnemonic + '(' + (', '.join(operands)) + ');'
+    statement = mnemonic + '(' + (', '.join(operands)) + ')'
     
-    return '() -> { return ' + statement + " }"
+    return '() -> ' + statement
 
 def assemble_operation():
     if op_mnemonic in jumps:
