@@ -66,11 +66,11 @@ op_id = 0
 op_flags = ''
 op_mnemonic = ''
 op_description = ''
-operations = []
+operations = [''] * 256
 for line in file:
     line = line[:-1] #remove newline
 
-    op_id = line_num / 3
+    op_id = line_num // 3
     
     if line_num % 3 == 0:
         op_description = line
@@ -91,9 +91,12 @@ for line in file:
     if line_num % 3 == 2:
         if op_mnemonic == 'XXX': line = '- - - -'
         op_flags = line
-        operations.append(assemble_operation())
+        row_num = op_id % 16
+        col_num = op_id // 16
+        operations[row_num * 16 + col_num] = assemble_operation()
     
     line_num += 1
 
-output.write(', \n'.join(operations))
+for i in range(len(operations)):
+    output.write('operations[' + hex(i) + '] = ' + operations[i] + ';\n')
 output.close()
