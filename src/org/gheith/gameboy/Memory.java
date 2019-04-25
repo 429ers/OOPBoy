@@ -24,7 +24,7 @@ public class Memory {
     }
     
     public long readQuadWord(int location) {
-    	return (readDoubleWord(location + 4) << 32) + readDoubleWord(location);
+    	return (((long)readDoubleWord(location + 4)) << 32) + readDoubleWord(location);
     }
     
     public void writeByte(int location, int toWrite){
