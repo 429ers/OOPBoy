@@ -50,8 +50,41 @@ public class CPU {
             this.length = length;
             this.flagsAffected = flagsAffected;
         }
+        
+        //sets the flags to the values they need to be and allows flags to be written to only when the instruction should affect the flag
+        protected void handleFlags() {
+            final int[] flags = new int[] { ZFLAG, NFLAG, HFLAG, CFLAG };
+            boolean[] writable = new boolean[8];
+            
+            regs.flags.enableFlagWrites(true, true, true, true);
+            
+            for(int i = 0; i < flagsAffected.length(); i+= 2) {
+                char descriptor = flagsAffected.charAt(i);
+                
+                int flag = flags[i / 2];
+                
+                switch(descriptor){
+                    case '0':
+                        regs.flags.setFlag(flag, false);
+                        writable[flag] = false;
+                        break;
+                    case '1':
+                        regs.flags.setFlag(flag, true);
+                        writable[flag] = false;
+                        break;
+                    case '-':
+                        writable[flag] = false;
+                        break;
+                    default:
+                        writable[flag] = true;
+                }
+            }
+            
+            regs.flags.enableFlagWrites(writable[ZFLAG], writable[NFLAG], writable[HFLAG], writable[CFLAG]);
+        }
 
         public void execute() {
+            handleFlags();
             
             this.lambda.exec();
             
@@ -70,6 +103,8 @@ public class CPU {
         }
 
         public void execute() {
+            handleFlags();
+            
             int result = this.lambda.exec();
 
             if(result == NOJUMP) {
