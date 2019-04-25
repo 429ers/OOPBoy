@@ -25,4 +25,8 @@ public class Tile {
 			}
 		}
 	}
+	
+	public int getPixel(int x, int y) {
+		return tileData[x][y];
+	}
 }
