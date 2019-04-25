@@ -91,6 +91,8 @@ public class RegisterFile {
         }
         
         public void setFlag(int flagNum, boolean val){
+            if(flagNum < 4) throw new InvalidParameterException("bad flag number");
+            
             if(flagWritable[flagNum]){
                 int flags = flagReg.read();
                 if(val){

@@ -73,7 +73,7 @@ public class Memory {
         return new Location(address);
     }
 
-    public Readable r8Location(Register sp, Register pc) {
+    public Readable SPr8Location(Register sp, Register pc) {
         int address = sp.read() + (byte)readByte(pc.read()+1); //r8 is a signed byte value
 
         return new Location(address);

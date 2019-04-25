@@ -25,6 +25,25 @@ public class CPU {
     public static final int HFLAG = RegisterFile.HFLAG;
     public static final int CFLAG = RegisterFile.CFLAG;
     
+    enum Condition {
+        NZ, Z, NC, C
+    }
+    
+    boolean evaluateCondition(Condition c) {
+        switch(c){
+            case NZ:
+                return !regs.flags.getFlag(ZFLAG);
+            case Z:
+                return regs.flags.getFlag(ZFLAG);
+            case NC:
+                return !regs.flags.getFlag(CFLAG);
+            case C:
+                return regs.flags.getFlag(CFLAG);
+        }
+        
+        throw new InvalidParameterException("this shouldn't happen");
+    }
+    
     boolean halted = false;
     
     int LD (Writable dest, Readable src){
@@ -432,5 +451,91 @@ public class CPU {
         op.write(val);
         
         return val;
+    }
+    
+    int JP(Readable jumpLocation) {
+        int location = jumpLocation.read();
+        
+        regs.PC.write(location);
+        
+        return location;
+    }
+    
+    int JP(Condition cond, Readable jumpLocation) {
+        if(evaluateCondition(cond)){
+            return JP(jumpLocation);
+        }else{
+            return 0;
+        }
+    }
+    
+    int JR(Readable offset){
+        int location = regs.PC.read() + (byte)offset.read(); //the offset is signed
+        
+        regs.PC.write(location);
+        
+        return location;
+    }
+    
+    int JR(Condition cond, Readable offset) {
+        if(evaluateCondition(cond)){
+            return JR(offset);
+        }else{
+            return 0;
+        }
+    }
+    
+    int CALL(Readable jumpLocation) {
+        int nextPC = regs.PC.read() + 3; //CALL is 3 bytes long
+        
+        LongRegister temp = new LongRegister();
+        temp.write(nextPC);
+
+        //push next PC onto stack
+        PUSH(temp);
+        
+        return JP(jumpLocation);
+    }
+    
+    int CALL(Condition cond, Readable jumpLocation) {
+        if(evaluateCondition(cond)){
+            return CALL(jumpLocation);
+        }else{
+            return 0;
+        }
+    }
+    
+    //push current pc onto stack and jump to n
+    int RST(int n){ //n = 0, 8, 16, 24, 32, ... 56
+        PUSH(regs.PC);
+        
+        LongRegister temp = new LongRegister();
+        temp.write(n);
+        
+        return JP(temp);
+    }
+    
+    //pop two bytes from stack & jump there
+    int RET(){
+        LongRegister temp = new LongRegister();
+        
+        POP(temp);
+        
+        return JP(temp);
+    }
+    
+    int RET(Condition cond){
+        if(evaluateCondition(cond)){
+            return RET();
+        }else{
+            return 0;
+        }
+    }
+    
+    //return while enabling interrupts
+    int RETI(){
+        EI();
+        
+        return RET();
     }
 }
