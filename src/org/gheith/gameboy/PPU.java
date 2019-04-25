@@ -14,14 +14,16 @@ public class PPU {
 	private int currentX;
 	private int currentY;
 	private BufferedImage frame;
+	private GameBoyScreen gbs;
 	private int scrollX;
 	private int scrollY;
 	
-	public PPU(Memory mem) {
+	public PPU(Memory mem, GameBoyScreen gbs) {
 		this.mem = mem;
 		frame = new BufferedImage(160, 144, BufferedImage.TYPE_3BYTE_BGR);
 		currentX = 0;
 		currentY = 0;
+		this.gbs = gbs;
 	}
 	
 	public void loadTileSets() {
@@ -45,22 +47,22 @@ public class PPU {
 			
 		}
 		if (currentX < 160 && currentY < 144) {
-			int tileX = currentX / 32;
-			int tileY = currentY / 32;
+			int tileX = (scrollX + currentX) / 32;
+			int tileY = (scrollY + currentY) / 32;
 			Tile currentTile = map.getTile(tileX, tileY);
-			int pixel = currentTile.getPixel(currentX % 32, currentY % 32);
+			int pixel = currentTile.getPixel((currentX + scrollX) % 32, (scrollY + currentY) % 32);
 			switch(pixel) {
 			case 0:
-				frame.setRGB(currentX, currentY, Color.BLACK.getRGB());
+				frame.setRGB(currentX, currentY, Color.WHITE.getRGB());
 				break;
 			case 1:
-				frame.setRGB(currentX, currentY, Color.BLACK.getRGB());
+				frame.setRGB(currentX, currentY, Color.LIGHT_GRAY.getRGB());
 				break;
 			case 2:
-				frame.setRGB(currentX, currentY, Color.WHITE.getRGB());
+				frame.setRGB(currentX, currentY, Color.DARK_GRAY.getRGB());
 				break;
 			case 3:
-				frame.setRGB(currentX, currentY, Color.WHITE.getRGB());
+				frame.setRGB(currentX, currentY, Color.BLACK.getRGB());
 				break;
 			default:
 				frame.setRGB(currentX, currentY, Color.BLACK.getRGB());
@@ -68,7 +70,11 @@ public class PPU {
 		}
 		// Entered V Blank
 		else if (currentX == 0 && currentY == 145) {
-			
+			gbs.drawFrame(frame);
 		}
+		currentX++;
+		currentY++;
+		currentX %= 256;
+		currentY %= 256;
 	}
 }
