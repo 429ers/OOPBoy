@@ -1,5 +1,9 @@
 package org.gheith.gameboy;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.security.InvalidParameterException;
 
 class ReadablePlusOne implements Readable {
@@ -40,26 +44,33 @@ public class CPU {
     public static final int RELJUMP = 0;
     public static final int ABSJUMP = 1;
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
+        //System.setOut(new PrintStream(new File("test.out")));
+        
         new CPU().test();
     }
     
     public void test() {
-        for(int i = 0; i < 100; i++){
-            executeOneInstruction();
+        while(regs.PC.read() < 256){
+            executeOneInstruction(true);
+            
         }
     }
     
-    public void executeOneInstruction() {
+    public void executeOneInstruction(boolean printOutput) {
         int opcode = mem.readByte(regs.PC.read());
         
         Operation op = operations[opcode];
         
-        System.out.println(regs.PC + ": " + op.description);
+        int result = op.execute();
         
-        System.out.println("result: " + op.execute());
-        
-        regs.dump();
+        if(printOutput) {
+            System.out.println(regs.PC + ": " + op.description);
+
+            System.out.println("result: " + result);
+
+            regs.dump();
+        }
     }
 
     class Operation{ //any operation that is not a jump
@@ -133,7 +144,7 @@ public class CPU {
             
             int result = this.lambda.exec();
 
-            if (result == RELJUMP){
+            if (result == RELJUMP || result == NOJUMP){
                 //apparently offsets are calculated based on the future PC
                 CPU.this.regs.PC.write(CPU.this.regs.PC.read() + length);
             }
