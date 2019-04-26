@@ -6,7 +6,7 @@ import java.util.Map;
 public class TileSet {
 	private Map<Integer, Tile> tiles;
 	
-	public TileSet(Memory memory, int startAddress, int numTiles, boolean isSetOne) {
+	public TileSet(MMU memory, int startAddress, int numTiles, boolean isSetOne) {
 		tiles = new HashMap<Integer, Tile>();
 		int tileNum = isSetOne ? 0 : -128;
 		for (int i = 0; i < numTiles; i++) {

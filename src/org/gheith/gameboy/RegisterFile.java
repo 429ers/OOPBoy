@@ -12,7 +12,7 @@ interface Writable {
 
 interface ReadWritable extends Readable, Writable {}
 
-interface Register extends ReadWritable {}
+interface Register extends ReadWritable { }
 
 interface ShortRegister extends Register {}
 
@@ -30,6 +30,10 @@ class LongRegister implements Register {
             LongRegister.this.value &= 0xff00; //reset lower byte
             LongRegister.this.value |= val; //set lower byte to value
         }
+        
+        public String toString() {
+            return String.format("%02X", this.read());
+        }
     };
 
     ShortRegister upperByte = new ShortRegister() {
@@ -44,6 +48,10 @@ class LongRegister implements Register {
             LongRegister.this.value &= 0x00FF; //reset upper byte
             LongRegister.this.value |= val; //set upper byte to value
         }
+
+        public String toString() {
+            return String.format("%02X", this.read());
+        }
     };
 
     public int read() {
@@ -52,6 +60,10 @@ class LongRegister implements Register {
 
     public void write(int val){
         this.value = val & 0xffff;
+    }
+
+    public String toString() {
+        return String.format("%04X", this.read());
     }
 }
 
@@ -104,6 +116,23 @@ public class RegisterFile {
                 flagReg.write(flags);
             }
         }
+    }
+    
+    public void dump() {
+        System.out.println("AF = " + AF);
+        System.out.println("BC = " + BC);
+        System.out.println("DE = " + DE);
+        System.out.println("HL = " + HL);
+        System.out.println("SP = " + SP);
+        System.out.println("PC = " + PC);
+        System.out.println("A = " + A);
+        System.out.println("F = " + F);
+        System.out.println("B = " + B);
+        System.out.println("C = " + C);
+        System.out.println("D = " + D);
+        System.out.println("E = " + E);
+        System.out.println("H = " + H);
+        System.out.println("L = " + L);
     }
 
     public RegisterFile(){

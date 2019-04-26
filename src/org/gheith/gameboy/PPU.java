@@ -10,7 +10,7 @@ public class PPU {
 	private TileSet tileset2;
 	private Map map;
 	private ArrayList<Sprite> sprites;
-	private Memory mem;
+	private MMU mem;
 	private int currentX;
 	private int currentY;
 	private BufferedImage frame;
@@ -18,7 +18,7 @@ public class PPU {
 	private int scrollX;
 	private int scrollY;
 	
-	public PPU(Memory mem, GameBoyScreen gbs) {
+	public PPU(MMU mem, GameBoyScreen gbs) {
 		this.mem = mem;
 		frame = new BufferedImage(160, 144, BufferedImage.TYPE_3BYTE_BGR);
 		currentX = 0;

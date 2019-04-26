@@ -21,7 +21,7 @@ interface Lambda{
 
 public class CPU {
     
-    Memory mem = new Memory();
+    MMU mem = new MMU();
     RegisterFile regs = new RegisterFile();
     InterruptHandler interruptHandler = new InterruptHandler(this);
 
@@ -37,6 +37,28 @@ public class CPU {
     public static final int CFLAG = RegisterFile.CFLAG;
     
     public static final int NOJUMP = -1;
+
+    public static void main(String[] args) {
+        new CPU().test();
+    }
+    
+    public void test() {
+        for(int i = 0; i < 100; i++){
+            executeOneInstruction();
+        }
+    }
+    
+    public void executeOneInstruction() {
+        int opcode = mem.readByte(regs.PC.read());
+        
+        Operation op = operations[opcode];
+        
+        System.out.println(regs.PC + ": " + op.description);
+        
+        System.out.println("result: " + op.execute());
+        
+        regs.dump();
+    }
 
     class Operation{ //any operation that is not a jump
         String description;
@@ -84,14 +106,15 @@ public class CPU {
             regs.flags.enableFlagWrites(writable[ZFLAG], writable[NFLAG], writable[HFLAG], writable[CFLAG]);
         }
 
-        public void execute() {
+        public int execute() {
             handleFlags();
             
-            this.lambda.exec();
+            int result = this.lambda.exec();
             
             CPU.this.clockCycles += this.ticks;
             CPU.this.regs.PC.write(CPU.this.regs.PC.read() + length);
-            throw new UnsupportedOperationException("flag access not implemented yet");
+            
+            return result;
         }
     }
     
@@ -103,7 +126,7 @@ public class CPU {
             this.ticksIfNotJumped = ticksIfNotJumped;
         }
 
-        public void execute() {
+        public int execute() {
             handleFlags();
             
             int result = this.lambda.exec();
@@ -114,6 +137,8 @@ public class CPU {
             }else{
                 CPU.this.clockCycles += this.ticksIfJumped;
             }
+            
+            return result;
         }
     }
     
@@ -751,9 +776,12 @@ public class CPU {
     }
     
     int CB() {
-        throw new UnsupportedOperationException("needs a big switch statement");
+        int cbOpcode = mem.readByte(regs.PC.read() + 1); //the cb opcode follows directly after cb
+        Operation cbOperation = cbOperations[cbOpcode];
+        cbOperation.length = 1; //the operation increases the PC by 1 because CB already increases it by 1
+        
+        return cbOperation.execute();
     }
-
 
     Operation[] operations = new Operation[256];
     {

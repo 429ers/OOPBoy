@@ -7,7 +7,7 @@ public class Sprite {
 	int spriteY;
 	boolean isLargeSprite;
 	
-	public Sprite(Memory mem, int spriteAddress, TileSet tileset, boolean isLargeSprite) {
+	public Sprite(MMU mem, int spriteAddress, TileSet tileset, boolean isLargeSprite) {
 		spriteY = mem.readByte(spriteAddress);
 		spriteX = mem.readByte(spriteAddress + 1);
 		this.isLargeSprite = isLargeSprite;
