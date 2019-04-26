@@ -23,6 +23,7 @@ public class CPU {
     
     Memory mem = new Memory();
     RegisterFile regs = new RegisterFile();
+    InterruptHandler interruptHandler = new InterruptHandler(this);
 
     public int getClockCycles() {
         return clockCycles;
@@ -481,7 +482,7 @@ public class CPU {
     
     int NOP(){
         return 0;
-    }
+    } 
     
     int HALT() {
         halted = true;
@@ -498,11 +499,11 @@ public class CPU {
     }
     
     int DI() {
-        throw new UnsupportedOperationException("not implemented yet");
+        this.interruptHandler.setInterruptsEnabled(false);
     }
     
     int EI() {
-        throw new UnsupportedOperationException("not implemented yet");
+        this.interruptHandler.setInterruptsEnabled(true);
     }
     
     int RLCA() {
