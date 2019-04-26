@@ -500,10 +500,12 @@ public class CPU {
     
     int DI() {
         this.interruptHandler.setInterruptsEnabled(false);
+        return 0;
     }
     
     int EI() {
         this.interruptHandler.setInterruptsEnabled(true);
+        return 1;
     }
     
     int RLCA() {
