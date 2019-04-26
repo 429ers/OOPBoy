@@ -37,6 +37,8 @@ public class CPU {
     public static final int CFLAG = RegisterFile.CFLAG;
     
     public static final int NOJUMP = -1;
+    public static final int RELJUMP = 0;
+    public static final int ABSJUMP = 1;
 
     public static void main(String[] args) {
         new CPU().test();
@@ -131,9 +133,13 @@ public class CPU {
             
             int result = this.lambda.exec();
 
+            if (result == RELJUMP){
+                //apparently offsets are calculated based on the future PC
+                CPU.this.regs.PC.write(CPU.this.regs.PC.read() + length);
+            }
+
             if(result == NOJUMP) {
                 CPU.this.clockCycles += this.ticksIfNotJumped;
-                CPU.this.regs.PC.write(CPU.this.regs.PC.read() + length);
             }else{
                 CPU.this.clockCycles += this.ticksIfJumped;
             }
@@ -216,11 +222,11 @@ public class CPU {
     //same as above, but decrements instead
     ReadWritable selfDecrement(LongRegister reg){
         return new ReadWritable() {
-            boolean incremented = false;
+            boolean decremented = false;
             @Override
             public int read() {
-                if(!incremented){
-                    incremented = true;
+                if(!decremented){
+                    decremented = true;
                     reg.write(reg.read() -1);
                 }
                 return reg.read() + 1;
@@ -228,8 +234,8 @@ public class CPU {
 
             @Override
             public void write(int val) {
-                if(!incremented){
-                    incremented = true;
+                if(!decremented){
+                    decremented = true;
                     reg.write(val - 1);
                 }else{
                     reg.write(val);
@@ -691,7 +697,7 @@ public class CPU {
         
         regs.PC.write(location);
         
-        return location;
+        return ABSJUMP;
     }
     
     int JP(Condition cond, Readable jumpLocation) {
@@ -707,7 +713,7 @@ public class CPU {
         
         regs.PC.write(location);
         
-        return location;
+        return RELJUMP;
     }
     
     int JR(Condition cond, Readable offset) {
