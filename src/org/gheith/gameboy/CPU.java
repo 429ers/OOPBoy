@@ -1002,7 +1002,7 @@ public class CPU {
         operations[0xf5] = new Operation("PUSH AF", () -> PUSH(regs.AF), 1, "- - - -", 16);
         operations[0xf6] = new Operation("OR d8", () -> OR(d8()), 2, "Z 0 0 0", 8);
         operations[0xf7] = new Jump("RST 30H", () -> RST(0x30), 1, "- - - -", 16, 16);
-        operations[0xf8] = new Operation("LD HL,SP+r8", () -> LD(regs.HL, mem.SPr8Location(regs.SP, regs.PC)), 2, "0 0 H C", 12);
+        operations[0xf8] = new Operation("LD HL,SP+r8", () -> LD(regs.HL, mem.SPr8Location(regs.SP, regs.PC, regs.flags)), 2, "0 0 H C", 12);
         operations[0xf9] = new Operation("LD SP,HL", () -> LD(regs.SP, regs.HL), 1, "- - - -", 8);
         operations[0xfa] = new Operation("LD A,(a16)", () -> LD(regs.A, mem.a16Location(regs.PC)), 3, "- - - -", 16);
         operations[0xfb] = new Operation("EI", this::EI, 1, "- - - -", 4);

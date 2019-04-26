@@ -16,7 +16,7 @@ special_operands = {
     "(C)": "mem.shortRegisterLocation(regs.C)",
     "(HL+)": "mem.registerLocation(selfIncrement(regs.HL))",
     "(HL-)": "mem.registerLocation(selfDecrement(regs.HL))",
-    "SP+r8": "mem.SPr8Location(regs.SP, regs.PC)",
+    "SP+r8": "mem.SPr8Location(regs.SP, regs.PC, regs.flags)",
 }
 
 registers = ['A', 'B', 'D', 'H', 'F', 'C', 'E', 'L', 'AF', 'BC', 'DE', 'HL', 'SP', 'PC']
