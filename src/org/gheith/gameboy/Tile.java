@@ -20,7 +20,7 @@ public class Tile {
 		for (int i = 0; i < 4; i++) {
 			for (int j = 0; j < 8; j++) {
 				tileData[i][j] = (int) BitOps.extract(upperBytes, left, left - 1);
-				tileData[i + 4][j] = (int) BitOps.extract(lowerBytes, left, left- 1);
+				tileData[i+4][j] = (int) BitOps.extract(lowerBytes, left, left- 1);
 				left -= 2;
 			}
 		}

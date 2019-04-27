@@ -56,6 +56,9 @@ public class MMU {
     
     public void writeByte(int location, int toWrite){
         mem[location] = toWrite & 0xFF;
+        if (location == 0xFF42) {
+        	System.out.printf("Wrote to Scroll Y: %x\n", mem[location]);
+        }
     }
     
     public void writeWord(int location, int toWrite) {

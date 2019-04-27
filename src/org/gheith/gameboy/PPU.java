@@ -46,43 +46,57 @@ public class PPU {
 		//System.out.println("Current X " + currentX + "\n Current Y " + currentY);
 		// Need to reset all values
 		drewFrame = false;
+		mem.writeByte(0xFF44, currentY);
 		if (currentX == 0 && currentY == 0) {
 			scrollY = mem.readByte(0xFF42);
 			System.out.println("Scroll Y " + scrollY);
+			loadTileSets();
+			loadMap(true);
 		}
 		// Need to reset 
 		if (currentX == 0) {
 			scrollX = mem.readByte(0xFF43);
+			int status = mem.readByte(0xFF41) & 0x3F;
+			mem.writeByte(0xFF41, status | 0x80);
 		}
-		if (currentX >= 92 && currentX < 80 + 172 && currentY < 144) {
-			loadTileSets();
-			loadMap(true);
+		if (currentX == 80) {
+			int status = mem.readByte(0xFF41) & 0x3F;
+			mem.writeByte(0xFF41, status | 0xC0);
+		}
+		if (currentX >= 80 && currentX < 80 + 160 && currentY < 144) {
+			
 			int tileX = (scrollX + currentX - 80) / 8;
 			int tileY = (scrollY + currentY) / 8;
 			Tile currentTile = map.getTile(tileX, tileY);
 			int pixel = currentTile.getPixel((currentX - 80 + scrollX) % 8, (scrollY + currentY) % 8);
 			switch(pixel) {
 			case 0:
-				frame.setRGB(currentX - 92, currentY, Color.WHITE.getRGB());
+				frame.setRGB(currentX - 80, currentY, Color.WHITE.getRGB());
 				break;
 			case 1:
-				frame.setRGB(currentX - 92, currentY, Color.LIGHT_GRAY.getRGB());
+				frame.setRGB(currentX - 80, currentY, Color.LIGHT_GRAY.getRGB());
 				break;
 			case 2:
-				frame.setRGB(currentX - 92, currentY, Color.DARK_GRAY.getRGB());
+				frame.setRGB(currentX - 80, currentY, Color.DARK_GRAY.getRGB());
 				break;
 			case 3:
-				frame.setRGB(currentX - 92, currentY, Color.BLACK.getRGB());
+				frame.setRGB(currentX - 80, currentY, Color.BLACK.getRGB());
 				break;
 			default:
-				frame.setRGB(currentX - 92, currentY, Color.BLACK.getRGB());
+				frame.setRGB(currentX - 80, currentY, Color.BLACK.getRGB());
 			}
+		}
+		if (currentX == 80 + 172) {
+			int status = mem.readByte(0xFF41) & 0x3F;
+			mem.writeByte(0xFF41, status);
 		}
 		// Entered V Blank
 		if (currentX == 0 && currentY == 145) {
+			int status = mem.readByte(0xFF41) & 0x3F;
+			mem.writeByte(0xFF41, status | 0x40);
 			gbs.drawFrame(frame);
 			drewFrame = true;
-			mem.writeByte(0xFF44, 0x90);
+			//mem.writeByte(0xFF44, 0x90);
 			System.out.println("drawing frame");
 
 			/*
