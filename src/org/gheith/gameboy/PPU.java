@@ -17,6 +17,7 @@ public class PPU {
 	private GameBoyScreen gbs;
 	private int scrollX;
 	private int scrollY;
+	private boolean drewFrame;
 	
 	public PPU(MMU mem, GameBoyScreen gbs) {
 		this.mem = mem;
@@ -24,6 +25,10 @@ public class PPU {
 		currentX = 0;
 		currentY = 0;
 		this.gbs = gbs;
+	}
+	
+	public boolean drewFrame() {
+		return drewFrame;
 	}
 	
 	public void loadTileSets() {
@@ -38,43 +43,63 @@ public class PPU {
 	}
 	
 	public void tick() {
+		//System.out.println("Current X " + currentX + "\n Current Y " + currentY);
 		// Need to reset all values
+		drewFrame = false;
 		if (currentX == 0 && currentY == 0) {
-			
+			scrollY = mem.readByte(0xFF42);
+			//System.out.println("Scroll Y " + scrollY);
 		}
 		// Need to reset 
 		if (currentX == 0) {
-			
+			scrollX = mem.readByte(0xFF43);
 		}
-		if (currentX < 160 && currentY < 144) {
-			int tileX = (scrollX + currentX) / 32;
-			int tileY = (scrollY + currentY) / 32;
+		if (currentX >= 92 && currentX < 80 + 172 && currentY < 144) {
+			int tileX = (scrollX + currentX - 80) / 8;
+			int tileY = (scrollY + currentY) / 8;
 			Tile currentTile = map.getTile(tileX, tileY);
-			int pixel = currentTile.getPixel((currentX + scrollX) % 32, (scrollY + currentY) % 32);
+			int pixel = currentTile.getPixel((currentX - 80 + scrollX) % 8, (scrollY + currentY) % 8);
 			switch(pixel) {
 			case 0:
-				frame.setRGB(currentX, currentY, Color.WHITE.getRGB());
+				frame.setRGB(currentX - 92, currentY, Color.WHITE.getRGB());
 				break;
 			case 1:
-				frame.setRGB(currentX, currentY, Color.LIGHT_GRAY.getRGB());
+				frame.setRGB(currentX - 92, currentY, Color.LIGHT_GRAY.getRGB());
 				break;
 			case 2:
-				frame.setRGB(currentX, currentY, Color.DARK_GRAY.getRGB());
+				frame.setRGB(currentX - 92, currentY, Color.DARK_GRAY.getRGB());
 				break;
 			case 3:
-				frame.setRGB(currentX, currentY, Color.BLACK.getRGB());
+				frame.setRGB(currentX - 92, currentY, Color.BLACK.getRGB());
 				break;
 			default:
-				frame.setRGB(currentX, currentY, Color.BLACK.getRGB());
+				frame.setRGB(currentX - 92, currentY, Color.BLACK.getRGB());
 			}
 		}
 		// Entered V Blank
-		else if (currentX == 0 && currentY == 145) {
+		if (currentX == 0 && currentY == 145) {
 			gbs.drawFrame(frame);
+			drewFrame = true;
+			try {
+				Thread.sleep(16);
+				System.out.println("drawing frame");
+
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
+		
 		currentX++;
-		currentY++;
-		currentX %= 256;
-		currentY %= 256;
+		if (currentX == 456) {
+			currentX = 0;
+			currentY++;
+		}
+		if (currentY == 154) {
+			currentY = 0;
+		}
+		
+		
+		
 	}
 }

@@ -25,12 +25,24 @@ interface Lambda{
 
 public class CPU {
     
-    MMU mem = new MMU();
+    MMU mem;
     RegisterFile regs = new RegisterFile();
     InterruptHandler interruptHandler = new InterruptHandler(this);
+    private int clockCycleDelta;
+    
+    public CPU(MMU mem) {
+    	this.mem = mem;
+    }
 
+    public CPU() {
+    	mem = new MMU();
+    }
     public int getClockCycles() {
         return clockCycles;
+    }
+    
+    public int getClockCycleDelta() {
+    	return clockCycleDelta;
     }
 
     private int clockCycles = 0;
@@ -125,6 +137,7 @@ public class CPU {
             int result = this.lambda.exec();
             
             CPU.this.clockCycles += this.ticks;
+            CPU.this.clockCycleDelta = this.ticks;
             CPU.this.regs.PC.write(CPU.this.regs.PC.read() + length);
             
             return result;
@@ -151,8 +164,10 @@ public class CPU {
 
             if(result == NOJUMP) {
                 CPU.this.clockCycles += this.ticksIfNotJumped;
+                CPU.this.clockCycleDelta = this.ticksIfNotJumped;
             }else{
                 CPU.this.clockCycles += this.ticksIfJumped;
+                CPU.this.clockCycles = this.ticksIfJumped;
             }
             
             return result;
