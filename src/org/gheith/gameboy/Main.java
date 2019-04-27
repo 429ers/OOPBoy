@@ -39,24 +39,26 @@ public class Main {
             if(breakPoints.contains(cpu.regs.PC.read())){
                 breaked = true;
             }
+
+            if(breaked){
+                String cmd = fin.next();
+                if(cmd.equals("b")){
+                    breakPoints.add(fin.nextInt(16));
+                    continue;
+                }else if(cmd.equals("d")){
+                    breakPoints.remove(fin.nextInt(16));
+                    continue;
+                }else if(cmd.equals("c")) {
+                    breaked = false;
+                }
+                // n to step
+            }
             
         	cpu.executeOneInstruction(breaked);
         	int cycles = cpu.getClockCycleDelta();
         	for (int i = 0; i < cycles; i++) {
                 ppu.tick();
                 //System.out.println("ticking ppu");
-            }
-        	
-        	if(breaked){
-        	    String cmd = fin.next();
-        	    if(cmd.equals("b")){
-        	        breakPoints.add(fin.nextInt());
-                }else if(cmd.equals("d")){
-        	        breakPoints.remove(fin.nextInt());
-                }else if(cmd.equals("c")) {
-        	        breaked = false;
-                }
-        	    // n to step
             }
         }
         

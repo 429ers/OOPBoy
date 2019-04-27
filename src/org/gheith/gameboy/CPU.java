@@ -74,14 +74,16 @@ public class CPU {
         
         Operation op = operations[opcode];
         
+        int currentPC = regs.PC.read();
+        
         int result = op.execute();
         
         if(printOutput) {
-            System.out.println(regs.PC + ": " + op.description);
+            System.out.println(Integer.toString(currentPC, 16) + ": " + op.description);
 
-            System.out.println("result: " + result);
-
-            //FSturn offregs.dump();
+            System.out.println("result: " + Integer.toString(result, 16));
+            
+            regs.dump();
         }
     }
 
