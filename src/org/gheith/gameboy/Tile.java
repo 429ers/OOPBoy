@@ -14,16 +14,27 @@ public class Tile {
 	 * @param lowerBytes lower 8 bytes of tile
 	 * Decodes tile data
 	 */
-	public Tile(long upperBytes, long lowerBytes) {
+	public Tile(int[] tileBytes) {
 		tileData = new int[8][8];
-		int left = 63;
-		for (int i = 0; i < 4; i++) {
+		for (int i = 0; i < 8; i++) {
+			int b1 = tileBytes[2 * i] & 0xFF;
+			int b2 = tileBytes[2 * i + 1] & 0xFF;
 			for (int j = 0; j < 8; j++) {
-				tileData[i][j] = (int) BitOps.extract(upperBytes, left, left - 1);
-				tileData[i+4][j] = (int) BitOps.extract(lowerBytes, left, left- 1);
-				left -= 2;
+				int x = (int) BitOps.extract(b2, 7 - j, 7 - j);
+				x = x << 1;
+				int y = (int) BitOps.extract(b1, 7 - j, 7 - j);
+				tileData[i][j] = x + y;
 			}
 		}
+		/*
+		int[][] tileTranspose = new int[8][8];
+		for (int i = 0; i < 8; i++) {
+			for (int j = 0; j < 8; j++) {
+				tileTranspose[i][j] = tileData[j][i];
+			}
+		}
+		this.tileData = tileTranspose;
+		*/
 	}
 	
 	public int getPixel(int x, int y) {

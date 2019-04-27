@@ -5,5 +5,7 @@ public class BitOps {
 		int leftShift = 63 - left;
 		return (in << leftShift) >>> (leftShift + right); 
 	} 
+	
+	
 }
 

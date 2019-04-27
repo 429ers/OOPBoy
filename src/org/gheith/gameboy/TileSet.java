@@ -10,10 +10,12 @@ public class TileSet {
 		tiles = new HashMap<Integer, Tile>();
 		int tileNum = isSetOne ? 0 : -128;
 		for (int i = 0; i < numTiles; i++) {
+			int[] tileBytes = new int[16];
 			int tileAddress = startAddress + i * 16;
-			long upperData = memory.readQuadWord(tileAddress);
-			long lowerData = memory.readQuadWord(tileAddress + 8);
-			tiles.put(tileNum, new Tile(upperData, lowerData));
+			for (int j = 0; j < 16; j++) {
+				tileBytes[j] = memory.readByte(tileAddress + j);
+			}
+			tiles.put(tileNum, new Tile(tileBytes));
 			tileNum++;
 		}
 	}
