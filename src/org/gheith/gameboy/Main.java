@@ -41,6 +41,7 @@ public class Main {
             }
 
             if(breaked){
+                System.out.print("Suspended at " + Integer.toString(cpu.regs.PC.read(), 16) + ": ");
                 String cmd = fin.next();
                 if(cmd.equals("b")){
                     breakPoints.add(fin.nextInt(16));
@@ -50,8 +51,16 @@ public class Main {
                     continue;
                 }else if(cmd.equals("c")) {
                     breaked = false;
+                }else if(cmd.equals("xc")){
+                    cpu.coreDump();
+                    continue;
+                }else if(cmd.equals("xm")){
+                    mmu.memdump(fin.nextInt(16), fin.nextInt());
+                    continue;
+                }else if(!cmd.equals("n")){
+                    System.out.println("Command not recognized");
+                    continue;
                 }
-                // n to step
             }
             
         	cpu.executeOneInstruction(breaked);
