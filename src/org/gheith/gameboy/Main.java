@@ -27,7 +27,6 @@ public class Main {
         PPU ppu = new PPU(mmu, gbs);
         ppu.loadTileSets();
         ppu.loadMap(true);
-
         HashSet<Integer> breakPoints = new HashSet<>();
         
         boolean breaked = false;
@@ -65,7 +64,7 @@ public class Main {
                 }
             }
             
-        	cpu.executeOneInstruction(breaked);
+        	cpu.executeOneInstruction(true);
         	int cycles = cpu.getClockCycleDelta();
         	for (int i = 0; i < cycles; i++) {
                 ppu.tick();

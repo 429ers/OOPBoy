@@ -91,7 +91,7 @@ public class CPU {
 
             System.out.println("result: " + Integer.toString(result, 16));
             
-            regs.dump();
+            //regs.dump();
         }
     }
 
