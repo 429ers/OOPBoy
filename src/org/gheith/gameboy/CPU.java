@@ -81,7 +81,7 @@ public class CPU {
 
             System.out.println("result: " + result);
 
-            regs.dump();
+            //FSturn offregs.dump();
         }
     }
 
@@ -551,7 +551,12 @@ public class CPU {
         halted = true;
         
         System.out.println("turn off the display lmao");
-        
+        try {
+        Thread.sleep(2000);
+        }
+        catch (Exception e) {
+        	e.printStackTrace();
+        }
         return 0;
     }
     

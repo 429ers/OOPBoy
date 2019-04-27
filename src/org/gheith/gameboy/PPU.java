@@ -48,13 +48,15 @@ public class PPU {
 		drewFrame = false;
 		if (currentX == 0 && currentY == 0) {
 			scrollY = mem.readByte(0xFF42);
-			//System.out.println("Scroll Y " + scrollY);
+			System.out.println("Scroll Y " + scrollY);
 		}
 		// Need to reset 
 		if (currentX == 0) {
 			scrollX = mem.readByte(0xFF43);
 		}
 		if (currentX >= 92 && currentX < 80 + 172 && currentY < 144) {
+			loadTileSets();
+			loadMap(true);
 			int tileX = (scrollX + currentX - 80) / 8;
 			int tileY = (scrollY + currentY) / 8;
 			Tile currentTile = map.getTile(tileX, tileY);
@@ -80,20 +82,25 @@ public class PPU {
 		if (currentX == 0 && currentY == 145) {
 			gbs.drawFrame(frame);
 			drewFrame = true;
+			mem.writeByte(0xFF44, 0x90);
+			System.out.println("drawing frame");
+
+			/*
 			try {
-				Thread.sleep(16);
-				System.out.println("drawing frame");
+				Thread.sleep(50);
 
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+			*/
 		}
 		
 		currentX++;
 		if (currentX == 456) {
 			currentX = 0;
 			currentY++;
+			//mem.writeByte(0xFF44, currentY);
 		}
 		if (currentY == 154) {
 			currentY = 0;
