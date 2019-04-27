@@ -69,6 +69,14 @@ public class CPU {
         }
     }
     
+    public void coreDump() {
+        int opcode = mem.readByte(regs.PC.read());
+        Operation op = operations[opcode];
+        int currentPC = regs.PC.read();
+        System.out.println(Integer.toString(currentPC, 16) + ": " + op.description);
+        regs.dump();
+    }
+    
     public void executeOneInstruction(boolean printOutput) {
         int opcode = mem.readByte(regs.PC.read());
         

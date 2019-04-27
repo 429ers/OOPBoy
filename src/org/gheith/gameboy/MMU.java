@@ -40,6 +40,34 @@ public class MMU {
         return mem[location];
     }
     
+    public void memdump(int startLocation, int numBytes){
+        int endLocation = startLocation + numBytes;
+        int trueStartLocation = (startLocation / 8) * 8; //floor so it's divisible by 8
+        endLocation = (endLocation + 7) / 8 * 8; //ceil to 8
+        
+        for(int i = trueStartLocation; i < endLocation; i++){
+            if(i % 8 == 0){
+                System.out.printf("%x: ", i);
+            }
+            
+            if(i - startLocation >= 0 && i - startLocation < numBytes){
+                System.out.print("\033[34m");
+            }else{
+                System.out.print("\033[0m");
+            }
+            
+            System.out.printf("%x ", readByte(i));
+            
+            if(i % 8 == 7){
+                System.out.println();
+            }
+            
+            System.out.print("\033[0m");
+        }
+
+        System.out.print("\033[0m");
+    }
+    
     public int readWord(int location) {
         return (readByte(location+1) << 8) + readByte(location);
     }
