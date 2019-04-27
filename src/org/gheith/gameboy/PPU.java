@@ -67,8 +67,10 @@ public class PPU {
 			
 			int tileX = (scrollX + currentX - 80) / 8;
 			int tileY = (scrollY + currentY) / 8;
-			Tile currentTile = map.getTile(tileX, tileY);
-			int pixel = currentTile.getPixel((currentX - 80 + scrollX) % 8, (scrollY + currentY) % 8);
+			//Tile currentTile = map.getTile(tileX, tileY);
+			//int pixel = currentTile.getPixel((currentX - 80 + scrollX) % 8, (scrollY + currentY) % 8);
+			Tile currentTile = map.getTile(tileY, tileX);
+			int pixel = currentTile.getPixel((scrollY + currentY) % 8, (currentX - 80 + scrollX) % 8);
 			switch(pixel) {
 			case 0:
 				frame.setRGB(currentX - 80, currentY, Color.WHITE.getRGB());
