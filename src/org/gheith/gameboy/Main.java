@@ -57,6 +57,8 @@ public class Main {
                 }else if(cmd.equals("xm")){
                     mmu.memdump(fin.nextInt(16), fin.nextInt());
                     continue;
+                }else if(cmd.equals("sm")) {
+                    mmu.writeByte(fin.nextInt(16), fin.nextInt(16));
                 }else if(!cmd.equals("n")){
                     System.out.println("Command not recognized");
                     continue;
