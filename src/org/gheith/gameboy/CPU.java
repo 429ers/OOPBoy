@@ -32,10 +32,12 @@ public class CPU {
     
     public CPU(MMU mem) {
     	this.mem = mem;
+    	mem.setCPU(this);
     }
 
     public CPU() {
     	mem = new MMU();
+    	mem.setCPU(this);
     }
     public int getClockCycles() {
         return clockCycles;

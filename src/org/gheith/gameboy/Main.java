@@ -9,7 +9,7 @@ import javax.swing.JFrame;
 
 public class Main {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws InterruptedException {
 		// TODO Auto-generated method stub
         
         Scanner fin = new Scanner(System.in);
@@ -17,7 +17,7 @@ public class Main {
 		JFrame frame = new JFrame();
 		BufferedImage img = new BufferedImage(160, 144, BufferedImage.TYPE_3BYTE_BGR);
 		GameBoyScreen gbs = new GameBoyScreen(img);
-		gbs.setSize(200, 200);
+		gbs.setSize(500, 500);
 		frame.add(gbs);
 		frame.pack();
 		frame.setVisible(true);
@@ -58,13 +58,14 @@ public class Main {
                     continue;
                 }else if(cmd.equals("sm")) {
                     mmu.writeByte(fin.nextInt(16), fin.nextInt(16));
+                    continue;
                 }else if(!cmd.equals("n")){
                     System.out.println("Command not recognized");
                     continue;
                 }
             }
             
-        	cpu.executeOneInstruction(true);
+        	cpu.executeOneInstruction(breaked);
         	int cycles = cpu.getClockCycleDelta();
         	for (int i = 0; i < cycles; i++) {
                 ppu.tick();

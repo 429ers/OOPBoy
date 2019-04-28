@@ -20,7 +20,7 @@ public class InterruptHandler {
         specificEnabled.put(HIGH_TO_LOW, true);
     }
     
-    private boolean interruptsEnabled = true; // this is the IME flag
+    private boolean interruptsEnabled = false; // this is the IME flag
     
     public void setInterruptsEnabled(boolean interruptsEnabled){
         this.interruptsEnabled = interruptsEnabled;
@@ -35,7 +35,9 @@ public class InterruptHandler {
     }
     
     public void issueInterruptIfEnabled(int handle){
-        if(!interruptsEnabled) return;
+        if(!interruptsEnabled) {
+            return;
+        }
         if(!specificEnabled.getOrDefault(handle, false)) return;
         
         cpu.PUSH(cpu.regs.PC);
