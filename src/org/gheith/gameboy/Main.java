@@ -34,6 +34,8 @@ public class Main {
         System.out.print("First breakpoint (hex): ");
         breakPoints.add(fin.nextInt(16));
         
+        int count = 0;
+        
         while (true) {
             if(breakPoints.contains(cpu.regs.PC.read())){
                 breaked = true;
@@ -71,6 +73,14 @@ public class Main {
                 ppu.tick();
                 //System.out.println("ticking ppu");
             }
+        	
+        	if(count == 1000){
+        	    count= 0;
+        	    
+        	    System.out.println("PC: " + cpu.regs.PC);
+            }
+        	
+        	count++;
         }
         
 	}

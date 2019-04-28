@@ -1,9 +1,6 @@
 package org.gheith.gameboy;
 
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.security.InvalidParameterException;
 
 class ReadablePlusOne implements Readable {
@@ -1069,7 +1066,7 @@ public class CPU {
         operations[0xe6] = new Operation("AND d8", () -> AND(d8()), 2, "Z 0 1 0", 8);
         operations[0xe7] = new Jump("RST 20H", () -> RST(0x20), 1, "- - - -", 16, 16);
         operations[0xe8] = new Operation("ADD SP,r8", () -> ADD(regs.SP, d8()), 2, "0 0 H C", 16);
-        operations[0xe9] = new Jump("JP (HL)", () -> JP(mem.registerLocation(regs.HL)), 1, "- - - -", 4, 4);
+        operations[0xe9] = new Jump("JP HL", () -> JP(regs.HL), 1, "- - - -", 4, 4);
         operations[0xea] = new Operation("LD (a16),A", () -> LD(mem.a16Location(regs.PC), regs.A), 3, "- - - -", 16);
         operations[0xeb] = new Operation("XXX", this::XXX, 0, "- - - -", 0);
         operations[0xec] = new Operation("XXX", this::XXX, 0, "- - - -", 0);

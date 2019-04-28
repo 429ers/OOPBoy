@@ -42,6 +42,10 @@ public class MMU {
             return bootRom[location];
         }
         
+        if(location == 0xFF00){ //joypad input
+            return 0xff; //0xff means nothing is pressed
+        }
+        
         return mem[location];
     }
     
