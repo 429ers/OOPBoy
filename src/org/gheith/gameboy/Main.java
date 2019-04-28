@@ -35,9 +35,11 @@ public class Main {
         breakPoints.add(fin.nextInt(16));
         
         int count = 0;
+        int numInstructonsUntilBreak = -1;
         
         while (true) {
-            if(breakPoints.contains(cpu.regs.PC.read())){
+            //ignore breakpoints while nm is used
+            if(numInstructonsUntilBreak < 0 && breakPoints.contains(cpu.regs.PC.read())){
                 breaked = true;
             }
 
@@ -61,6 +63,9 @@ public class Main {
                 }else if(cmd.equals("sm")) {
                     mmu.writeByte(fin.nextInt(16), fin.nextInt(16));
                     continue;
+                }else if(cmd.equals("nm")) {
+                    breaked = false;
+                    numInstructonsUntilBreak = fin.nextInt();
                 }else if(!cmd.equals("n")){
                     System.out.println("Command not recognized");
                     continue;
@@ -72,6 +77,14 @@ public class Main {
         	for (int i = 0; i < cycles; i++) {
                 ppu.tick();
                 //System.out.println("ticking ppu");
+            }
+        	
+        	if(numInstructonsUntilBreak >= 0){
+        	    if(numInstructonsUntilBreak == 0){
+        	        breaked = true;
+                }
+                numInstructonsUntilBreak --;
+        	    System.out.println(numInstructonsUntilBreak);
             }
         	
         	if(count == 1000){
