@@ -91,11 +91,14 @@ public class MMU {
             System.out.println("Boot rom disabled");
         }
         
-        if(location == 0xff41) { //STAT
-            int mode = toWrite & 0x3;
-            if(mode == 1){ //VBLANK
+        if(location == 0xFF0F) { // IF register
+            if((toWrite & 1) == 1){ //VBLANK requested
                 cpu.interruptHandler.issueInterruptIfEnabled(InterruptHandler.VBLANK);
             }
+        }
+        
+        if(location == 0xff80 && toWrite == 0xff){
+            System.out.println("break");
         }
         
         mem[location] = toWrite & 0xFF;

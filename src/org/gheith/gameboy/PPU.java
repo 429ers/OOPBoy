@@ -100,8 +100,8 @@ public class PPU {
 			mem.writeByte(0xFF41, status | 0x40);
 			gbs.drawFrame(frame);
 			drewFrame = true;
-			int interruptRegister = mem.readByte(0xFF41) & 0xFE;
-			mem.writeByte(0xFF41, interruptRegister | 0x01); 
+			int interruptRegister = mem.readByte(0xFF0F) & 0xFE;
+			mem.writeByte(0xFF, interruptRegister | 0x01); 
 			//mem.writeByte(0xFF85, 0xFF);
 			//mem.writeByte(0xFF44, 0x90);
 			System.out.println("drawing frame");
