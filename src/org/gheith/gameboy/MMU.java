@@ -47,7 +47,7 @@ public class MMU {
         
         for(int i = trueStartLocation; i < endLocation; i++){
             if(i % 8 == 0){
-                System.out.printf("%x: ", i);
+                System.out.printf("%04x: ", i);
             }
             
             if(i - startLocation >= 0 && i - startLocation < numBytes){
@@ -56,7 +56,7 @@ public class MMU {
                 System.out.print("\033[0m");
             }
             
-            System.out.printf("%x ", readByte(i));
+            System.out.printf("%02x ", readByte(i));
             
             if(i % 8 == 7){
                 System.out.println();

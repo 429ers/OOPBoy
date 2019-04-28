@@ -91,7 +91,7 @@ public class CPU {
 
             System.out.println("result: " + Integer.toString(result, 16));
             
-            //regs.dump();
+            regs.dump();
         }
     }
 
@@ -236,11 +236,12 @@ public class CPU {
             boolean incremented = false;
             @Override
             public int read() {
+                int val = reg.read();
                 if(!incremented){
                     incremented = true;
-                    reg.write(reg.read() + 1);
+                    reg.write(val + 1);
                 }
-                return reg.read() - 1;
+                return val;
             }
 
             @Override
@@ -261,11 +262,12 @@ public class CPU {
             boolean decremented = false;
             @Override
             public int read() {
+                int val = reg.read();
                 if(!decremented){
                     decremented = true;
-                    reg.write(reg.read() -1);
+                    reg.write(val - 1);
                 }
-                return reg.read() + 1;
+                return val;
             }
 
             @Override

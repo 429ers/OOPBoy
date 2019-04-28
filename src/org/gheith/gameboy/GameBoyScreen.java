@@ -22,7 +22,7 @@ public class GameBoyScreen extends Canvas{
 	@Override
 	public void paint(Graphics g) {
 		if (img != null) {
-			g.drawImage(img, 0, 0, img.getWidth(this), img.getHeight(this), this);
+			g.drawImage(img, 0, 0, this.getWidth(), this.getHeight(), this);
 		}
 	}
 }
