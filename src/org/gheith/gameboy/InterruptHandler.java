@@ -40,6 +40,8 @@ public class InterruptHandler {
         }
         if(!specificEnabled.getOrDefault(handle, false)) return;
         
+        interruptsEnabled = false;
+        
         cpu.PUSH(cpu.regs.PC);
         cpu.regs.PC.write(handle);
     }
