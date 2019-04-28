@@ -97,10 +97,6 @@ public class MMU {
             }
         }
         
-        if(location == 0xff80 && toWrite == 0xff){
-            System.out.println("break");
-        }
-        
         mem[location] = toWrite & 0xFF;
         if (location == 0xFF42) {
         	System.out.printf("Wrote to Scroll Y: %x\n", mem[location]);
