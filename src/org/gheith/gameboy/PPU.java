@@ -95,7 +95,7 @@ public class PPU {
 			mem.writeByte(0xFF41, status);
 		}
 		// Entered V Blank
-		if (currentX == 0 && currentY == 145) {
+		if (currentX == 0 && currentY == 146) {
 			int status = mem.readByte(0xFF41) & 0x3F;
 			mem.writeByte(0xFF41, status | 0x40);
 			gbs.drawFrame(frame);
