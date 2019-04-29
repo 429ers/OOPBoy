@@ -22,7 +22,7 @@ public class Main {
 		frame.pack();
 		frame.setVisible(true);
          
-		MMU mmu = new MMU("cpu_instrs.gb");
+		MMU mmu = new MMU("Tetris.gb");
         CPU cpu = new CPU(mmu);
         PPU ppu = new PPU(mmu, gbs);
         ppu.loadTileSets();
