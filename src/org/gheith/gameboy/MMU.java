@@ -96,12 +96,27 @@ public class MMU {
             System.out.println("Boot rom disabled");
         }
         
+        if(location < 0x7fff){
+            System.out.println("Attempted write to ROM");
+            return;
+        }
+        
         if(location == 0xFF0F) { // IF register
             cpu.interruptHandler.handleIF(toWrite);
         }
         
         if(location == 0xFFFF) { //IE register
             cpu.interruptHandler.handleIE(toWrite);
+        }
+        
+        if(location == 0xFF46) { //DMA transfer register
+            int sourceBegin = toWrite << 8;
+            int destBegin = 0xfe00;
+            for(int i = 0; i < 256; i++){
+                mem[destBegin + i] = mem[sourceBegin+i];
+            }
+            
+            System.out.printf("DMA transfer requested from %x complete from %x\n", cpu.regs.PC.read(), toWrite);
         }
         
         mem[location] = toWrite & 0xFF;

@@ -3,6 +3,7 @@ package org.gheith.gameboy;
 import java.awt.Canvas;
 import java.awt.image.BufferedImage;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.Scanner;
 
 import javax.swing.JFrame;
@@ -28,6 +29,7 @@ public class Main {
         ppu.loadTileSets();
         ppu.loadMap(true);
         HashSet<Integer> breakPoints = new HashSet<>();
+        LinkedList<Integer> history = new LinkedList<>();
         
         boolean breaked = false;
         
@@ -66,12 +68,21 @@ public class Main {
                 }else if(cmd.equals("nm")) {
                     breaked = false;
                     numInstructonsUntilBreak = fin.nextInt();
+                }else if(cmd.equals("xh")) {
+                    for(int i : history){
+                        System.out.printf("%x ", i);
+                    }
+                    System.out.println();
                 }else if(!cmd.equals("n")){
                     System.out.println("Command not recognized");
                     continue;
                 }
             }
             
+            if(history.size() >= 20) {
+                history.removeFirst();
+            }
+            history.addLast(cpu.regs.PC.read());
         	cpu.executeOneInstruction(breaked);
         	int cycles = cpu.getClockCycleDelta();
         	for (int i = 0; i < cycles; i++) {
