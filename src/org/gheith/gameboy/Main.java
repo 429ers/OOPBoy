@@ -101,7 +101,7 @@ public class Main {
         	if(count == 1000){
         	    count= 0;
         	    
-        	    System.out.println("PC: " + cpu.regs.PC);
+        	    //System.out.println("PC: " + cpu.regs.PC);
             }
         	
         	count++;
