@@ -51,6 +51,8 @@ public class PPU {
 	public static final int V_BLANK_LINES = 10;
 	public static final int LINE_LENGTH = 456;
 	
+	int framesDrawn = 0;
+	
 	
 	public PPU(MMU mem, GameBoyScreen gbs) {
 		this.mem = mem;
@@ -76,18 +78,27 @@ public class PPU {
 	}
 	
 	public void tick() {
-		if (cycleCount == 0) {
-			//System.out.println("executing this thing");
-			scrollY = mem.readByte(0xFF42);
+		// Lie to the CPU and pretend we're transfering pixels to the LCD
+		if (cycleCount >= PIXEL_TRANSFER_START && cycleCount <= PIXEL_TRANSFER_END) {
+					
 		}
+		/*
+		else if (cycleCount == 0) {
+			//System.out.println("executing this thing");
+			
+		}
+		*/
 		if (cycleCount == OAM_SEARCH_START) {
+			scrollY = mem.readByte(0xFF42);
 			if (currentY < ACTUAL_LINES) {
 				int status = mem.readByte(0xFF41) & 0x3F;
 				mem.writeByte(0xFF41, status | 0x80);
 			}
 			mem.writeByte(0xFF44, currentY);
-			this.loadTileSets();
-			this.loadMap(true);
+			if (currentY == 0) {
+				this.loadTileSets();
+				this.loadMap(true);
+			}
 			currentX = 0;
 			scrollX = mem.readByte(0xFF43);
 		}
@@ -95,34 +106,33 @@ public class PPU {
 			int status = mem.readByte(0xFF41) & 0x3F;
 			mem.writeByte(0xFF41, status | 0xC0);
 		}
-		// Lie to the CPU and pretend we're transfering pixels to the LCD
-		if (cycleCount >= PIXEL_TRANSFER_START && cycleCount <= PIXEL_TRANSFER_END) {
-			
-		}
+		
+		
+		
 		// Actually transfer pixels
-		if (cycleCount == PIXEL_TRANSFER_END && currentY < ACTUAL_LINES) {
+		if (cycleCount >= PIXEL_TRANSFER_START && cycleCount < PIXEL_TRANSFER_START + 160 && currentY < ACTUAL_LINES) {
 			int yPos = currentY + scrollY;
-			for (int i = 0; i < 160; i++) {
-				int xPos = scrollX + i;
-				Tile currentTile = map.getTile(yPos / 8, xPos / 8);
-				int pixel = currentTile.getPixel(yPos % 8, xPos % 8);
-				switch(pixel) {
-				case 0:
-					frame.setRGB(i, currentY, Color.WHITE.getRGB());
-					break;
-				case 1:
-					frame.setRGB(i, currentY, Color.LIGHT_GRAY.getRGB());
-					break;
-				case 2:
-					frame.setRGB(i, currentY, Color.DARK_GRAY.getRGB());
-					break;
-				case 3:
-					frame.setRGB(i, currentY, Color.BLACK.getRGB());
-					break;
-				default:
-					frame.setRGB(i, currentY, Color.BLACK.getRGB());
-				}
+
+			int xPos = scrollX + currentX;
+			Tile currentTile = map.getTile(yPos / 8, xPos / 8);
+			int pixel = currentTile.getPixel(yPos % 8, xPos % 8);
+			switch(pixel) {
+			case 0:
+				frame.setRGB(currentX, currentY, Color.WHITE.getRGB());
+				break;
+			case 1:
+				frame.setRGB(currentX, currentY, Color.LIGHT_GRAY.getRGB());
+				break;
+			case 2:
+				frame.setRGB(currentX, currentY, Color.DARK_GRAY.getRGB());
+				break;
+			case 3:
+				frame.setRGB(currentX, currentY, Color.BLACK.getRGB());
+				break;
+			default:
+				frame.setRGB(currentX, currentY, Color.BLACK.getRGB());
 			}
+			currentX++;
 		}
 		// H-Blank Interrupt
 		if (cycleCount == H_BLANK_START && currentY < ACTUAL_LINES) {
@@ -130,16 +140,25 @@ public class PPU {
 			mem.writeByte(0xFF41, status | 0xC0);
 		}
 		
+		
 		// Increment currentY
 		if (cycleCount == H_BLANK_END) {
 			currentY++;
-			if (currentY == ACTUAL_LINES + V_BLANK_LINES) {
+			if (currentY == 154) {
 				currentY = 0;
 			}
 		}
 		
 		// Send V-Blank interrupt
 		if (currentY == 145 && cycleCount == 0) {
+			
+			try {
+				Thread.sleep(15);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
 			int status = mem.readByte(0xFF41) & 0x3F;
 			mem.writeByte(0xFF41, status | 0x40);
 			gbs.drawFrame(frame);
@@ -149,9 +168,11 @@ public class PPU {
 			//mem.writeByte(0xFF85, 0xFF);
 			//mem.writeByte(0xFF44, 0x90);
 		}
+		
 		cycleCount++;
 		cycleCount %= LINE_LENGTH;
 	}
+	
 	
 	
 	public void tickOld() {
@@ -208,6 +229,12 @@ public class PPU {
 		}
 		// Entered V Blank
 		if (currentX == 0 && currentY == 146) {
+			try {
+				Thread.sleep(16);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			int status = mem.readByte(0xFF41) & 0x3F;
 			mem.writeByte(0xFF41, status | 0x40);
 			gbs.drawFrame(frame);

@@ -23,10 +23,10 @@ public class Main {
 		frame.pack();
 		frame.setTitle("GheithBoy");
 		frame.setVisible(true);
-		frame.addKeyListener(new Joypad());
 		MMU mmu = new MMU("Tetris.gb");
         CPU cpu = new CPU(mmu);
         PPU ppu = new PPU(mmu, gbs);
+		frame.addKeyListener(new Joypad(mmu));
         ppu.loadTileSets();
         ppu.loadMap(true);
         HashSet<Integer> breakPoints = new HashSet<>();
