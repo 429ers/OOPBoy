@@ -278,7 +278,7 @@ public class PPU {
 			if (s.getSpriteY() == currentY + 16) {
 				spritesFound++;
 				for (int i = 0; i < 8; i++) {
-					if (!sprites.containsKey(s.getSpriteX() + 16)) {
+					if (!sprites.containsKey(s.getSpriteX() + i)) {
 						sprites.put(s.getSpriteX() + i, s);
 					}
 				}
