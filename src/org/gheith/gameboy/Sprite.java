@@ -33,4 +33,8 @@ public class Sprite {
 	public Tile getTile() {
 		return tile1;
 	}
+	
+	public boolean inRange(int posY) {
+		return posY >= spriteY && posY < spriteY + 8;
+	}
 }

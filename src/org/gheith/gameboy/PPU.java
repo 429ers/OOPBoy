@@ -21,6 +21,9 @@ public class PPU {
 	private int cycleCount;
 	private boolean drewFrame;
 	private Map<Integer, Sprite> sprites;
+	private Pallette background;
+	private Pallette obp1;
+	private Pallette obp2;
 	
 	/*
 	public static final int OAM_SEARCH_LENGTH = 20;
@@ -80,6 +83,12 @@ public class PPU {
 		map = new TileMap(mem, 0x9800, ts);
 	}
 	
+	public void loadPallettes() {
+		background = new Pallette(mem.readByte(0xFF47));
+		obp1 = new Pallette(mem.readByte(0xFF48));
+		obp2 = new Pallette(mem.readByte(0xFF49));
+	}
+	
 	public void tick() {
 		// Lie to the CPU and pretend we're transfering pixels to the LCD
 		if (cycleCount >= PIXEL_TRANSFER_START && cycleCount <= PIXEL_TRANSFER_END) {
@@ -102,6 +111,7 @@ public class PPU {
 			if (currentY == 0) {
 				this.loadTileSets();
 				this.loadMap(true);
+				this.loadPallettes();
 			}
 			currentX = 0;
 			scrollX = mem.readByte(0xFF43);
@@ -118,13 +128,17 @@ public class PPU {
 			int yPos = currentY + scrollY;
 			int xPos = scrollX + currentX;
 			Tile currentTile;
+			Pallette currentPallette;
 			if (sprites.containsKey(currentX + 8)) {
 				currentTile = sprites.get(currentX + 8).getTile();
+				currentPallette = obp1;
 			}
 			else {
 				currentTile = map.getTile(yPos / 8, xPos / 8);
+				currentPallette = background;
 			}
 			int pixel = currentTile.getPixel(yPos % 8, xPos % 8);
+			/*
 			switch(pixel) {
 			case 0:
 				frame.setRGB(currentX, currentY, Color.WHITE.getRGB());
@@ -141,6 +155,8 @@ public class PPU {
 			default:
 				frame.setRGB(currentX, currentY, Color.BLACK.getRGB());
 			}
+			*/
+			frame.setRGB(currentX, currentY, currentPallette.getColor(pixel).getRGB());
 			currentX++;
 		}
 		// H-Blank Interrupt
@@ -184,89 +200,7 @@ public class PPU {
 	
 	
 	
-	public void tickOld() {
-		//System.out.println("Current X " + currentX + "\n Current Y " + currentY);
-		// Need to reset all values
-		drewFrame = false;
-		mem.writeByte(0xFF44, currentY);
-		if (currentX == 0 && currentY == 0) {
-			scrollY = mem.readByte(0xFF42);
-			System.out.println("Scroll Y " + scrollY);
-			mem.writeByte(0xF085, 0x00);
-			loadTileSets();
-			loadMap(true);
-		}
-		// Need to reset 
-		if (currentX == 0) {
-			scrollX = mem.readByte(0xFF43);
-			int status = mem.readByte(0xFF41) & 0x3F;
-			mem.writeByte(0xFF41, status | 0x80);
-		}
-		if (currentX == 80) {
-			int status = mem.readByte(0xFF41) & 0x3F;
-			mem.writeByte(0xFF41, status | 0xC0);
-			
-		}
-		if (currentX >= 80 && currentX < 80 + 160 && currentY < 144) {
-			
-			int tileX = (scrollX + currentX - 80) / 8;
-			int tileY = (scrollY + currentY) / 8;
-			//Tile currentTile = map.getTile(tileX, tileY);
-			//int pixel = currentTile.getPixel((currentX - 80 + scrollX) % 8, (scrollY + currentY) % 8);
-			Tile currentTile = map.getTile(tileY, tileX);
-			int pixel = currentTile.getPixel((scrollY + currentY) % 8, (currentX - 80 + scrollX) % 8);
-			switch(pixel) {
-			case 0:
-				frame.setRGB(currentX - 80, currentY, Color.WHITE.getRGB());
-				break;
-			case 1:
-				frame.setRGB(currentX - 80, currentY, Color.LIGHT_GRAY.getRGB());
-				break;
-			case 2:
-				frame.setRGB(currentX - 80, currentY, Color.DARK_GRAY.getRGB());
-				break;
-			case 3:
-				frame.setRGB(currentX - 80, currentY, Color.BLACK.getRGB());
-				break;
-			default:
-				frame.setRGB(currentX - 80, currentY, Color.BLACK.getRGB());
-			}
-		}
-		if (currentX == 80 + 172) {
-			int status = mem.readByte(0xFF41) & 0x3F;
-			mem.writeByte(0xFF41, status);
-		}
-		// Entered V Blank
-		if (currentX == 0 && currentY == 146) {
-			try {
-				Thread.sleep(16);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			int status = mem.readByte(0xFF41) & 0x3F;
-			mem.writeByte(0xFF41, status | 0x40);
-			gbs.drawFrame(frame);
-			drewFrame = true;
-			int interruptRegister = mem.readByte(0xFF0F) & 0xFE;
-			mem.writeByte(0xFF0F, interruptRegister | 0x01); 
-			//mem.writeByte(0xFF85, 0xFF);
-			//mem.writeByte(0xFF44, 0x90);
-			System.out.println("drawing frame");
-
-			
-		}
-		
-		currentX++;
-		if (currentX == 456) {
-			currentX = 0;
-			currentY++;
-			//mem.writeByte(0xFF44, currentY);
-		}
-		if (currentY == 154) {
-			currentY = 0;
-		}	
-	}
+	
 	
 	public void loadSprites() {
 		sprites.clear();
@@ -275,7 +209,7 @@ public class PPU {
 		int memAddress = 0xFE00;
 		while (spriteCount < 40 && spritesFound < 10) {
 			Sprite s = new Sprite(mem, memAddress, tileset1, false);
-			if (s.getSpriteY() == currentY + 16) {
+			if (s.inRange(currentY + 16)) {
 				spritesFound++;
 				for (int i = 0; i < 8; i++) {
 					if (!sprites.containsKey(s.getSpriteX() + i)) {
