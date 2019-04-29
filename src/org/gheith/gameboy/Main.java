@@ -89,6 +89,7 @@ public class Main {
         	int cycles = cpu.getClockCycleDelta();
         	for (int i = 0; i < cycles; i++) {
                 ppu.tick();
+                cpu.timer.tick();
                 //System.out.println("ticking ppu");
             }
         	

@@ -26,6 +26,7 @@ public class CPU {
     RegisterFile regs = new RegisterFile();
     InterruptHandler interruptHandler = new InterruptHandler(this);
     private int clockCycleDelta;
+    Timer timer = new Timer(this.interruptHandler);
     
     public CPU(MMU mem) {
     	this.mem = mem;
