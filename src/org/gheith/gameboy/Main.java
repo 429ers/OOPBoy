@@ -22,7 +22,7 @@ public class Main {
 		frame.pack();
 		frame.setVisible(true);
          
-		MMU mmu = new MMU("Tetris.gb");
+		MMU mmu = new MMU("cpu_instrs.gb");
         CPU cpu = new CPU(mmu);
         PPU ppu = new PPU(mmu, gbs);
         ppu.loadTileSets();
@@ -90,7 +90,7 @@ public class Main {
         	if(count == 1000){
         	    count= 0;
         	    
-        	    System.out.println("PC: " + cpu.regs.PC);
+        	    //System.out.println("PC: " + cpu.regs.PC);
             }
         	
         	count++;
