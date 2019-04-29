@@ -20,8 +20,9 @@ public class Main {
 		gbs.setSize(500, 500);
 		frame.add(gbs);
 		frame.pack();
+		frame.setTitle("GheithBoy");
 		frame.setVisible(true);
-         
+		frame.addKeyListener(new Joypad());
 		MMU mmu = new MMU("Tetris.gb");
         CPU cpu = new CPU(mmu);
         PPU ppu = new PPU(mmu, gbs);
@@ -38,6 +39,7 @@ public class Main {
         int numInstructonsUntilBreak = -1;
         
         while (true) {
+    		gbs.setFocusable(true);
             //ignore breakpoints while nm is used
             if(numInstructonsUntilBreak < 0 && breakPoints.contains(cpu.regs.PC.read())){
                 breaked = true;

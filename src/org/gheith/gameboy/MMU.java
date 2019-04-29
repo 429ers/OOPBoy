@@ -32,7 +32,7 @@ public class MMU {
             e.printStackTrace();
         }
     	
-    	for (int i = 0; i <= romSize; i++) {
+    	for (int i = 0; i < romSize; i++) {
     		mem[i] = romData[i] & 0xFF;
     	}
     	
