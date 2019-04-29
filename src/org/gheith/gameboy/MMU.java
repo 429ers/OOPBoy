@@ -12,6 +12,7 @@ public class MMU {
     boolean DEBUG = false;
     boolean bootRomEnabled = true;
     CPU cpu;
+    private Joypad joypad;
     
     public void setCPU(CPU cpu){
         this.cpu = cpu;
@@ -20,6 +21,7 @@ public class MMU {
     public MMU() {
         //no need to copy boot rom since that is intercepted by readByte
     }
+    
     
     // Load rom from disk
     public MMU(String rom) {
@@ -38,13 +40,27 @@ public class MMU {
     	
     }
     
+    public void setJoypad(Joypad joypad) {
+    	this.joypad = joypad;
+    }
+    
     public int readByte(int location) {
         if(bootRomEnabled && location < bootRom.length){
             return bootRom[location];
         }
         
         if(location == 0xFF00){ //joypad input
-            return 0xff; //0xff means nothing is pressed
+        	
+            if (BitOps.extract(mem[0xFF00], 5, 5) == 0) {
+            	return joypad.readButtons();
+            }
+            
+            if(BitOps.extract(mem[0xFF00], 4, 4) == 0) {
+            	return joypad.readDirections();
+            }
+            else {
+            	return 0xFF;
+            }
         }
         
         return mem[location];
@@ -116,7 +132,7 @@ public class MMU {
                 mem[destBegin + i] = mem[sourceBegin+i];
             }
             
-            System.out.printf("DMA transfer requested from %x complete from %x\n", cpu.regs.PC.read(), toWrite);
+            //System.out.printf("DMA transfer requested from %x complete from %x\n", cpu.regs.PC.read(), toWrite);
         }
         
         mem[location] = toWrite & 0xFF;
