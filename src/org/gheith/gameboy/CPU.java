@@ -520,7 +520,7 @@ public class CPU {
         int result = (tens << 4) | ones;
         
         regs.flags.setFlag(ZFLAG, (decimalVal == 0)); //may be wrong
-        regs.flags.setFlag(CFLAG, decimalVal == original);
+        regs.flags.setFlag(CFLAG, decimalVal != original);
         
         regs.A.write(result);
         

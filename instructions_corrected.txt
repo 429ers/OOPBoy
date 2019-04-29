@@ -472,7 +472,7 @@ RET
 RETI
 1  16
 - - - -
-JP (HL)
+JP HL
 1  4
 - - - -
 LD SP,HL
