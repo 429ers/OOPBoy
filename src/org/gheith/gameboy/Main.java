@@ -26,7 +26,7 @@ public class Main {
 		MMU mmu = new MMU("Tetris.gb");
         CPU cpu = new CPU(mmu);
         PPU ppu = new PPU(mmu, gbs);
-		frame.addKeyListener(new Joypad(mmu));
+		gbs.addKeyListener(new Joypad(mmu));
         ppu.loadTileSets();
         ppu.loadMap(true);
         HashSet<Integer> breakPoints = new HashSet<>();

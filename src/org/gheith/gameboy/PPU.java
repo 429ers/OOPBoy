@@ -3,13 +3,14 @@ package org.gheith.gameboy;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.HashMap;
 
 
 public class PPU {
 	private TileSet tileset1;
 	private TileSet tileset2;
-	private Map map;
-	private ArrayList<Sprite> sprites;
+	private TileMap map;
 	private MMU mem;
 	private int currentX;
 	private int currentY;
@@ -19,6 +20,7 @@ public class PPU {
 	private int scrollY;
 	private int cycleCount;
 	private boolean drewFrame;
+	private Map<Integer, Sprite> sprites;
 	
 	/*
 	public static final int OAM_SEARCH_LENGTH = 20;
@@ -60,6 +62,7 @@ public class PPU {
 		currentX = 0;
 		currentY = 0;
 		this.gbs = gbs;
+		sprites = new HashMap<Integer, Sprite>();
 	}
 	
 	public boolean drewFrame() {
@@ -74,7 +77,7 @@ public class PPU {
 	
 	public void loadMap(boolean useTileSet1) {
 		TileSet ts = useTileSet1 ? tileset1 : tileset2;
-		map = new Map(mem, 0x9800, ts);
+		map = new TileMap(mem, 0x9800, ts);
 	}
 	
 	public void tick() {
@@ -90,6 +93,7 @@ public class PPU {
 		*/
 		if (cycleCount == OAM_SEARCH_START) {
 			scrollY = mem.readByte(0xFF42);
+			loadSprites();
 			if (currentY < ACTUAL_LINES) {
 				int status = mem.readByte(0xFF41) & 0x3F;
 				mem.writeByte(0xFF41, status | 0x80);
@@ -112,9 +116,14 @@ public class PPU {
 		// Actually transfer pixels
 		if (cycleCount >= PIXEL_TRANSFER_START && cycleCount < PIXEL_TRANSFER_START + 160 && currentY < ACTUAL_LINES) {
 			int yPos = currentY + scrollY;
-
 			int xPos = scrollX + currentX;
-			Tile currentTile = map.getTile(yPos / 8, xPos / 8);
+			Tile currentTile;
+			if (sprites.containsKey(currentX + 8)) {
+				currentTile = sprites.get(currentX + 8).getTile();
+			}
+			else {
+				currentTile = map.getTile(yPos / 8, xPos / 8);
+			}
 			int pixel = currentTile.getPixel(yPos % 8, xPos % 8);
 			switch(pixel) {
 			case 0:
@@ -257,6 +266,26 @@ public class PPU {
 		if (currentY == 154) {
 			currentY = 0;
 		}	
+	}
+	
+	public void loadSprites() {
+		sprites.clear();
+		int spriteCount = 0;
+		int spritesFound = 0;
+		int memAddress = 0xFE00;
+		while (spriteCount < 40 && spritesFound < 10) {
+			Sprite s = new Sprite(mem, memAddress, tileset1, false);
+			if (s.getSpriteY() == currentY + 16) {
+				spritesFound++;
+				for (int i = 0; i < 8; i++) {
+					if (!sprites.containsKey(s.getSpriteX() + 16)) {
+						sprites.put(s.getSpriteX() + i, s);
+					}
+				}
+			}
+			spriteCount++;
+			memAddress += 4;
+		}
 	}
 	
 }

@@ -21,4 +21,16 @@ public class Sprite {
 			tile1 = tileset.getTile(tileNum);
 		}
 	}
+	
+	public int getSpriteY() {
+		return spriteY;
+	}
+	
+	public int getSpriteX() {
+		return spriteX;
+	}
+	
+	public Tile getTile() {
+		return tile1;
+	}
 }

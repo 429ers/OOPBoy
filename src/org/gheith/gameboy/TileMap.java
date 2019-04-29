@@ -1,9 +1,9 @@
 package org.gheith.gameboy;
 
-public class Map {
+public class TileMap {
 	private Tile[][] map;
 	
-	public Map(MMU memory, int startAddress, TileSet tileSet) {
+	public TileMap(MMU memory, int startAddress, TileSet tileSet) {
 		map = new Tile[32][32];
 		
 		for (int i = 0; i < 32; i++) {

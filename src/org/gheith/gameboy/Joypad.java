@@ -99,12 +99,12 @@ public class Joypad implements KeyListener {
 
 	}
 	
-	public int readButtons() {
+	public int readDirections() {
 		//System.out.println("reading buttons");
 		return (down << 3) + (up << 2) + (left << 1) + right;
 	}
 	
-	public int readDirections() {
+	public int readButtons() {
 		return (start << 3) + (select << 2) + (b << 1) + a; 
 	}
 
