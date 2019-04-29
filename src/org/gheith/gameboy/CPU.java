@@ -510,17 +510,24 @@ public class CPU {
         return result;
     }
     
+    //http://z80-heaven.wikidot.com/instructions-set:daa
+    //https://www.reddit.com/r/EmuDev/comments/4ycoix/a_guide_to_the_gameboys_halfcarry_flag/
     int DAA() {
         int original = regs.A.read();
-        int decimalVal = original % 100;
+        int result = original;
         
-        int tens = decimalVal / 10;
-        int ones = decimalVal % 10;
+        int direction = regs.flags.getFlag(NFLAG)? -1: 1;
+
+        if(regs.flags.getFlag(CFLAG) || result > 0x99){
+            result += direction * 0x60;
+            regs.flags.setFlag(CFLAG, true);
+        }
         
-        int result = (tens << 4) | ones;
+        if(regs.flags.getFlag(HFLAG) || (result & 0xf) > 9){
+            result += direction * 0x6;
+        }
         
-        regs.flags.setFlag(ZFLAG, (decimalVal == 0)); //may be wrong
-        regs.flags.setFlag(CFLAG, decimalVal == original);
+        regs.flags.setFlag(ZFLAG, (result == 0));
         
         regs.A.write(result);
         
