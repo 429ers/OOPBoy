@@ -1,12 +1,11 @@
 package org.gheith.gameboy;
 
-import java.awt.Canvas;
 import java.awt.image.BufferedImage;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Scanner;
 
-import javax.swing.JFrame;
+import javax.swing.*;
 
 public class Main {
 
@@ -23,6 +22,7 @@ public class Main {
 		frame.pack();
 		frame.setTitle("GheithBoy");
 		frame.setVisible(true);
+        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		MMU mmu = new MMU("Tetris.gb");
         CPU cpu = new CPU(mmu);
         PPU ppu = new PPU(mmu, gbs);

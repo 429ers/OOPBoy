@@ -45,7 +45,6 @@ public class Joypad implements KeyListener {
 			down = 0;
 			break;
 		case KeyEvent.VK_Z:
-			System.out.println("Z pressed!");
 			a = 0;
 			break;
 		case KeyEvent.VK_X:
