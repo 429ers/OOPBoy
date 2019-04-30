@@ -11,6 +11,7 @@ public class PPU {
 	private TileSet tileset1;
 	private TileSet tileset2;
 	private TileMap map;
+	private TileMap window;
 	private MMU mem;
 	private int currentX;
 	private int currentY;
@@ -24,6 +25,10 @@ public class PPU {
 	private Pallette background;
 	private Pallette obp1;
 	private Pallette obp2;
+	private boolean spritesEnabled;
+	private boolean windowEnabled;
+	private int windowX;
+	private int windowY;
 	
 	/*
 	public static final int OAM_SEARCH_LENGTH = 20;
@@ -78,9 +83,16 @@ public class PPU {
 	}
 	
 	
-	public void loadMap(boolean useTileSet1) {
+	public void loadMap(boolean useTileSet1, boolean useMap1) {
 		TileSet ts = useTileSet1 ? tileset1 : tileset2;
-		map = new TileMap(mem, 0x9800, ts);
+		int address = useMap1 ? 0x9800 : 0x9c00;
+		map = new TileMap(mem, address, ts);
+	}
+	
+	public void loadWindow(boolean useTileSet1, boolean useMap1) {
+		TileSet ts = useTileSet1 ? tileset1 : tileset2;
+		int address = useMap1 ? 0x9800 : 0x9c00;
+		window = new TileMap(mem, address, ts);
 	}
 	
 	public void loadPallettes() {
@@ -102,17 +114,28 @@ public class PPU {
 		*/
 		if (cycleCount == OAM_SEARCH_START) {
 			scrollY = mem.readByte(0xFF42);
-			loadSprites();
 			if (currentY < ACTUAL_LINES) {
 				int status = mem.readByte(0xFF41) & 0x3F;
 				mem.writeByte(0xFF41, status | 0x80);
 			}
 			mem.writeByte(0xFF44, currentY);
+			int lcdc = mem.readByte(0xff40);
+			boolean useTileSet1 = BitOps.extract(lcdc, 4, 4) == 1;
+			boolean useWindowMap1 = BitOps.extract(lcdc, 6, 6) == 0;
 			if (currentY == 0) {
 				this.loadTileSets();
-				this.loadMap(true);
+				boolean useBackgroundMap1 = BitOps.extract(lcdc, 3, 3) == 0;
+				this.loadMap(useTileSet1, useBackgroundMap1);
 				this.loadPallettes();
 			}
+			spritesEnabled = BitOps.extract(lcdc, 1, 1) == 1;
+			if (spritesEnabled) {
+				loadSprites();
+			}
+			windowEnabled = BitOps.extract(lcdc, 5, 5) == 1;
+			loadWindow(useTileSet1, useWindowMap1);
+			windowX = mem.readByte(0xff4b) - 7;
+			windowY = mem.readByte(0xff4a);
 			currentX = 0;
 			scrollX = mem.readByte(0xFF43);
 		}
@@ -129,7 +152,11 @@ public class PPU {
 			int xPos = scrollX + currentX;
 			Tile currentTile;
 			Pallette currentPallette;
-			if (sprites.containsKey(currentX + 8)) {
+			if (windowEnabled && currentX >= windowX && currentY >= windowY) {
+				currentTile = window.getTile(yPos / 8, xPos / 8);
+				currentPallette = obp1;
+			}
+			else if (spritesEnabled && sprites.containsKey(currentX + 8)) {
 				currentTile = sprites.get(currentX + 8).getTile();
 				currentPallette = obp1;
 			}
@@ -138,24 +165,6 @@ public class PPU {
 				currentPallette = background;
 			}
 			int pixel = currentTile.getPixel(yPos % 8, xPos % 8);
-			/*
-			switch(pixel) {
-			case 0:
-				frame.setRGB(currentX, currentY, Color.WHITE.getRGB());
-				break;
-			case 1:
-				frame.setRGB(currentX, currentY, Color.LIGHT_GRAY.getRGB());
-				break;
-			case 2:
-				frame.setRGB(currentX, currentY, Color.DARK_GRAY.getRGB());
-				break;
-			case 3:
-				frame.setRGB(currentX, currentY, Color.BLACK.getRGB());
-				break;
-			default:
-				frame.setRGB(currentX, currentY, Color.BLACK.getRGB());
-			}
-			*/
 			frame.setRGB(currentX, currentY, currentPallette.getColor(pixel).getRGB());
 			currentX++;
 		}

@@ -28,7 +28,7 @@ public class Main {
         PPU ppu = new PPU(mmu, gbs);
 		gbs.addKeyListener(new Joypad(mmu));
         ppu.loadTileSets();
-        ppu.loadMap(true);
+        ppu.loadMap(true, true);
         HashSet<Integer> breakPoints = new HashSet<>();
         LinkedList<Integer> history = new LinkedList<>();
         
