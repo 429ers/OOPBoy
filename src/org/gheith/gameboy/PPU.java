@@ -121,11 +121,11 @@ public class PPU {
 			mem.writeByte(0xFF44, currentY);
 			int lcdc = mem.readByte(0xff40);
 			boolean useTileSet1 = BitOps.extract(lcdc, 4, 4) == 1;
-			boolean useWindowMap1 = BitOps.extract(lcdc, 6, 6) == 0;
+			boolean useWindowTileMap1 = BitOps.extract(lcdc, 6, 6) == 0;
 			if (currentY == 0) {
 				this.loadTileSets();
 				boolean useBackgroundMap1 = BitOps.extract(lcdc, 3, 3) == 0;
-				this.loadMap(useTileSet1, useBackgroundMap1);
+				this.loadMap(true, useBackgroundMap1);
 				this.loadPallettes();
 			}
 			spritesEnabled = BitOps.extract(lcdc, 1, 1) == 1;
@@ -133,7 +133,7 @@ public class PPU {
 				loadSprites();
 			}
 			windowEnabled = BitOps.extract(lcdc, 5, 5) == 1;
-			loadWindow(useTileSet1, useWindowMap1);
+			loadWindow(true, useWindowTileMap1);
 			windowX = mem.readByte(0xff4b) - 7;
 			windowY = mem.readByte(0xff4a);
 			currentX = 0;
@@ -154,7 +154,7 @@ public class PPU {
 			Pallette currentPallette;
 			if (windowEnabled && currentX >= windowX && currentY >= windowY) {
 				currentTile = window.getTile(yPos / 8, xPos / 8);
-				currentPallette = obp1;
+				currentPallette = background;
 			}
 			else if (spritesEnabled && sprites.containsKey(currentX + 8)) {
 				currentTile = sprites.get(currentX + 8).getTile();
