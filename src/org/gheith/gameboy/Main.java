@@ -34,8 +34,10 @@ public class Main {
         
         boolean breaked = false;
         
-        System.out.print("First breakpoint (hex): ");
-        breakPoints.add(fin.nextInt(16));
+        if(args.length > 0 && args[0].equals("-d")) {
+            System.out.print("First breakpoint (hex): ");
+            breakPoints.add(fin.nextInt(16));
+        }
         
         int count = 0;
         int numInstructonsUntilBreak = -1;
