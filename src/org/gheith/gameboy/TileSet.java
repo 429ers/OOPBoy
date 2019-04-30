@@ -5,8 +5,10 @@ import java.util.Map;
 
 public class TileSet {
 	private Map<Integer, Tile> tiles;
+	private boolean isSetOne;
 	
 	public TileSet(MMU memory, int startAddress, int numTiles, boolean isSetOne) {
+		this.isSetOne = isSetOne;
 		tiles = new HashMap<Integer, Tile>();
 		int tileNum = isSetOne ? 0 : -128;
 		for (int i = 0; i < numTiles; i++) {
@@ -22,6 +24,10 @@ public class TileSet {
 	
 	public Tile getTile(int tileNumber) {
 		return tiles.get(tileNumber);
+	}
+	
+	public boolean isTileSetOne() {
+		return isSetOne;
 	}
 	
 }

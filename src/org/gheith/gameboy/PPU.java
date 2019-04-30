@@ -125,7 +125,7 @@ public class PPU {
 			if (currentY == 0) {
 				this.loadTileSets();
 				boolean useBackgroundMap1 = BitOps.extract(lcdc, 3, 3) == 0;
-				this.loadMap(true, useBackgroundMap1);
+				this.loadMap(useTileSet1, useBackgroundMap1);
 				this.loadPallettes();
 			}
 			spritesEnabled = BitOps.extract(lcdc, 1, 1) == 1;
@@ -133,7 +133,7 @@ public class PPU {
 				loadSprites();
 			}
 			windowEnabled = BitOps.extract(lcdc, 5, 5) == 1;
-			loadWindow(true, useWindowTileMap1);
+			loadWindow(useTileSet1, useWindowTileMap1);
 			windowX = mem.readByte(0xff4b) - 7;
 			windowY = mem.readByte(0xff4a);
 			currentX = 0;

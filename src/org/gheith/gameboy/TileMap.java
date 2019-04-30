@@ -9,7 +9,13 @@ public class TileMap {
 		for (int i = 0; i < 32; i++) {
 			for (int j = 0; j < 32; j++) {
 				int tileNumberAddress = startAddress + (i * 32) + j;
-				int tileNumber = memory.readByte(tileNumberAddress);
+				int tileNumber;
+				if (tileSet.isTileSetOne()) {
+					tileNumber = memory.readByte(tileNumberAddress);
+				}
+				else {
+					tileNumber = (byte) memory.readByte(tileNumberAddress);
+				}
 				if (tileSet.getTile(tileNumber) == null) {
 					System.out.println("failed to find tile num "+ tileNumber);
 				}
