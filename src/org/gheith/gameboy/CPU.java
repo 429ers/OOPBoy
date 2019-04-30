@@ -337,46 +337,42 @@ public class CPU {
         return reg.read();
     }
     
-    int ADD(ShortRegister dest, Readable src){
+    int ADD(Register dest, Readable src){
         int op1 = src.read(), op2 = dest.read();
+
+        int halfMask = (dest instanceof LongRegister)? 0xff : 0xf;
+        int fullMask = (dest instanceof LongRegister)? 0xffff : 0xff;
         
         int sum = op1 + op2;
-        int result = sum & 0xff;
+        int result = sum & fullMask;
         
         regs.flags.setFlag(ZFLAG, (result == 0));
         regs.flags.setFlag(CFLAG, (sum != result));
-        regs.flags.setFlag(HFLAG, ((op1 & 0xf) + (op1 & 0xf) > 0xf) );
+        regs.flags.setFlag(HFLAG, ((op1 & halfMask) + (op2 & halfMask) > halfMask) );
         
-        dest.write(result);
-        
-        return result;
-    }
-    
-    int ADD(LongRegister dest, Readable src){
-        int op1 = src.read(), op2 = dest.read();
-
-        int sum = op1 + op2;
-        int result = sum & 0xffff;
-
-        regs.flags.setFlag(ZFLAG, (result == 0));
-        regs.flags.setFlag(CFLAG, (sum != result));
-        regs.flags.setFlag(HFLAG, ((op1 & 0xff) + (op1 & 0xff) > 0xff));
-
         dest.write(result);
         
         return result;
     }
 
     int ADC(Register dest, Readable src){
-        if(regs.flags.getFlag(CFLAG)) {
-            src = new ReadablePlusOne(src);
-        }
+        int op1 = src.read(), op2 = dest.read();
         
-        if(dest instanceof LongRegister){
-            return ADD((LongRegister) dest, src);
-        }else{
-            return ADD((ShortRegister) dest, src);
-        }
+        int halfMask = (dest instanceof LongRegister)? 0xff : 0xf;
+        int fullMask = (dest instanceof LongRegister)? 0xffff : 0xff;
+        
+        int carry = regs.flags.getFlag(CFLAG)? 1: 0;
+        
+        int sum = op1 + op2 + carry;
+        int result = sum & fullMask;
+
+        regs.flags.setFlag(ZFLAG, (result == 0));
+        regs.flags.setFlag(CFLAG, (sum != result));
+        regs.flags.setFlag(HFLAG, ((op1 & halfMask) + (op2 & halfMask) + carry > halfMask));
+
+        dest.write(result);
+
+        return result;
     }
     
     //saves result in A
@@ -399,11 +395,22 @@ public class CPU {
     
     //result in A
     int SBC(Readable toSubtract){
-        if(regs.flags.getFlag(CFLAG)){
-            toSubtract = new ReadablePlusOne(toSubtract);
-        }
+        int op1 = regs.A.read();
+        int op2 = toSubtract.read();
         
-        return SUB(toSubtract);
+        int carry = regs.flags.getFlag(CFLAG)? 1: 0;
+
+        int diff = op1 - op2 - carry;
+        int result = diff & 0xff;
+
+        regs.flags.setFlag(ZFLAG, (result == 0));
+        regs.flags.setFlag(CFLAG, (diff < 0)); //set if needed borrow
+        regs.flags.setFlag(HFLAG, ((op1 & 0xf) - (op2 & 0xf) - carry < 0)); //set if needs borrow from 4th bit
+        //seems like GBCPUman is wrong?
+
+        regs.A.write(result);
+
+        return result;
     }
     
     //result in A
