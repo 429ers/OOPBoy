@@ -470,8 +470,10 @@ public class CPU {
         int original = toInc.read();
         int result = original+1;
         
-        regs.flags.setFlag(ZFLAG, (result == 0));
-        regs.flags.setFlag(HFLAG, ((original & 0xf) + 1) > 0xf);
+        int fullMask = (toInc instanceof LongRegister) ? 0xffff: 0xff; 
+        int halfMask = (toInc instanceof LongRegister) ? 0xff: 0xf;
+        regs.flags.setFlag(ZFLAG, ((result & fullMask) == 0));
+        regs.flags.setFlag(HFLAG, ((original & halfMask) + 1) > halfMask);
         //apparently C-flag is not affected
         
         toInc.write(result);
@@ -479,13 +481,14 @@ public class CPU {
         return result;
     }
     
-    //decrements toDev
+    //decrements toDec
     int DEC(ReadWritable toDec){
         int original = toDec.read();
         int result = original - 1;
-        
+
+        int halfMask = (toDec instanceof LongRegister) ? 0xff: 0xf;
         regs.flags.setFlag(ZFLAG, (result == 0));
-        regs.flags.setFlag(HFLAG, (original & 0xf) < 1); //needs borrow from bit 4
+        regs.flags.setFlag(HFLAG, (original & halfMask) < 1); //needs borrow from bit 4
         //C not affected
         
         toDec.write(result);
