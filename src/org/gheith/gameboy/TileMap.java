@@ -10,6 +10,9 @@ public class TileMap {
 			for (int j = 0; j < 32; j++) {
 				int tileNumberAddress = startAddress + (i * 32) + j;
 				int tileNumber = memory.readByte(tileNumberAddress);
+				if (tileSet.getTile(tileNumber) == null) {
+					System.out.println("failed to find tile num "+ tileNumber);
+				}
 				map[i][j] = tileSet.getTile(tileNumber);
 			}
 		}

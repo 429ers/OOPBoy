@@ -37,6 +37,32 @@ public class Tile {
 		*/
 	}
 	
+	public Tile(int[][] tileData) {
+		this.tileData = tileData;
+	}
+	
+	public Tile flipTileOverYAxis() {
+		int[][] tileFlip = new int[8][8];
+		for (int i = 0; i < 8; i++) {
+			for (int j = 0; j < 8; j++) {
+				tileFlip[i][j] = tileData[i][7 - j];
+			}
+		}
+		return new Tile(tileFlip);
+		
+	}
+	
+	public Tile flipTileOverXAxis() {
+		int[][] tileFlip = new int[8][8];
+		for (int i = 0; i < 8; i++) {
+			for (int j = 0; j < 8; j++) {
+				tileFlip[i][j] = tileData[7 - i][j];
+			}
+		}
+		return new Tile(tileFlip);
+		
+	}
+	
 	public int getPixel(int x, int y) {
 		return tileData[x][y];
 	}
