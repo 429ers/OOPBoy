@@ -168,7 +168,7 @@ public class PPU {
 				Sprite currentSprite = sprites.get(currentX + 8);
 				if (currentSprite.priority == 0 || backgroundTile.getPixel(yPos % 8, xPos % 8) == 0) {
 					currentTile = currentSprite.getTile();
-					currentPallette = currentSprite.usePalletteZero() ? obp0 : obp1;
+					currentPallette = currentSprite.usePalletteZero() ? obp0 : obp0;
 					pixel = currentTile.getPixel(currentY - (currentSprite.getSpriteY() - 16), currentX - (currentSprite.getSpriteX() - 8));
 				}
 				else {
@@ -238,8 +238,16 @@ public class PPU {
 			if (s.inRange(currentY + 16)) {
 				spritesFound++;
 				for (int i = 0; i < 8; i++) {
-					if (!sprites.containsKey(s.getSpriteX() + i) && s.getTile().getPixel(currentY % 8, i) != 0) {
-						sprites.put(s.getSpriteX() + i, s);
+					if (!sprites.containsKey(s.getSpriteX() + i)) {
+						if (s.getTile().getPixel(currentY % 8, i) != 0) {
+							sprites.put(s.getSpriteX() + i, s);
+						}
+					}
+					else {
+						Sprite conflictSprite = sprites.get(s.getSpriteX() + i);
+						if (s.getSpriteX() < conflictSprite.getSpriteX() && s.getTile().getPixel(currentY % 8, i) != 0) {
+							sprites.put(s.getSpriteX() + i, s);
+						}
 					}
 				}
 			}
