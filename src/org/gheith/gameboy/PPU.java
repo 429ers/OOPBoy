@@ -166,10 +166,11 @@ public class PPU {
 			}
 			else if (spritesEnabled && sprites.containsKey(currentX + 8)) {
 				Sprite currentSprite = sprites.get(currentX + 8);
-				if (currentSprite.priority == 0 || backgroundTile.getPixel(yPos % 8, xPos % 8) == 0) {
+				int spritePixel = currentSprite.getTile().getPixel(currentY - (currentSprite.getSpriteY() - 16), currentX - (currentSprite.getSpriteX() - 8));
+				if ((currentSprite.priority == 0 || backgroundTile.getPixel(yPos % 8, xPos % 8) == 0) && spritePixel != 0) {
 					currentTile = currentSprite.getTile();
-					currentPallette = currentSprite.usePalletteZero() ? obp0 : obp0;
-					pixel = currentTile.getPixel(currentY - (currentSprite.getSpriteY() - 16), currentX - (currentSprite.getSpriteX() - 8));
+					currentPallette = currentSprite.usePalletteZero() ? obp0 : obp1;
+					pixel = spritePixel;
 				}
 				else {
 					currentTile = backgroundTile;
@@ -239,7 +240,7 @@ public class PPU {
 				spritesFound++;
 				for (int i = 0; i < 8; i++) {
 					if (!sprites.containsKey(s.getSpriteX() + i)) {
-						if (s.getTile().getPixel(currentY % 8, i) != 0) {
+						if (true || s.getTile().getPixel(currentY % 8, i) != 0) {
 							sprites.put(s.getSpriteX() + i, s);
 						}
 					}
