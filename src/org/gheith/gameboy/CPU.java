@@ -3,19 +3,6 @@ package org.gheith.gameboy;
 import java.io.IOException;
 import java.security.InvalidParameterException;
 
-class ReadablePlusOne implements Readable {
-    Readable wrapped;
-    
-    @Override
-    public int read() {
-        return wrapped.read() + 1;
-    }
-
-    public ReadablePlusOne(Readable r){
-        wrapped = r;
-    }
-}
-
 interface Lambda{
     int exec();
 }
@@ -326,7 +313,12 @@ public class CPU {
     int POP(LongRegister reg){
         int sp = regs.SP.read();
         
-        reg.lowerByte.write(mem.readByte(sp));
+        if(reg.lowerByte == regs.F) {
+            //the lower nibble of F should always be 0
+            reg.lowerByte.write(mem.readByte(sp) & (~0xf));
+        }else{
+            reg.lowerByte.write(mem.readByte(sp));
+        }
         sp++;
         
         reg.upperByte.write(mem.readByte(sp));
@@ -340,7 +332,7 @@ public class CPU {
     int ADD(Register dest, Readable src){
         int op1 = src.read(), op2 = dest.read();
 
-        int halfMask = (dest instanceof LongRegister)? 0xff : 0xf;
+        int halfMask = (dest instanceof LongRegister)? 0xfff : 0xf;
         int fullMask = (dest instanceof LongRegister)? 0xffff : 0xff;
         
         int sum = op1 + op2;
@@ -358,7 +350,7 @@ public class CPU {
     int ADC(Register dest, Readable src){
         int op1 = src.read(), op2 = dest.read();
         
-        int halfMask = (dest instanceof LongRegister)? 0xff : 0xf;
+        int halfMask = (dest instanceof LongRegister)? 0xfff : 0xf;
         int fullMask = (dest instanceof LongRegister)? 0xffff : 0xff;
         
         int carry = regs.flags.getFlag(CFLAG)? 1: 0;
