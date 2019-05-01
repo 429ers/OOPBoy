@@ -340,7 +340,7 @@ public class CPU {
     int ADD(Register dest, Readable src){
         int op1 = src.read(), op2 = dest.read();
 
-        int halfMask = (dest instanceof LongRegister)? 0xff : 0xf;
+        int halfMask = (dest instanceof LongRegister)? 0xfff : 0xf;
         int fullMask = (dest instanceof LongRegister)? 0xffff : 0xff;
         
         int sum = op1 + op2;
@@ -358,7 +358,7 @@ public class CPU {
     int ADC(Register dest, Readable src){
         int op1 = src.read(), op2 = dest.read();
         
-        int halfMask = (dest instanceof LongRegister)? 0xff : 0xf;
+        int halfMask = (dest instanceof LongRegister)? 0xfff : 0xf;
         int fullMask = (dest instanceof LongRegister)? 0xffff : 0xff;
         
         int carry = regs.flags.getFlag(CFLAG)? 1: 0;
