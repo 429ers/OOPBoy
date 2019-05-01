@@ -3,19 +3,6 @@ package org.gheith.gameboy;
 import java.io.IOException;
 import java.security.InvalidParameterException;
 
-class ReadablePlusOne implements Readable {
-    Readable wrapped;
-    
-    @Override
-    public int read() {
-        return wrapped.read() + 1;
-    }
-
-    public ReadablePlusOne(Readable r){
-        wrapped = r;
-    }
-}
-
 interface Lambda{
     int exec();
 }
