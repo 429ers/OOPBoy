@@ -630,7 +630,7 @@ public class CPU {
         
         int carryBit = (regs.flags.getFlag(CFLAG)? 1 : 0);
         
-        int result = (original << 1) | carryBit;
+        int result = ((original << 1) | carryBit) & 0xff;
         
         regs.flags.setFlag(CFLAG, bit7 == 1);
         regs.flags.setFlag(ZFLAG, result == 0);
@@ -685,7 +685,7 @@ public class CPU {
         int original = op.read();
         int bit7 = (original >> 7) & 1;
 
-        int result = (original << 1);
+        int result = (original << 1) & 0xff;
 
         regs.flags.setFlag(CFLAG, bit7 == 1);
         regs.flags.setFlag(ZFLAG, result == 0);
@@ -698,9 +698,9 @@ public class CPU {
     int SRA(ReadWritable op) {
         int original = op.read();
         int bit0 = original & 1;
-        int bit7 = (original << 7) & 1;
+        int bit7 = (original >> 7) & 1;
 
-        int result = (original >> 1) | (bit7 << 7);
+        int result = ((original >> 1) | (bit7 << 7)) & 0xff;
 
         regs.flags.setFlag(CFLAG, bit0 == 1);
         regs.flags.setFlag(ZFLAG, result == 0);
@@ -1151,14 +1151,14 @@ public class CPU {
         cbOperations[0x25] = new Operation("SLA L", () -> SLA(regs.L), 2, "Z 0 0 C", 8);
         cbOperations[0x26] = new Operation("SLA (HL)", () -> SLA(mem.registerLocation(regs.HL)), 2, "Z 0 0 C", 16);
         cbOperations[0x27] = new Operation("SLA A", () -> SLA(regs.A), 2, "Z 0 0 C", 8);
-        cbOperations[0x28] = new Operation("SRA B", () -> SRA(regs.B), 2, "Z 0 0 0", 8);
-        cbOperations[0x29] = new Operation("SRA C", () -> SRA(regs.C), 2, "Z 0 0 0", 8);
-        cbOperations[0x2a] = new Operation("SRA D", () -> SRA(regs.D), 2, "Z 0 0 0", 8);
-        cbOperations[0x2b] = new Operation("SRA E", () -> SRA(regs.E), 2, "Z 0 0 0", 8);
-        cbOperations[0x2c] = new Operation("SRA H", () -> SRA(regs.H), 2, "Z 0 0 0", 8);
-        cbOperations[0x2d] = new Operation("SRA L", () -> SRA(regs.L), 2, "Z 0 0 0", 8);
-        cbOperations[0x2e] = new Operation("SRA (HL)", () -> SRA(mem.registerLocation(regs.HL)), 2, "Z 0 0 0", 16);
-        cbOperations[0x2f] = new Operation("SRA A", () -> SRA(regs.A), 2, "Z 0 0 0", 8);
+        cbOperations[0x28] = new Operation("SRA B", () -> SRA(regs.B), 2, "Z 0 0 C", 8);
+        cbOperations[0x29] = new Operation("SRA C", () -> SRA(regs.C), 2, "Z 0 0 C", 8);
+        cbOperations[0x2a] = new Operation("SRA D", () -> SRA(regs.D), 2, "Z 0 0 C", 8);
+        cbOperations[0x2b] = new Operation("SRA E", () -> SRA(regs.E), 2, "Z 0 0 C", 8);
+        cbOperations[0x2c] = new Operation("SRA H", () -> SRA(regs.H), 2, "Z 0 0 C", 8);
+        cbOperations[0x2d] = new Operation("SRA L", () -> SRA(regs.L), 2, "Z 0 0 C", 8);
+        cbOperations[0x2e] = new Operation("SRA (HL)", () -> SRA(mem.registerLocation(regs.HL)), 2, "Z 0 0 C", 16);
+        cbOperations[0x2f] = new Operation("SRA A", () -> SRA(regs.A), 2, "Z 0 0 C", 8);
         cbOperations[0x30] = new Operation("SWAP B", () -> SWAP(regs.B), 2, "Z 0 0 0", 8);
         cbOperations[0x31] = new Operation("SWAP C", () -> SWAP(regs.C), 2, "Z 0 0 0", 8);
         cbOperations[0x32] = new Operation("SWAP D", () -> SWAP(regs.D), 2, "Z 0 0 0", 8);
