@@ -313,7 +313,12 @@ public class CPU {
     int POP(LongRegister reg){
         int sp = regs.SP.read();
         
-        reg.lowerByte.write(mem.readByte(sp));
+        if(reg.lowerByte == regs.F) {
+            //the lower nibble of F should always be 0
+            reg.lowerByte.write(mem.readByte(sp) & (~0xf));
+        }else{
+            reg.lowerByte.write(mem.readByte(sp));
+        }
         sp++;
         
         reg.upperByte.write(mem.readByte(sp));
