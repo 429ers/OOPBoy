@@ -56,11 +56,21 @@ public class Tile {
 		int[][] tileFlip = new int[8][8];
 		for (int i = 0; i < 8; i++) {
 			for (int j = 0; j < 8; j++) {
-				tileFlip[i][j] = tileData[7 - i][j];
+				tileFlip[j][i] = tileData[7 - j][i];
 			}
 		}
 		return new Tile(tileFlip);
 		
+	}
+	
+	public Tile transpose() {
+		int[][] tileTranspose = new int[8][8];
+		for (int i = 0; i < 8; i++) {
+			for (int j = 0; j < 8; j++) {
+				tileTranspose[i][j] = tileData[j][i];
+			}
+		}
+		return new Tile(tileTranspose);
 	}
 	
 	public int getPixel(int x, int y) {

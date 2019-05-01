@@ -23,8 +23,8 @@ public class PPU {
 	private boolean drewFrame;
 	private Map<Integer, Sprite> sprites;
 	private Pallette background;
+	private Pallette obp0;
 	private Pallette obp1;
-	private Pallette obp2;
 	private boolean spritesEnabled;
 	private boolean windowEnabled;
 	private int windowX;
@@ -97,8 +97,8 @@ public class PPU {
 	
 	public void loadPallettes() {
 		background = new Pallette(mem.readByte(0xFF47));
-		obp1 = new Pallette(mem.readByte(0xFF48));
-		obp2 = new Pallette(mem.readByte(0xFF49));
+		obp0 = new Pallette(mem.readByte(0xFF48));
+		obp1 = new Pallette(mem.readByte(0xFF49));
 	}
 	
 	public void tick() {
@@ -122,6 +122,9 @@ public class PPU {
 			int lcdc = mem.readByte(0xff40);
 			boolean useTileSet1 = BitOps.extract(lcdc, 4, 4) == 1;
 			boolean useWindowTileMap1 = BitOps.extract(lcdc, 6, 6) == 0;
+			if (BitOps.extract(lcdc, 2, 2) == 1) {
+				System.out.println("want to be in 8x16 mode");
+			}
 			if (currentY == 0) {
 				this.loadTileSets();
 				boolean useBackgroundMap1 = BitOps.extract(lcdc, 3, 3) == 0;
@@ -152,16 +155,24 @@ public class PPU {
 			int xPos = scrollX + currentX;
 			Tile currentTile;
 			Pallette currentPallette;
+			Tile backgroundTile = map.getTile(yPos / 8, xPos / 8);
 			if (windowEnabled && currentX >= windowX && currentY >= windowY) {
 				currentTile = window.getTile(yPos / 8, xPos / 8);
 				currentPallette = background;
 			}
 			else if (spritesEnabled && sprites.containsKey(currentX + 8)) {
-				currentTile = sprites.get(currentX + 8).getTile();
-				currentPallette = obp1;
+				Sprite currentSprite = sprites.get(currentX + 8);
+				if (currentSprite.priority == 0 || backgroundTile.getPixel(yPos % 8, xPos % 8) == 0) {
+					currentTile = currentSprite.getTile();
+					currentPallette = currentSprite.usePalletteZero() ? obp0 : obp1;
+				}
+				else {
+					currentTile = backgroundTile;
+					currentPallette = background;
+				}
 			}
 			else {
-				currentTile = map.getTile(yPos / 8, xPos / 8);
+				currentTile = backgroundTile;
 				currentPallette = background;
 			}
 			int pixel = currentTile.getPixel(yPos % 8, xPos % 8);
@@ -221,7 +232,7 @@ public class PPU {
 			if (s.inRange(currentY + 16)) {
 				spritesFound++;
 				for (int i = 0; i < 8; i++) {
-					if (!sprites.containsKey(s.getSpriteX() + i)) {
+					if (!sprites.containsKey(s.getSpriteX() + i) && s.getTile().getPixel(currentY % 8, i) != 0) {
 						sprites.put(s.getSpriteX() + i, s);
 					}
 				}
