@@ -111,6 +111,8 @@ public class PPU {
 			//System.out.println("executing this thing");
 			
 		}
+		
+		
 		*/
 		if (cycleCount == OAM_SEARCH_START) {
 			scrollY = mem.readByte(0xFF42);
@@ -155,27 +157,31 @@ public class PPU {
 			int xPos = scrollX + currentX;
 			Tile currentTile;
 			Pallette currentPallette;
+			int pixel;
 			Tile backgroundTile = map.getTile(yPos / 8, xPos / 8);
 			if (windowEnabled && currentX >= windowX && currentY >= windowY) {
 				currentTile = window.getTile(yPos / 8, xPos / 8);
 				currentPallette = background;
+				pixel = currentTile.getPixel(yPos % 8, xPos % 8);
 			}
 			else if (spritesEnabled && sprites.containsKey(currentX + 8)) {
 				Sprite currentSprite = sprites.get(currentX + 8);
 				if (currentSprite.priority == 0 || backgroundTile.getPixel(yPos % 8, xPos % 8) == 0) {
 					currentTile = currentSprite.getTile();
 					currentPallette = currentSprite.usePalletteZero() ? obp0 : obp1;
+					pixel = currentTile.getPixel(currentY - (currentSprite.getSpriteY() - 16), currentX - (currentSprite.getSpriteX() - 8));
 				}
 				else {
 					currentTile = backgroundTile;
 					currentPallette = background;
+					pixel = currentTile.getPixel(yPos % 8, xPos % 8);
 				}
 			}
 			else {
 				currentTile = backgroundTile;
 				currentPallette = background;
+				pixel = currentTile.getPixel(yPos % 8, xPos % 8);
 			}
-			int pixel = currentTile.getPixel(yPos % 8, xPos % 8);
 			frame.setRGB(currentX, currentY, currentPallette.getColor(pixel).getRGB());
 			currentX++;
 		}
