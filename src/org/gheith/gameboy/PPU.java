@@ -240,13 +240,13 @@ public class PPU {
 				spritesFound++;
 				for (int i = 0; i < 8; i++) {
 					if (!sprites.containsKey(s.getSpriteX() + i)) {
-						if (true || s.getTile().getPixel(currentY % 8, i) != 0) {
+						if (s.getTile().getPixel(currentY - (s.getSpriteY() - 16), i) != 0) {
 							sprites.put(s.getSpriteX() + i, s);
 						}
 					}
 					else {
 						Sprite conflictSprite = sprites.get(s.getSpriteX() + i);
-						if (s.getSpriteX() < conflictSprite.getSpriteX() && s.getTile().getPixel(currentY % 8, i) != 0) {
+						if (s.getSpriteX() < conflictSprite.getSpriteX() /*|| conflictSprite.getTile().getPixel(currentY - (conflictSprite.getSpriteY() - 16), i) == 0*/) {
 							sprites.put(s.getSpriteX() + i, s);
 						}
 					}
