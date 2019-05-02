@@ -31,7 +31,6 @@ public class PPU {
 	private int windowY;
 	private int LYCompare = -1;
 	private long timeOfLastFrame;
-	private int frameCount;
 	
 	/*
 	public static final int OAM_SEARCH_LENGTH = 20;
@@ -76,7 +75,6 @@ public class PPU {
 		this.gbs = gbs;
 		sprites = new HashMap<Integer, Sprite>();
 		timeOfLastFrame = -1;
-		frameCount = 0;
 	}
 	
 	public boolean drewFrame() {
@@ -215,22 +213,19 @@ public class PPU {
 		// Send V-Blank interrupt
 		if (currentY == 145 && cycleCount == 0) {
 			
-			if (frameCount == 1) {
-				long currentTime = System.currentTimeMillis();
-				long deltaTime = currentTime - timeOfLastFrame;
-				if (deltaTime < 32) {
-					System.out.println("sleep");
-					try {
-						Thread.sleep(34 - deltaTime);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
+		
+			long currentTime = System.currentTimeMillis();
+			long deltaTime = currentTime - timeOfLastFrame;
+			if (deltaTime < 16) {
+				System.out.println("sleep");
+				try {
+					Thread.sleep(17 - deltaTime);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
-				timeOfLastFrame = System.currentTimeMillis();
 			}
-			frameCount++;
-			frameCount %= 2;
+			timeOfLastFrame = System.currentTimeMillis();
 			int status = mem.readByte(0xFF41) & 0x3F;
 			mem.writeByte(0xFF41, status | 0x40);
 			gbs.drawFrame(frame);
