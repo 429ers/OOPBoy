@@ -84,7 +84,6 @@ class Mbc1 implements Cartridge {
             if(newBank == 0) newBank = 1;
             
             this.currentBank = newBank;
-            System.out.println("bank switched to " + this.currentBank);
         }
     }
 }
