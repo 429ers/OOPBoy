@@ -1,5 +1,6 @@
 package org.gheith.gameboy;
 
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -17,16 +18,16 @@ public class Main {
 		JFrame frame = new JFrame();
 		BufferedImage img = new BufferedImage(160, 144, BufferedImage.TYPE_3BYTE_BGR);
 		GameBoyScreen gbs = new GameBoyScreen(img);
-		gbs.setSize(500, 500);
+		gbs.setPreferredSize(new Dimension(500, 500));
 		frame.add(gbs);
 		frame.pack();
 		frame.setTitle("GheithBoy");
 		frame.setVisible(true);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-		MMU mmu = new MMU("Tetris.gb");
+		MMU mmu = new MMU("Super Mario Land.gb");
         CPU cpu = new CPU(mmu);
         PPU ppu = new PPU(mmu, gbs);
-		gbs.addKeyListener(new Joypad(mmu));
+		frame.addKeyListener(new Joypad(mmu));
         ppu.loadTileSets();
         ppu.loadMap(true, true);
         HashSet<Integer> breakPoints = new HashSet<>();

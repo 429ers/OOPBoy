@@ -1,10 +1,10 @@
 package org.gheith.gameboy;
 
-import java.awt.Canvas;
+import javax.swing.*;
 import java.awt.Graphics;
 import java.awt.Image;
 
-public class GameBoyScreen extends Canvas{
+public class GameBoyScreen extends JPanel {
 	public Image img;
 	
 	public GameBoyScreen() {
