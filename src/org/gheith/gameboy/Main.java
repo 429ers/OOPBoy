@@ -18,6 +18,7 @@ public class Main {
 		JFrame frame = new JFrame();
 		BufferedImage img = new BufferedImage(160, 144, BufferedImage.TYPE_3BYTE_BGR);
 		GameBoyScreen gbs = new GameBoyScreen(img);
+		gbs.setDoubleBuffered(true);
 		gbs.setPreferredSize(new Dimension(500, 500));
 		frame.add(gbs);
 		frame.pack();
