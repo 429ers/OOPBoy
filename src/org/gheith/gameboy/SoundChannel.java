@@ -4,6 +4,7 @@ import javax.sound.sampled.*;
 
 public interface SoundChannel {
     void handleByte(int location, int toWrite);
+    void tick();
 }
 
 class SquareWave implements SoundChannel {
@@ -17,91 +18,77 @@ class SquareWave implements SoundChannel {
     private boolean lengthEnabled = false;
     private int lengthCounter = 0;
     
-    private Clip clip;
+    private int ticksMod4 = 0;
     
-    public static final int START_ADDR = 0xff15;
+    private byte[] soundBuffer = new byte[SAMPLE_RATE];
     
-    Thread lengthDecreaser = new Thread(() -> {
-        while(true){
-            if(lengthEnabled){
-                lengthCounter--;
-                if(lengthCounter <= 0){
-                    clip.stop();
-                    this.playing = false;
-                }
-            }
-
-            try {
-                Thread.sleep(4);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-    });
+    private SourceDataLine sourceDL;
     
     private static final int SAMPLE_RATE = 131072;
-    private static final AudioFormat AUDIO_FORMAT = new AudioFormat(8 * 131072, 8, 1, true, false);
+    private static final int SAMPLES_PER_TICK = SAMPLE_RATE / 30;
+    private static final AudioFormat AUDIO_FORMAT = new AudioFormat(SAMPLE_RATE, 8, 1, true, false);
 
-    public static void main(String[] args) throws InterruptedException {
-        SquareWave test = new SquareWave();
-        test.duty = 2;
-        test.frequency = 900;
-        test.playing = true;
-        test.lengthLoad = 256;
-        test.lengthCounter = 256;
-        test.lengthEnabled = true;
-        test.updateSound();
-        Thread.sleep(1000000);
-    }
-    
-    public SquareWave() {
-        this.lengthDecreaser.start();
+    SquareWave() {
+        try {
+            sourceDL = AudioSystem.getSourceDataLine(AUDIO_FORMAT);
+            sourceDL.open(AUDIO_FORMAT);
+            sourceDL.start();
+        } catch (LineUnavailableException e) {
+            e.printStackTrace();
+        }
     }
     
     public static int getWaveform(int duty) {
         switch(duty){
             case 0:
-                return 0x01;
+                return 0b00000001;
             case 1:
-                return 0x81;
+                return 0b10000001;
             case 2:
-                return 0x87;
+                return 0b10000111;
             case 3:
-                return 0x7e;
+                return 0b01111110;
             default:
                 throw new IllegalArgumentException("duty must be in [0,4)");
         }
     }
 
-    public void updateSound() {
-        if(clip != null) clip.stop();
-        
-        if(!this.playing){
+    public void tick() {
+        if (!this.playing) {
+            sourceDL.stop();
+            return;
+        }else{
+            sourceDL.start();
+        }
+        if (sourceDL == null) {
             return;
         }
+
+        if (lengthEnabled) {
+            ticksMod4 = (ticksMod4 + 1) % 4;
+    
+            if (ticksMod4 == 0) {
+                lengthCounter--;
+                if(lengthCounter == 0){
+                    this.playing = false;
+                }
+            }
+        }
         
-        int chunkSize = (2048 - frequency); //number of samples before switching things up
-        byte[] soundBuffer = new byte[8 * chunkSize];
-        int waveForm = getWaveform(duty);
+        sourceDL.flush();
+        
+        int waveForm = getWaveform(this.duty);
+        int chunkSize = (2048 - frequency) / 8;
         
         for(int i = 0; i < 8; i++){
-            byte toWrite = (((waveForm >> i) & 1) == 1)? (byte)127: (byte)-128;
+            byte toWrite = (((waveForm >> i) & 1) == 1)? (byte)100: (byte)-100;
             for(int j = 0; j < chunkSize; j++){
                 soundBuffer[i * chunkSize + j] = toWrite;
             }
         }
         
-        try {
-            clip = AudioSystem.getClip();
-            
-            clip.open(AUDIO_FORMAT, soundBuffer, 0, soundBuffer.length);
-            
-            clip.loop(Clip.LOOP_CONTINUOUSLY);
-            
-            clip.start();
-            
-        } catch (LineUnavailableException e) {
-            e.printStackTrace();
+        for(int i = 0; i < SAMPLES_PER_TICK; i+= 8*chunkSize){
+            sourceDL.write(soundBuffer, 0, 8*chunkSize);
         }
     }
     
@@ -136,7 +123,5 @@ class SquareWave implements SoundChannel {
             this.lengthCounter = this.lengthLoad;
             System.out.println(this.lengthCounter);
         }
-        
-        updateSound();
     }
 }

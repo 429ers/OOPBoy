@@ -210,6 +210,7 @@ public class PPU {
 			}
 		}
 		
+		drewFrame = false;
 		// Send V-Blank interrupt
 		if (currentY == 145 && cycleCount == 0) {
 			
@@ -217,7 +218,7 @@ public class PPU {
 			long currentTime = System.currentTimeMillis();
 			long deltaTime = currentTime - timeOfLastFrame;
 			if (deltaTime < 16) {
-				System.out.println("sleep");
+				//System.out.println("sleep");
 				try {
 					Thread.sleep(17 - deltaTime);
 				} catch (InterruptedException e) {

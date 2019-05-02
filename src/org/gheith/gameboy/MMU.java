@@ -23,6 +23,8 @@ public class MMU {
     private CPU cpu;
     private PPU ppu;
     private Joypad joypad;
+    SoundChannel square1 = new SquareWave();
+    SoundChannel square2 = new SquareWave();
     
     public void setCPU(CPU cpu){
         this.cpu = cpu;
@@ -165,6 +167,12 @@ public class MMU {
         
         if(location == LY_COMPARE_REGISTER){
             ppu.setLYCompare(toWrite);
+        }
+        
+        if(location >= 0xff10 && location <= 0xff14){
+            square1.handleByte(location - 0xff10, toWrite);
+        }else if(location >= 0xff15 && location <= 0xff19){
+            square2.handleByte(location - 0xff15, toWrite);
         }
         
         mem[location] = toWrite & 0xFF;

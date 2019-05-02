@@ -25,7 +25,7 @@ public class Main {
 		frame.setTitle("GheithBoy");
 		frame.setVisible(true);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-		MMU mmu = new MMU("Super Mario Land.gb");
+		MMU mmu = new MMU("Tetris.gb");
         CPU cpu = new CPU(mmu);
         PPU ppu = new PPU(mmu, gbs);
 		frame.addKeyListener(new Joypad(mmu));
@@ -93,6 +93,10 @@ public class Main {
         	int cycles = cpu.getClockCycleDelta();
         	for (int i = 0; i < cycles; i++) {
                 ppu.tick();
+                if(ppu.drewFrame()){
+                    mmu.square1.tick();
+                    mmu.square2.tick();
+                }
                 cpu.timer.tick();
                 //System.out.println("ticking ppu");
             }
