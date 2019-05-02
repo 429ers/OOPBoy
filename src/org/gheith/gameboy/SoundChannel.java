@@ -42,11 +42,11 @@ class SquareWave implements SoundChannel {
     public static int getWaveform(int duty) {
         switch(duty){
             case 0:
-                return 0b00000001;
+                return 0b00100000;
             case 1:
-                return 0b10000001;
+                return 0b00110000;
             case 2:
-                return 0b10000111;
+                return 0b00111100;
             case 3:
                 return 0b01111110;
             default:
