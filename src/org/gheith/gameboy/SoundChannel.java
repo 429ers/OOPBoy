@@ -22,11 +22,12 @@ class SquareWave implements SoundChannel {
     private long ticks = 0;
     
     private byte[] soundBuffer = new byte[SAMPLE_RATE];
+    private byte[] zeros = new byte[SAMPLE_RATE];
     
     private SourceDataLine sourceDL;
     
-    private static final int SAMPLE_RATE = 131072;
-    private static final int SAMPLES_PER_TICK = SAMPLE_RATE / 10;
+    private static final int SAMPLE_RATE = 131072 / 3;
+    private static final int SAMPLES_PER_TICK = SAMPLE_RATE / 13;
     private static final AudioFormat AUDIO_FORMAT = new AudioFormat(SAMPLE_RATE, 8, 1, true, false);
 
     SquareWave() {
@@ -83,18 +84,21 @@ class SquareWave implements SoundChannel {
         sourceDL.flush();
         
         int waveForm = getWaveform(this.duty);
-        int chunkSize = (2048 - frequency) / 8;
+        double chunkSize = (2048.0 - frequency) / 8 / 3;
         
-        for(int i = 0; i < 8; i++){
-            byte toWrite = (((waveForm >> i) & 1) == 1)? (byte)(currentVolume): (byte)(-currentVolume);
-            for(int j = 0; j < chunkSize; j++){
-                soundBuffer[i * chunkSize + j] = toWrite;
-            }
+        int waveLength = (int)(8 * chunkSize);
+        
+        for(int i = 0; i < waveLength; i++){
+            int loc = (int)Math.round(i / chunkSize);
+            soundBuffer[i] = (((waveForm >> loc) & 1) == 1)? (byte)(currentVolume): (byte)(-currentVolume);
         }
         
-        for(int i = 0; i < SAMPLES_PER_TICK; i+= 8*chunkSize){
-            sourceDL.write(soundBuffer, 0, 8*chunkSize);
+        int samplesWritten;
+        for(samplesWritten = 0; samplesWritten < SAMPLES_PER_TICK - waveLength; samplesWritten += waveLength){
+            sourceDL.write(soundBuffer, 0, waveLength);
         }
+        
+        sourceDL.write(zeros, 0, SAMPLES_PER_TICK - samplesWritten);
     }
     
     @Override
