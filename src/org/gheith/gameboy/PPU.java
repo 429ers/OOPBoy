@@ -114,6 +114,7 @@ public class PPU {
 		
 		
 		*/
+		scrollX = mem.readByte(0xFF43);
 		if (cycleCount == OAM_SEARCH_START) {
 			scrollY = mem.readByte(0xFF42);
 			if (currentY < ACTUAL_LINES) {
@@ -246,7 +247,7 @@ public class PPU {
 					}
 					else {
 						Sprite conflictSprite = sprites.get(s.getSpriteX() + i);
-						if (s.getSpriteX() < conflictSprite.getSpriteX() /*|| conflictSprite.getTile().getPixel(currentY - (conflictSprite.getSpriteY() - 16), i) == 0*/) {
+						if (s.getSpriteX() < conflictSprite.getSpriteX()) {
 							sprites.put(s.getSpriteX() + i, s);
 						}
 					}

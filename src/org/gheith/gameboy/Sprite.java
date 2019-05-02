@@ -9,8 +9,10 @@ public class Sprite {
 	boolean isLargeSprite;
 	boolean usePalletteZero;
 	int priority;
+	int spriteAddress;
 	
 	public Sprite(MMU mem, int spriteAddress, TileSet tileset, boolean isLargeSprite) {
+		this.spriteAddress = spriteAddress;
 		spriteY = mem.readByte(spriteAddress);
 		spriteX = mem.readByte(spriteAddress + 1);
 		flags = mem.readByte(spriteAddress + 3);
@@ -26,11 +28,11 @@ public class Sprite {
 			tile1 = tileset.getTile(tileNum);
 			if (BitOps.extract(flags, 5, 5) == 1) {
 				tile1 = tile1.flipTileOverXAxis();
-				System.out.println("flip x");
+				//System.out.println("flip x");
 			}
 			if (BitOps.extract(flags, 6, 6) == 1) {
 				tile1 = tile1.flipTileOverYAxis();
-				System.out.println("flip y");
+				//System.out.println("flip y");
 			}
 			if (BitOps.extract(flags, 4, 4) == 0) {
 				usePalletteZero = true;
@@ -59,5 +61,9 @@ public class Sprite {
 	
 	public boolean usePalletteZero() {
 		return usePalletteZero;
+	}
+	
+	public int getSpriteAddress() {
+		return spriteAddress;
 	}
 }
