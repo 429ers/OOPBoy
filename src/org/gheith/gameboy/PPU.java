@@ -29,6 +29,7 @@ public class PPU {
 	private boolean windowEnabled;
 	private int windowX;
 	private int windowY;
+	private int LYCompare = -1;
 	
 	/*
 	public static final int OAM_SEARCH_LENGTH = 20;
@@ -65,6 +66,7 @@ public class PPU {
 	
 	
 	public PPU(MMU mem, GameBoyScreen gbs) {
+	    mem.setPPU(this);
 		this.mem = mem;
 		frame = new BufferedImage(160, 144, BufferedImage.TYPE_3BYTE_BGR);
 		currentX = 0;
@@ -100,6 +102,10 @@ public class PPU {
 		obp0 = new Pallette(mem.readByte(0xFF48));
 		obp1 = new Pallette(mem.readByte(0xFF49));
 	}
+	
+	public void setLYCompare(int lyCompare){
+	    this.LYCompare = lyCompare;
+    }
 	
 	public void tick() {
 		// Lie to the CPU and pretend we're transfering pixels to the LCD
@@ -221,6 +227,12 @@ public class PPU {
 			//mem.writeByte(0xFF85, 0xFF);
 			//mem.writeByte(0xFF44, 0x90);
 		}
+		
+		//send LCDC interrupt
+        if (currentY == LYCompare){
+            int interruptRegister = mem.readByte(0xFF0F) & 0xFE;
+            mem.writeByte(0xFF0F, interruptRegister | 0x02);
+        }
 		
 		cycleCount++;
 		cycleCount %= LINE_LENGTH;

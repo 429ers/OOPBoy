@@ -15,14 +15,20 @@ public class MMU {
     public static final int TIMA_REGISTER = 0xFF05;
     public static final int TMA_REGISTER = 0xFF06;
     public static final int TAC_REGISTER = 0xFF07;
+    public static final int DMA_REGISTER = 0xFF46;
+    public static final int LY_COMPARE_REGISTER = 0xFF45;
     
     boolean DEBUG = false;
     private boolean bootRomEnabled = true;
     private CPU cpu;
+    private PPU ppu;
     private Joypad joypad;
     
     public void setCPU(CPU cpu){
         this.cpu = cpu;
+    }
+    public void setPPU(PPU ppu) {
+        this.ppu = ppu;
     }
     
     public MMU() {
@@ -131,7 +137,7 @@ public class MMU {
             cpu.interruptHandler.handleIE(toWrite);
         }
         
-        if(location == 0xFF46) { //DMA transfer register
+        if(location == DMA_REGISTER) { //DMA transfer register
             int sourceBegin = toWrite << 8;
             int destBegin = 0xfe00;
             for(int i = 0; i < 256; i++){
@@ -155,6 +161,10 @@ public class MMU {
         
         if(location == TAC_REGISTER){
             cpu.timer.handleTAC(toWrite);
+        }
+        
+        if(location == LY_COMPARE_REGISTER){
+            ppu.setLYCompare(toWrite);
         }
         
         mem[location] = toWrite & 0xFF;
