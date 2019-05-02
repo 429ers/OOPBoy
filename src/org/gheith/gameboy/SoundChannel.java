@@ -81,7 +81,7 @@ class SquareWave implements SoundChannel {
         int chunkSize = (2048 - frequency) / 8;
         
         for(int i = 0; i < 8; i++){
-            byte toWrite = (((waveForm >> i) & 1) == 1)? (byte)100: (byte)-100;
+            byte toWrite = (((waveForm >> i) & 1) == 1)? (byte)(startingVolume): (byte)(-startingVolume);
             for(int j = 0; j < chunkSize; j++){
                 soundBuffer[i * chunkSize + j] = toWrite;
             }
