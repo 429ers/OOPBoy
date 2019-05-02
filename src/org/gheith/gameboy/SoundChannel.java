@@ -27,7 +27,6 @@ class SquareWave implements SoundChannel {
     private SourceDataLine sourceDL;
     
     private static final int SAMPLE_RATE = 131072 / 3;
-    private static final int SAMPLES_PER_TICK = SAMPLE_RATE / 13;
     private static final AudioFormat AUDIO_FORMAT = new AudioFormat(SAMPLE_RATE, 8, 1, true, false);
 
     SquareWave() {
@@ -93,12 +92,13 @@ class SquareWave implements SoundChannel {
             soundBuffer[i] = (((waveForm >> loc) & 1) == 1)? (byte)(currentVolume): (byte)(-currentVolume);
         }
         
+        int samplesToWrite = sourceDL.available();
         int samplesWritten;
-        for(samplesWritten = 0; samplesWritten < SAMPLES_PER_TICK - waveLength; samplesWritten += waveLength){
+        for(samplesWritten = 0; samplesWritten < samplesToWrite - waveLength; samplesWritten += waveLength){
             sourceDL.write(soundBuffer, 0, waveLength);
         }
         
-        sourceDL.write(zeros, 0, SAMPLES_PER_TICK - samplesWritten);
+        sourceDL.write(zeros, 0, samplesToWrite - samplesWritten);
     }
     
     @Override
