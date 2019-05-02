@@ -22,11 +22,12 @@ class SquareWave implements SoundChannel {
     private long ticks = 0;
     
     private byte[] soundBuffer = new byte[SAMPLE_RATE];
-    private byte[] zeros = new byte[SAMPLE_RATE];
+    private byte[] transition = new byte[SAMPLE_RATE];
     
     private SourceDataLine sourceDL;
     
     private static final int SAMPLE_RATE = 131072 / 3;
+    private static final int SAMPLES_PER_FRAME = SAMPLE_RATE/11;
     private static final AudioFormat AUDIO_FORMAT = new AudioFormat(SAMPLE_RATE, 8, 1, true, false);
 
     SquareWave() {
@@ -80,8 +81,6 @@ class SquareWave implements SoundChannel {
             if(this.currentVolume > 15) this.currentVolume = 15;
         }
         
-        sourceDL.flush();
-        
         int waveForm = getWaveform(this.duty);
         double chunkSize = (2048.0 - frequency) / 8 / 3;
         
@@ -92,13 +91,18 @@ class SquareWave implements SoundChannel {
             soundBuffer[i] = (((waveForm >> loc) & 1) == 1)? (byte)(currentVolume): (byte)(-currentVolume);
         }
         
-        int samplesToWrite = sourceDL.available();
+        int samplesToWrite = Math.min(sourceDL.available(), SAMPLES_PER_FRAME);
         int samplesWritten;
         for(samplesWritten = 0; samplesWritten < samplesToWrite - waveLength; samplesWritten += waveLength){
             sourceDL.write(soundBuffer, 0, waveLength);
         }
         
-        sourceDL.write(zeros, 0, samplesToWrite - samplesWritten);
+        int transitionSamples = samplesToWrite - samplesWritten;
+        for(int i = 0; i < transitionSamples; i++){
+            transition[i] = (byte)((transitionSamples - i) * (currentVolume) / transitionSamples);
+        }
+        
+        sourceDL.write(transition, 0, transitionSamples);
     }
     
     @Override
