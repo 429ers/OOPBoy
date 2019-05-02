@@ -18,14 +18,15 @@ class SquareWave implements SoundChannel {
     private boolean lengthEnabled = false;
     private int lengthCounter = 0;
     
-    private int ticksMod4 = 0;
+    private int currentVolume = 0;
+    private long ticks = 0;
     
     private byte[] soundBuffer = new byte[SAMPLE_RATE];
     
     private SourceDataLine sourceDL;
     
     private static final int SAMPLE_RATE = 131072;
-    private static final int SAMPLES_PER_TICK = SAMPLE_RATE / 30;
+    private static final int SAMPLES_PER_TICK = SAMPLE_RATE / 10;
     private static final AudioFormat AUDIO_FORMAT = new AudioFormat(SAMPLE_RATE, 8, 1, true, false);
 
     SquareWave() {
@@ -63,16 +64,20 @@ class SquareWave implements SoundChannel {
         if (sourceDL == null) {
             return;
         }
+        
+        ticks++;
 
         if (lengthEnabled) {
-            ticksMod4 = (ticksMod4 + 1) % 4;
-    
-            if (ticksMod4 == 0) {
-                lengthCounter--;
-                if(lengthCounter == 0){
-                    this.playing = false;
-                }
+            lengthCounter-= 4;
+            if (lengthCounter <= 0) {
+                this.playing = false;
             }
+        }
+        
+        if(envelopePeriod != 0 && ticks % envelopePeriod == 0) {
+            this.currentVolume += (envelopeAdd? 3: -3);
+            if(this.currentVolume < 0) this.currentVolume = 0;
+            if(this.currentVolume > 15) this.currentVolume = 15;
         }
         
         sourceDL.flush();
@@ -81,7 +86,7 @@ class SquareWave implements SoundChannel {
         int chunkSize = (2048 - frequency) / 8;
         
         for(int i = 0; i < 8; i++){
-            byte toWrite = (((waveForm >> i) & 1) == 1)? (byte)(startingVolume): (byte)(-startingVolume);
+            byte toWrite = (((waveForm >> i) & 1) == 1)? (byte)(currentVolume): (byte)(-currentVolume);
             for(int j = 0; j < chunkSize; j++){
                 soundBuffer[i * chunkSize + j] = toWrite;
             }
@@ -105,6 +110,7 @@ class SquareWave implements SoundChannel {
                 break;
             case 2:
                 this.startingVolume = (toWrite >> 4) & 0xf;
+                this.currentVolume = this.startingVolume;
                 this.envelopeAdd = ((toWrite >> 3) & 1) == 1;
                 this.envelopePeriod = toWrite & 0x7;
                 break;
