@@ -4,12 +4,12 @@ registers = ['A', 'B', 'D', 'H', 'F', 'C', 'E', 'L', 'AF', 'BC', 'DE', 'HL', 'SP
 
 def convert_op(op): #converts the operand to the Java equivalent
     if op in registers:
-        return 'regs.' + op
+        return 'cpu.regs.' + op
     re_matches = re.match(r'^\(([A-Z][A-Z])\)$', op)
     if re_matches:
         address_reg = re_matches.group(1)
         if address_reg in registers:
-            return 'mem.registerLocation(regs.' + address_reg + ')'
+            return 'cpu.mem.registerLocation(cpu.regs.' + address_reg + ')'
     
     re_matches = re.match(r'^(\d)$', op)
     if re_matches:
@@ -19,14 +19,11 @@ def convert_op(op): #converts the operand to the Java equivalent
     exit(1)
 
 def generate_lambda(mnemonic, operands):
-    if len(operands) == 0:
-        return 'this::' + mnemonic
-
     operands = map(convert_op, operands)
 
-    statement = mnemonic + '(' + (', '.join(operands)) + ')'
+    statement = 'cpu.' + mnemonic + '(' + (', '.join(operands)) + ')'
     
-    return '() -> ' + statement
+    return '(CPU cpu) -> ' + statement
 
 def assemble_operation():
     return 'new Operation("' + op_description + '", ' + op_lambda + ', ' + op_length + ', "' + op_flags + '", ' + op_ticks[0] + ')'
@@ -57,8 +54,8 @@ for line in file:
         op_lambda = generate_lambda(op_mnemonic, operands)
     
     if line_num % 3 == 1:
-        if op_mnemonic == 'XXX': line = '0\xa0\xa00'
-        temp = line.split('\xa0\xa0') #the numbers are separated by two of these characters for some reason
+        if op_mnemonic == 'XXX': line = '0  0'
+        temp = line.split('  ') #the numbers are separated by two of these characters for some reason
         op_length = temp[0]
         if '/' in temp[1]:
             op_ticks = temp[1].split('/')

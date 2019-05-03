@@ -1,22 +1,22 @@
 import re
 
 special_operands = {
-    "r8": "d8()", #sign is handled in CPU code
-    "d8": "d8()",
-    "a8": "a8()",
-    "d16": "d16()",
-    "a16": "a16()",
+    "r8": "cpu.d8()", #sign is handled in CPU code
+    "d8": "cpu.d8()",
+    "a8": "cpu.a8()",
+    "d16": "cpu.d16()",
+    "a16": "cpu.a16()",
     "NZ": "Condition.NZ",
     "Z": "Condition.Z",
     "NC": "Condition.NC",
     "C(cond)": "Condition.C",
-    "(a16)": "mem.a16Location(regs.PC)",
-    "(a8)": "mem.a8Location(regs.PC)",
-    "(d8)": "mem.d8Location(regs.PC)",
-    "(C)": "mem.shortRegisterLocation(regs.C)",
-    "(HL+)": "mem.registerLocation(selfIncrement(regs.HL))",
-    "(HL-)": "mem.registerLocation(selfDecrement(regs.HL))",
-    "SP+r8": "mem.SPr8Location(regs.SP, regs.PC, regs.flags)",
+    "(a16)": "cpu.mem.a16Location(cpu.regs.PC)",
+    "(a8)": "cpu.mem.a8Location(cpu.regs.PC)",
+    "(d8)": "cpu.mem.d8Location(cpu.regs.PC)",
+    "(C)": "cpu.mem.shortRegisterLocation(cpu.regs.C)",
+    "(HL+)": "cpu.mem.registerLocation(selfIncrement(cpu.regs.HL))",
+    "(HL-)": "cpu.mem.registerLocation(selfDecrement(cpu.regs.HL))",
+    "SP+r8": "cpu.mem.SPr8Location(cpu.regs.SP, cpu.regs.PC, cpu.regs.flags)",
 }
 
 registers = ['A', 'B', 'D', 'H', 'F', 'C', 'E', 'L', 'AF', 'BC', 'DE', 'HL', 'SP', 'PC']
@@ -27,12 +27,12 @@ def convert_op(op): #converts the operand to the Java equivalent
     if op in special_operands:
         return special_operands[op]
     if op in registers:
-        return 'regs.' + op
+        return 'cpu.regs.' + op
     re_matches = re.match(r'^\(([A-Z][A-Z])\)$', op)
     if re_matches:
         address_reg = re_matches.group(1)
         if address_reg in registers:
-            return 'mem.registerLocation(regs.' + address_reg + ')'
+            return 'cpu.mem.registerLocation(cpu.regs.' + address_reg + ')'
     
     re_matches = re.match(r'^(\d\d)H$', op)
     if re_matches:
@@ -43,13 +43,12 @@ def convert_op(op): #converts the operand to the Java equivalent
 
 def generate_lambda(mnemonic, operands):
     if len(operands) == 0:
-        return 'this::' + mnemonic
-
+        return 'CPU::' + mnemonic
     operands = map(convert_op, operands)
 
-    statement = mnemonic + '(' + (', '.join(operands)) + ')'
+    statement = 'cpu.'+mnemonic + '(' + (', '.join(operands)) + ')'
     
-    return '() -> ' + statement
+    return '(CPU cpu) -> ' + statement
 
 def assemble_operation():
     if op_mnemonic in jumps:
@@ -83,8 +82,8 @@ for line in file:
         op_lambda = generate_lambda(op_mnemonic, operands)
     
     if line_num % 3 == 1:
-        if op_mnemonic == 'XXX': line = '0\xa0\xa00'
-        temp = line.split('\xa0\xa0') #the numbers are separated by two of these characters for some reason
+        if op_mnemonic == 'XXX': line = '0  0'
+        temp = line.split('  ') #the numbers are separated by two of these characters for some reason
         op_length = temp[0]
         if '/' in temp[1]:
             op_ticks = temp[1].split('/')
