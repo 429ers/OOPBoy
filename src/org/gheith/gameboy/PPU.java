@@ -206,6 +206,9 @@ public class PPU implements Serializable {
 				currentPallette = background;
 				pixel = currentTile.getPixel(yPos % 8, xPos % 8);
 			}
+			if (frame == null) {
+				frame = new BufferedImage(160, 144, BufferedImage.TYPE_3BYTE_BGR);
+			}
 			frame.setRGB(currentX, currentY, currentPallette.getColor(pixel).getRGB());
 			currentX++;
 		}

@@ -37,6 +37,15 @@ class SoundChip implements Serializable {
     }
 
     public void tick() {
+    	if (sourceDL == null) {
+    		try {
+                sourceDL = AudioSystem.getSourceDataLine(AUDIO_FORMAT);
+                sourceDL.open(AUDIO_FORMAT);
+                sourceDL.start();
+            } catch (LineUnavailableException e) {
+                e.printStackTrace();
+            }
+    	}
         int samplesToWrite = Math.min(sourceDL.available(), SAMPLES_PER_FRAME);
         
         Arrays.fill(masterBuffer, (byte) 0);
