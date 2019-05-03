@@ -6,8 +6,6 @@ public interface ISprite {
 	
 	public int getSpriteX();
 	
-	public Tile getTile();
-	
 	public int getPixel(int posY, int posX);
 	
 	public boolean inRange(int posY);
@@ -15,4 +13,6 @@ public interface ISprite {
 	public boolean usePalletteZero();
 	
 	public int getSpriteAddress();
+	
+	public int getPriority();
 }

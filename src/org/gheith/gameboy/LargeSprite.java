@@ -4,43 +4,40 @@ public class LargeSprite implements ISprite {
 	
 	private Tile tile1;
 	private Tile tile2;
-	int spriteX;
-	int spriteY;
-	int flags;
-	boolean isLargeSprite;
-	boolean usePalletteZero;
-	int priority;
-	int spriteAddress;
+	private int spriteX;
+	private int spriteY;
+	private int flags;
+	private boolean usePalletteZero;
+	private int priority;
+	private int spriteAddress;
 	
-	public LargeSprite(MMU mem, int spriteAddress, TileSet tileset, boolean isLargeSprite) {
+	public LargeSprite(MMU mem, int spriteAddress, TileSet tileset) {
 		this.spriteAddress = spriteAddress;
 		spriteY = mem.readByte(spriteAddress);
 		spriteX = mem.readByte(spriteAddress + 1);
 		flags = mem.readByte(spriteAddress + 3);
-		this.isLargeSprite = isLargeSprite;
 		this.priority = (int) BitOps.extract(flags, 7, 7);
-		if (isLargeSprite) {
-			int tileNum = mem.readByte(spriteAddress + 2) & 0xFE;
-			tile1 = tileset.getTile(tileNum);
-			tile2 = tileset.getTile(tileNum + 1);
+		int tileNum = mem.readByte(spriteAddress + 2) & 0xFE;
+		tile1 = tileset.getTile(tileNum);
+		tile2 = tileset.getTile(tileNum + 1);
+		if (BitOps.extract(flags, 5, 5) == 1) {
+			tile1 = tile1.flipTileOverXAxis();
+			tile2 = tile2.flipTileOverXAxis();
+			//System.out.println("flip x");
+		}
+		if (BitOps.extract(flags, 6, 6) == 1) {
+			tile1 = tile1.flipTileOverYAxis();
+			tile2 = tile2.flipTileOverYAxis();
+			Tile temp = tile1;
+			tile1 = tile2;
+			tile2 = temp;
+			//System.out.println("flip y");
+		}
+		if (BitOps.extract(flags, 4, 4) == 0) {
+			usePalletteZero = true;
 		}
 		else {
-			int tileNum = mem.readByte(spriteAddress + 2);
-			tile1 = tileset.getTile(tileNum);
-			if (BitOps.extract(flags, 5, 5) == 1) {
-				tile1 = tile1.flipTileOverXAxis();
-				//System.out.println("flip x");
-			}
-			if (BitOps.extract(flags, 6, 6) == 1) {
-				tile1 = tile1.flipTileOverYAxis();
-				//System.out.println("flip y");
-			}
-			if (BitOps.extract(flags, 4, 4) == 0) {
-				usePalletteZero = true;
-			}
-			else {
-				usePalletteZero = false;
-			}
+			usePalletteZero = false;
 		}
 	}
 
@@ -53,11 +50,17 @@ public class LargeSprite implements ISprite {
 	public int getSpriteX() {
 		return spriteX;
 	}
-
+	
 	@Override
-	public Tile getTile() {
-		return null;
+	public int getPixel(int posY, int posX) {
+		if (posY >= 8) {
+			return tile2.getPixel(posY - 8, posX);
+		}
+		else {
+			return tile1.getPixel(posY, posX);
+		}
 	}
+
 
 	@Override
 	public boolean inRange(int posY) {
@@ -73,11 +76,12 @@ public class LargeSprite implements ISprite {
 	public int getSpriteAddress() {
 		return spriteAddress;
 	}
-
+	
 	@Override
-	public int getPixel(int posY, int posX) {
-		// TODO Auto-generated method stub
-		return 0;
+	public int getPriority() {
+		return priority;
 	}
+
+
 
 }

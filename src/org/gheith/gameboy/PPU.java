@@ -21,7 +21,7 @@ public class PPU {
 	private int scrollY;
 	private int cycleCount;
 	private boolean drewFrame;
-	private Map<Integer, SmallSprite> sprites;
+	private Map<Integer, ISprite> sprites;
 	private Pallette background;
 	private Pallette obp0;
 	private Pallette obp1;
@@ -74,7 +74,7 @@ public class PPU {
 		currentX = 0;
 		currentY = 0;
 		this.gbs = gbs;
-		sprites = new HashMap<Integer, SmallSprite>();
+		sprites = new HashMap<Integer, ISprite>();
 		timeOfLastFrame = -1;
 	}
 	
@@ -179,9 +179,9 @@ public class PPU {
 				pixel = currentTile.getPixel(yPos % 8, xPos % 8);
 			}
 			else if (spritesEnabled && sprites.containsKey(currentX + 8)) {
-				SmallSprite currentSprite = sprites.get(currentX + 8);
+				ISprite currentSprite = sprites.get(currentX + 8);
 				int spritePixel = currentSprite.getPixel(currentY - (currentSprite.getSpriteY() - 16), currentX - (currentSprite.getSpriteX() - 8));
-				if ((currentSprite.priority == 0 || backgroundTile.getPixel(yPos % 8, xPos % 8) == 0) && spritePixel != 0) {
+				if ((currentSprite.getPriority() == 0 || backgroundTile.getPixel(yPos % 8, xPos % 8) == 0) && spritePixel != 0) {
 					//currentTile = currentSprite.getTile();
 					currentPallette = currentSprite.usePalletteZero() ? obp0 : obp1;
 					pixel = spritePixel;
@@ -262,17 +262,23 @@ public class PPU {
 		int spritesFound = 0;
 		int memAddress = 0xFE00;
 		while (spriteCount < 40 && spritesFound < 10) {
-			SmallSprite s = new SmallSprite(mem, memAddress, tileset1, false);
+			ISprite s = null;
+			if (largeSpriteMode) {
+				s = new LargeSprite(mem, memAddress, tileset1);
+			}
+			else {
+				s = new SmallSprite(mem, memAddress, tileset1);
+			}
 			if (s.inRange(currentY + 16)) {
 				spritesFound++;
 				for (int i = 0; i < 8; i++) {
 					if (!sprites.containsKey(s.getSpriteX() + i)) {
-						if (s.getTile().getPixel(currentY - (s.getSpriteY() - 16), i) != 0) {
+						if (s.getPixel(currentY - (s.getSpriteY() - 16), i) != 0) {
 							sprites.put(s.getSpriteX() + i, s);
 						}
 					}
 					else {
-						SmallSprite conflictSprite = sprites.get(s.getSpriteX() + i);
+						ISprite conflictSprite = sprites.get(s.getSpriteX() + i);
 						if (s.getSpriteX() < conflictSprite.getSpriteX()) {
 							sprites.put(s.getSpriteX() + i, s);
 						}
