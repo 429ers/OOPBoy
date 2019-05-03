@@ -1,8 +1,7 @@
 package org.gheith.gameboy;
 
-public class Sprite {
+public class SmallSprite implements ISprite {
 	private Tile tile1;
-	private Tile tile2;
 	int spriteX;
 	int spriteY;
 	int flags;
@@ -11,7 +10,7 @@ public class Sprite {
 	int priority;
 	int spriteAddress;
 	
-	public Sprite(MMU mem, int spriteAddress, TileSet tileset, boolean isLargeSprite) {
+	public SmallSprite(MMU mem, int spriteAddress, TileSet tileset, boolean isLargeSprite) {
 		this.spriteAddress = spriteAddress;
 		spriteY = mem.readByte(spriteAddress);
 		spriteX = mem.readByte(spriteAddress + 1);
@@ -21,7 +20,7 @@ public class Sprite {
 		if (isLargeSprite) {
 			int tileNum = mem.readByte(spriteAddress + 2) & 0xFE;
 			tile1 = tileset.getTile(tileNum);
-			tile2 = tileset.getTile(tileNum + 1);
+			//tile2 = tileset.getTile(tileNum + 1);
 		}
 		else {
 			int tileNum = mem.readByte(spriteAddress + 2);
@@ -43,26 +42,37 @@ public class Sprite {
 		}
 	}
 	
+	@Override
 	public int getSpriteY() {
 		return spriteY;
 	}
 	
+	@Override
 	public int getSpriteX() {
 		return spriteX;
 	}
 	
+	@Override
 	public Tile getTile() {
 		return tile1;
 	}
 	
+	@Override
+	public int getPixel(int posY, int posX) {
+		return tile1.getPixel(posY, posX);
+	}
+	
+	@Override
 	public boolean inRange(int posY) {
 		return posY >= spriteY && posY < spriteY + 8;
 	}
 	
+	@Override
 	public boolean usePalletteZero() {
 		return usePalletteZero;
 	}
 	
+	@Override
 	public int getSpriteAddress() {
 		return spriteAddress;
 	}

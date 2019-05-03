@@ -21,7 +21,7 @@ public class PPU {
 	private int scrollY;
 	private int cycleCount;
 	private boolean drewFrame;
-	private Map<Integer, Sprite> sprites;
+	private Map<Integer, SmallSprite> sprites;
 	private Pallette background;
 	private Pallette obp0;
 	private Pallette obp1;
@@ -31,6 +31,7 @@ public class PPU {
 	private int windowY;
 	private int LYCompare = -1;
 	private long timeOfLastFrame;
+	private boolean largeSpriteMode;
 	
 	/*
 	public static final int OAM_SEARCH_LENGTH = 20;
@@ -73,7 +74,7 @@ public class PPU {
 		currentX = 0;
 		currentY = 0;
 		this.gbs = gbs;
-		sprites = new HashMap<Integer, Sprite>();
+		sprites = new HashMap<Integer, SmallSprite>();
 		timeOfLastFrame = -1;
 	}
 	
@@ -135,6 +136,10 @@ public class PPU {
 			boolean useWindowTileMap1 = BitOps.extract(lcdc, 6, 6) == 0;
 			if (BitOps.extract(lcdc, 2, 2) == 1) {
 				System.out.println("want to be in 8x16 mode");
+				largeSpriteMode = true;
+			}
+			else {
+				largeSpriteMode = false;
 			}
 			if (currentY == 0) {
 				this.loadTileSets();
@@ -174,10 +179,10 @@ public class PPU {
 				pixel = currentTile.getPixel(yPos % 8, xPos % 8);
 			}
 			else if (spritesEnabled && sprites.containsKey(currentX + 8)) {
-				Sprite currentSprite = sprites.get(currentX + 8);
-				int spritePixel = currentSprite.getTile().getPixel(currentY - (currentSprite.getSpriteY() - 16), currentX - (currentSprite.getSpriteX() - 8));
+				SmallSprite currentSprite = sprites.get(currentX + 8);
+				int spritePixel = currentSprite.getPixel(currentY - (currentSprite.getSpriteY() - 16), currentX - (currentSprite.getSpriteX() - 8));
 				if ((currentSprite.priority == 0 || backgroundTile.getPixel(yPos % 8, xPos % 8) == 0) && spritePixel != 0) {
-					currentTile = currentSprite.getTile();
+					//currentTile = currentSprite.getTile();
 					currentPallette = currentSprite.usePalletteZero() ? obp0 : obp1;
 					pixel = spritePixel;
 				}
@@ -257,7 +262,7 @@ public class PPU {
 		int spritesFound = 0;
 		int memAddress = 0xFE00;
 		while (spriteCount < 40 && spritesFound < 10) {
-			Sprite s = new Sprite(mem, memAddress, tileset1, false);
+			SmallSprite s = new SmallSprite(mem, memAddress, tileset1, false);
 			if (s.inRange(currentY + 16)) {
 				spritesFound++;
 				for (int i = 0; i < 8; i++) {
@@ -267,7 +272,7 @@ public class PPU {
 						}
 					}
 					else {
-						Sprite conflictSprite = sprites.get(s.getSpriteX() + i);
+						SmallSprite conflictSprite = sprites.get(s.getSpriteX() + i);
 						if (s.getSpriteX() < conflictSprite.getSpriteX()) {
 							sprites.put(s.getSpriteX() + i, s);
 						}
