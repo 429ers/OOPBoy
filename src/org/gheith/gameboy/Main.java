@@ -8,6 +8,16 @@ import java.util.Scanner;
 
 import javax.swing.*;
 
+class MainMenuBar extends MenuBar {
+    public MainMenuBar() {
+        Menu menu = new Menu("File");
+        MenuItem openRom = new MenuItem("Open ROM");
+        openRom.addActionListener(System.out::println);
+        menu.add(openRom);
+        this.add(menu);
+    }
+}
+
 public class Main {
 
 	public static void main(String[] args) throws InterruptedException {
@@ -22,11 +32,12 @@ public class Main {
 		gbs.setPreferredSize(new Dimension(500, 500));
 		gbs.setFocusable(true);
 		frame.add(gbs);
+        frame.setMenuBar(new MainMenuBar());
 		frame.pack();
 		frame.setTitle("GheithBoy");
 		frame.setVisible(true);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-		MMU mmu = new MMU("Tetris.gb");
+		MMU mmu = new MMU("roms/Super Mario Land.gb");
         CPU cpu = new CPU(mmu);
         PPU ppu = new PPU(mmu, gbs);
         gbs.addKeyListener(new Joypad(mmu));
@@ -35,7 +46,7 @@ public class Main {
         HashSet<Integer> breakPoints = new HashSet<>();
         LinkedList<Integer> history = new LinkedList<>();
         
-        int framesDrawn = 0;
+        long framesDrawn = 0;
         
         boolean breaked = false;
         
