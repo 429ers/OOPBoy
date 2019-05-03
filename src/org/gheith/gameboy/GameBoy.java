@@ -2,6 +2,7 @@ package org.gheith.gameboy;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -75,6 +76,8 @@ class MainMenuBar extends MenuBar {
 }
 
 public class GameBoy extends JFrame implements ActionListener{
+    
+    public static final String DEFAULT_ROM = "roms/Tetris.gb";
 
     HashSet<Integer> breakPoints = new HashSet<>();
     LinkedList<Integer> history = new LinkedList<>();
@@ -82,6 +85,8 @@ public class GameBoy extends JFrame implements ActionListener{
     CPU cpu;
     PPU ppu;
     GameBoyScreen gbs;
+    String romFileName;
+    boolean paused;
     private boolean quickSave;
     private boolean quickLoad;
     
