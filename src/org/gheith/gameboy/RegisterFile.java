@@ -1,5 +1,6 @@
 package org.gheith.gameboy;
 
+import java.io.Serializable;
 import java.security.InvalidParameterException;
 
 interface Readable {
@@ -14,12 +15,21 @@ interface ReadWritable extends Readable, Writable {}
 
 interface Register extends ReadWritable { }
 
-interface ShortRegister extends Register {}
+interface ShortRegister extends Register, Serializable {}
 
-class LongRegister implements Register {
-    private int value;
+class LongRegister implements Register, Serializable {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 2142281106792231516L;
+	private int value;
     ShortRegister lowerByte = new ShortRegister() {
-        @Override
+        /**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
+		@Override
         public int read() {
             return LongRegister.this.value & 0xff;
         }
@@ -37,7 +47,12 @@ class LongRegister implements Register {
     };
 
     ShortRegister upperByte = new ShortRegister() {
-        @Override
+        /**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
+		@Override
         public int read() {
             return (LongRegister.this.value & 0xff00) >> 8;
         }
@@ -67,8 +82,12 @@ class LongRegister implements Register {
     }
 }
 
-public class RegisterFile {
-    public LongRegister AF, BC, DE, HL, SP, PC;
+public class RegisterFile implements Serializable {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1620775094696906337L;
+	public LongRegister AF, BC, DE, HL, SP, PC;
     public ShortRegister A, F, B, C, D, E, H, L;
     
     public static final int ZFLAG = 7;
@@ -78,8 +97,13 @@ public class RegisterFile {
     
     public FlagSet flags;
     
-    public class FlagSet {
-        private Register flagReg;
+    public class FlagSet implements Serializable{
+        /**
+		 * 
+		 */
+		private static final long serialVersionUID = 888159977466716630L;
+
+		private Register flagReg;
         
         boolean[] flagWritable = new boolean[8];
 

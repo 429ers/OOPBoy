@@ -2,12 +2,17 @@ package org.gheith.gameboy;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
 
 
-public class PPU {
+public class PPU implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2887802651514454071L;
 	private TileSet tileset1;
 	private TileSet tileset2;
 	private TileMap map;
@@ -15,7 +20,7 @@ public class PPU {
 	private MMU mem;
 	private int currentX;
 	private int currentY;
-	private BufferedImage frame;
+	private transient BufferedImage frame;
 	private GameBoyScreen gbs;
 	private int scrollX;
 	private int scrollY;
@@ -76,6 +81,10 @@ public class PPU {
 		this.gbs = gbs;
 		sprites = new HashMap<Integer, ISprite>();
 		timeOfLastFrame = -1;
+	}
+	
+	public PPU() {
+		frame = new BufferedImage(160, 144, BufferedImage.TYPE_3BYTE_BGR);
 	}
 	
 	public boolean drewFrame() {

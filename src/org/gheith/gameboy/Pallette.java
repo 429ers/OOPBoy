@@ -1,10 +1,15 @@
 package org.gheith.gameboy;
 
 import java.awt.Color;
+import java.io.Serializable;
 import java.util.Map;
 import java.util.HashMap;
 
-public class Pallette {
+public class Pallette implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6087300316832303687L;
 	private Map<Integer, Color> colorMap;
 	
 	public Pallette(int data) {

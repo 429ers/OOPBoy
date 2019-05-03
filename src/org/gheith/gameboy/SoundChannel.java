@@ -1,12 +1,18 @@
 package org.gheith.gameboy;
 
 import javax.sound.sampled.*;
+
+import java.io.Serializable;
 import java.security.InvalidParameterException;
 import java.util.Arrays;
 import java.util.Random;
 
-class SoundChip {
-    public SquareWave square1 = new SquareWave();
+class SoundChip implements Serializable {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -3888000280667367472L;
+	public SquareWave square1 = new SquareWave();
     public SquareWave square2 = new SquareWave();
     public WaveChannel waveChannel = new WaveChannel();
     public Noise noiseChannel = new Noise();
@@ -15,7 +21,7 @@ class SoundChip {
     public static final int SAMPLES_PER_FRAME = SAMPLE_RATE/28;
     public static final AudioFormat AUDIO_FORMAT = new AudioFormat(SAMPLE_RATE,  8, 1, false, false);
     
-    private SourceDataLine sourceDL;
+    private transient SourceDataLine sourceDL;
     
     byte[] masterBuffer = new byte[SAMPLES_PER_FRAME];
     byte[] tempBuffer = new byte[SAMPLES_PER_FRAME];
@@ -76,8 +82,12 @@ public interface SoundChannel {
     boolean tick(byte[] soundBuffer, int samplesToWrite);
 }
 
-class SquareWave implements SoundChannel {
-    protected int duty = 0;
+class SquareWave implements SoundChannel, Serializable {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 7107235725378560961L;
+	protected int duty = 0;
     protected int lengthLoad = 0;
     protected int startingVolume = 0;
     protected boolean envelopeAdd = false;
@@ -192,8 +202,12 @@ class SquareWave implements SoundChannel {
     }
 }
 
-class WaveChannel implements SoundChannel {
-    protected boolean dacPower = false;
+class WaveChannel implements SoundChannel, Serializable {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 7638828751434539339L;
+	protected boolean dacPower = false;
     protected int lengthLoad = 0;
     protected int volumeCode = 0;
     protected int frequency = 0;
@@ -293,8 +307,12 @@ class WaveChannel implements SoundChannel {
     }
 }
 
-class Noise implements SoundChannel {
-    protected int lengthLoad = 0;
+class Noise implements SoundChannel, Serializable {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 4853112434355414007L;
+	protected int lengthLoad = 0;
     protected int startingVolume = 0;
     protected boolean envelopeAdd = false;
     protected int envelopePeriod = 0;

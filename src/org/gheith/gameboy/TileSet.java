@@ -1,9 +1,14 @@
 package org.gheith.gameboy;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-public class TileSet {
+public class TileSet implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 4048349332307406439L;
 	private Map<Integer, Tile> tiles;
 	private boolean isSetOne;
 	

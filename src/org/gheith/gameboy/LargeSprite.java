@@ -2,6 +2,10 @@ package org.gheith.gameboy;
 
 public class LargeSprite implements ISprite {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 8470993145647038974L;
 	private Tile tile1;
 	private Tile tile2;
 	private int spriteX;
