@@ -1,6 +1,12 @@
 package org.gheith.gameboy;
 
-public class TileMap {
+import java.io.Serializable;
+
+public class TileMap implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1536789195081436980L;
 	private Tile[][] map;
 	
 	public TileMap(MMU memory, int startAddress, TileSet tileSet) {

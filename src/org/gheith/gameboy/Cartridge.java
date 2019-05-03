@@ -3,7 +3,7 @@ package org.gheith.gameboy;
 import java.io.*;
 import java.security.InvalidParameterException;
 
-public interface Cartridge {
+public interface Cartridge extends Serializable {
     static Cartridge fromFile(String fileName) {
         File file = new File(fileName);
         byte[] romBytes = new byte[(int)file.length()];
@@ -24,7 +24,7 @@ public interface Cartridge {
         
         if(cartridgeType == 0x00){
             return new Rom(rom);
-        }else if(cartridgeType == 0x01){
+        }else if(cartridgeType < 0x04){
             return new Mbc1(rom);
         }
         
@@ -36,7 +36,11 @@ public interface Cartridge {
 }
 
 class Rom implements Cartridge {
-    int[] rom;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -7294699536390467641L;
+	int[] rom;
 
     public Rom(int[] rom) {
         this.rom = rom;
@@ -52,7 +56,12 @@ class Rom implements Cartridge {
 }
 
 class Mbc1 implements Cartridge {
-    public static final int BANK_SIZE = 0x4000;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -3769278111043856834L;
+
+	public static final int BANK_SIZE = 0x4000;
     
     private int[][] banks;
     int currentBank = 1;

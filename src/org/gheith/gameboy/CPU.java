@@ -1,15 +1,20 @@
 package org.gheith.gameboy;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.security.InvalidParameterException;
 
 interface Lambda{
     int exec();
 }
 
-public class CPU {
+public class CPU implements Serializable {
     
-    MMU mem;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 3042928203064585497L;
+	MMU mem;
     RegisterFile regs = new RegisterFile();
     InterruptHandler interruptHandler = new InterruptHandler(this);
     private int clockCycleDelta;
@@ -841,7 +846,7 @@ public class CPU {
         return cbOperation.execute();
     }
 
-    Operation[] operations = new Operation[256];
+    transient Operation[] operations = new Operation[256];
     {
         operations[0x0] = new Operation("NOP", this::NOP, 1, "- - - -", 4);
         operations[0x1] = new Operation("LD BC,d16", () -> LD(regs.BC, d16()), 3, "- - - -", 12);
@@ -1101,7 +1106,7 @@ public class CPU {
         operations[0xff] = new Jump("RST 38H", () -> RST(0x38), 1, "- - - -", 16, 16);
     }
     
-    Operation[] cbOperations = new Operation[256];
+    transient Operation[] cbOperations = new Operation[256];
     {
         cbOperations[0x0] = new Operation("RLC B", () -> RLC(regs.B), 2, "Z 0 0 C", 8);
         cbOperations[0x1] = new Operation("RLC C", () -> RLC(regs.C), 2, "Z 0 0 C", 8);

@@ -1,7 +1,15 @@
 package org.gheith.gameboy;
 
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Scanner;
@@ -9,16 +17,22 @@ import java.util.Scanner;
 import javax.swing.*;
 
 class MainMenuBar extends MenuBar {
-    public MainMenuBar() {
+    public MainMenuBar(GameBoy gb) {
         Menu menu = new Menu("File");
         MenuItem openRom = new MenuItem("Open ROM");
+        MenuItem quickSave = new MenuItem("Quicksave");
+        MenuItem quickLoad = new MenuItem("Quickload");
         openRom.addActionListener(System.out::println);
+        quickSave.addActionListener(gb);;
+        quickLoad.addActionListener(gb);
         menu.add(openRom);
+        menu.add(quickSave);
+        menu.add(quickLoad);
         this.add(menu);
     }
 }
 
-public class GameBoy extends JFrame{
+public class GameBoy extends JFrame implements ActionListener{
 
     HashSet<Integer> breakPoints = new HashSet<>();
     LinkedList<Integer> history = new LinkedList<>();
@@ -26,6 +40,8 @@ public class GameBoy extends JFrame{
     CPU cpu;
     PPU ppu;
     GameBoyScreen gbs;
+    private boolean quickSave;
+    private boolean quickLoad;
     
     Scanner fin = new Scanner(System.in);
     int numInstructonsUntilBreak = -1;
@@ -40,7 +56,7 @@ public class GameBoy extends JFrame{
         gbs.setPreferredSize(new Dimension(500, 500));
         gbs.setFocusable(true);
         this.add(gbs);
-        this.setMenuBar(new MainMenuBar());
+        this.setMenuBar(new MainMenuBar(this));
         this.pack();
         this.setTitle("GheithBoy");
         this.setVisible(true);
@@ -52,6 +68,51 @@ public class GameBoy extends JFrame{
         
         ppu.loadTileSets();
         ppu.loadMap(true, true);
+        quickSave = false;
+        quickLoad = false;
+    }
+    
+    public void saveState() {
+    	try {
+			FileOutputStream saveFile = new FileOutputStream("savedata.gbsave");
+			ObjectOutputStream saveState = new ObjectOutputStream(saveFile);
+			saveState.writeObject(gbs);
+			saveState.writeObject(mmu);
+			saveState.writeObject(cpu);
+			saveState.writeObject(ppu);
+			saveState.close();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    }
+    
+    public void loadState() {
+    	GameBoyScreen oldgbs = this.gbs;
+    	try {
+			FileInputStream saveFile = new FileInputStream("savedata.gbsave");
+			ObjectInputStream saveState = new ObjectInputStream(saveFile);
+			this.gbs = (GameBoyScreen) saveState.readObject();
+			this.mmu = (MMU) saveState.readObject();
+			this.cpu = (CPU) saveState.readObject();
+			this.ppu = (PPU) saveState.readObject();
+			saveState.close();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	this.remove(oldgbs);
+    	this.add(gbs);
+    	gbs.addKeyListener(new Joypad(mmu));
     }
     
     public void tick() {
@@ -112,6 +173,19 @@ public class GameBoy extends JFrame{
             cpu.timer.tick();
             //System.out.println("ticking ppu");
         }
+        if (quickSave) {
+        	System.out.println("quicksaving...");
+        	saveState();
+        	quickSave = false;
+        	System.out.println("done");
+        	//throw new IllegalStateException("asdf");
+        }
+        if (quickLoad) {
+        	System.out.println("quickloading...");
+        	loadState();
+        	quickLoad = false;
+        	System.out.println("done");
+        }
 
         if(numInstructonsUntilBreak >= 0){
             if(numInstructonsUntilBreak == 0){
@@ -136,6 +210,16 @@ public class GameBoy extends JFrame{
     		gb.tick();
         }
         
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		if (e.getActionCommand().equals("Quicksave")) {
+			quickSave = true;
+		}
+		else if (e.getActionCommand().equals("Quickload")) {
+			quickLoad = true;
+		}
 	}
 
 }

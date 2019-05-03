@@ -1,6 +1,8 @@
 package org.gheith.gameboy;
 
-public interface ISprite {
+import java.io.Serializable;
+
+public interface ISprite extends Serializable{
 	
 	public int getSpriteY();
 	

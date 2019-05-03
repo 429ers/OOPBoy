@@ -2,9 +2,14 @@ package org.gheith.gameboy;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.Serializable;
 
-public class Joypad implements KeyListener {
+public class Joypad implements KeyListener, Serializable {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1687374353560163196L;
 	private MMU mmu;
 	private int a;
 	private int b;

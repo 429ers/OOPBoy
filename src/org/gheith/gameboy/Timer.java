@@ -1,6 +1,8 @@
 package org.gheith.gameboy;
 
-public class Timer {
+import java.io.Serializable;
+
+public class Timer implements Serializable {
     private InterruptHandler interruptHandler;
     public static final int[] PERIODS = new int[] { //number of cpu cycles until update
             1024, //4.096 khz

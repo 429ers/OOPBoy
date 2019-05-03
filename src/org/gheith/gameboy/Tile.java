@@ -1,11 +1,17 @@
 package org.gheith.gameboy;
 
+import java.io.Serializable;
+
 /***
  * 
  * Stores tile data in an 8x8 array, where the int represents a color.
  *
  */
-public class Tile {
+public class Tile implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 3314132218790890629L;
 	int[][] tileData;
 	
 	/***
