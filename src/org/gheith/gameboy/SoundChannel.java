@@ -118,9 +118,10 @@ class SquareWave implements SoundChannel {
         ticks++;
         
         if (lengthEnabled) {
-            lengthCounter-= 1;
+            lengthCounter-= 8;
             if (lengthCounter <= 0) {
                 this.playing = false;
+                System.out.println("timer ran out");
             }
         }
 
@@ -165,7 +166,7 @@ class SquareWave implements SoundChannel {
                 break;
             case 1:
                 this.duty = (toWrite >> 6) & 0x3;
-                this.lengthLoad = toWrite & 0x3f;
+                this.lengthLoad = 64 - (toWrite & 0x3f);
                 break;
             case 2:
                 this.startingVolume = (toWrite >> 4) & 0xf;
@@ -178,7 +179,7 @@ class SquareWave implements SoundChannel {
                 this.frequency |= toWrite & 0xff;
                 break;
             case 4:
-                this.playing = (toWrite >> 7) == 1;
+                this.playing |= (toWrite >> 7) == 1;
                 this.lengthEnabled = (toWrite >> 6) == 1;
                 this.frequency &= 0xff;
                 this.frequency |= ((toWrite & 0x7) << 8);
@@ -220,7 +221,7 @@ class WaveChannel implements SoundChannel {
                 this.dacPower = ((toWrite >> 7) & 1) == 1;
                 break;
             case 1:
-                this.lengthLoad = toWrite;
+                this.lengthLoad = 256 - toWrite;
                 break;
             case 2:
                 this.volumeCode = (toWrite >> 5) & 3;
@@ -230,7 +231,7 @@ class WaveChannel implements SoundChannel {
                 this.frequency |= toWrite & 0xff;
                 break;
             case 4:
-                this.playing = (toWrite >> 7) == 1;
+                this.playing |= (toWrite >> 7) == 1;
                 this.lengthEnabled = (toWrite >> 6) == 1;
                 this.frequency &= 0xff;
                 this.frequency |= ((toWrite & 0x7) << 8);
@@ -262,7 +263,7 @@ class WaveChannel implements SoundChannel {
         }
         
         if (lengthEnabled) {
-            lengthCounter-= 1;
+            lengthCounter-= 8;
             if (lengthCounter <= 0) {
                 this.playing = false;
             }
@@ -314,7 +315,7 @@ class Noise implements SoundChannel {
                 //do nothing
                 break;
             case 1:
-                this.lengthLoad = toWrite & 0x3f;
+                this.lengthLoad = 64 - (toWrite & 0x3f);
                 break;
             case 2:
                 this.startingVolume = (toWrite >> 4) & 0xf;
@@ -326,7 +327,7 @@ class Noise implements SoundChannel {
                 this.divisorCode = toWrite & 0x7;
                 break;
             case 4:
-                this.playing = (toWrite >> 7) == 1;
+                this.playing |= (toWrite >> 7) == 1;
                 this.lengthEnabled = (toWrite >> 6) == 1;
         }
 
