@@ -119,6 +119,14 @@ public class PPU implements Serializable {
 	    this.LYCompare = lyCompare;
     }
 	
+	public void setMMU(MMU mmu) {
+		this.mem = mmu;
+	}
+	
+	public void setGBS(GameBoyScreen gbs) {
+		this.gbs = gbs;
+	}
+	
 	public void tick() {
 		// Lie to the CPU and pretend we're transfering pixels to the LCD
 		if (cycleCount >= PIXEL_TRANSFER_START && cycleCount <= PIXEL_TRANSFER_END) {

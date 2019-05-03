@@ -26,8 +26,17 @@ public class MMU implements Serializable {
     public void setCPU(CPU cpu){
         this.cpu = cpu;
     }
+    
+    public CPU getCPU() {
+    	return this.cpu;
+    }
+    
     public void setPPU(PPU ppu) {
         this.ppu = ppu;
+    }
+    
+    public PPU getPPU() {
+    	return this.ppu;
     }
     
     public MMU() {

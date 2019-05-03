@@ -94,6 +94,7 @@ public class GameBoy extends JFrame implements ActionListener{
     boolean paused;
     private boolean quickSave;
     private boolean quickLoad;
+    private Joypad joypad;
     
     Scanner fin = new Scanner(System.in);
     int numInstructonsUntilBreak = -1;
@@ -117,7 +118,8 @@ public class GameBoy extends JFrame implements ActionListener{
         mmu = new MMU(fileName);
         cpu = new CPU(mmu);
         ppu = new PPU(mmu, gbs);
-        gbs.addKeyListener(new Joypad(mmu));
+        this.joypad = new Joypad(mmu);
+        gbs.addKeyListener(joypad);
         
         ppu.loadTileSets();
         ppu.loadMap(true, true);
@@ -129,10 +131,7 @@ public class GameBoy extends JFrame implements ActionListener{
     	try {
 			FileOutputStream saveFile = new FileOutputStream("savedata.gbsave");
 			ObjectOutputStream saveState = new ObjectOutputStream(saveFile);
-			saveState.writeObject(gbs);
 			saveState.writeObject(mmu);
-			saveState.writeObject(cpu);
-			saveState.writeObject(ppu);
 			saveState.close();
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -144,14 +143,12 @@ public class GameBoy extends JFrame implements ActionListener{
     }
     
     public void loadState() {
-    	GameBoyScreen oldgbs = this.gbs;
     	try {
 			FileInputStream saveFile = new FileInputStream("savedata.gbsave");
 			ObjectInputStream saveState = new ObjectInputStream(saveFile);
-			this.gbs = (GameBoyScreen) saveState.readObject();
 			this.mmu = (MMU) saveState.readObject();
-			this.cpu = (CPU) saveState.readObject();
-			this.ppu = (PPU) saveState.readObject();
+			this.cpu = mmu.getCPU();
+			this.ppu = mmu.getPPU();
 			saveState.close();
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -163,9 +160,8 @@ public class GameBoy extends JFrame implements ActionListener{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-    	this.remove(oldgbs);
-    	this.add(gbs);
-    	gbs.addKeyListener(new Joypad(mmu));
+    	ppu.setGBS(gbs);
+    	
     }
     
     public void tick() {
@@ -220,11 +216,11 @@ public class GameBoy extends JFrame implements ActionListener{
             if(ppu.drewFrame()){
                 framesDrawn++;
                 if(framesDrawn % 2 == 0) {
+                	System.out.println("doing stuff");
                     mmu.soundChip.tick();
                 }
             }
             cpu.timer.tick();
-            //System.out.println("ticking ppu");
         }
         if (quickSave) {
         	System.out.println("quicksaving...");

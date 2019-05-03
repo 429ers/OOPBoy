@@ -29,6 +29,10 @@ public class CPU implements Serializable {
     	mem = new MMU();
     	mem.setCPU(this);
     }
+    
+    public void setMMU(MMU mmu) {
+    	this.mem = mmu;
+    }
     public int getClockCycles() {
         return clockCycles;
     }
