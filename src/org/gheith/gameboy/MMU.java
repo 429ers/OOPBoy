@@ -23,8 +23,7 @@ public class MMU {
     private CPU cpu;
     private PPU ppu;
     private Joypad joypad;
-    SoundChannel square1 = new SquareWave();
-    SoundChannel square2 = new SquareWave();
+    SoundChip soundChip = new SoundChip();
     
     public void setCPU(CPU cpu){
         this.cpu = cpu;
@@ -170,9 +169,15 @@ public class MMU {
         }
         
         if(location >= 0xff10 && location <= 0xff14){
-            square1.handleByte(location - 0xff10, toWrite);
+            soundChip.square1.handleByte(location - 0xff10, toWrite);
         }else if(location >= 0xff15 && location <= 0xff19){
-            square2.handleByte(location - 0xff15, toWrite);
+            soundChip.square2.handleByte(location - 0xff15, toWrite);
+        }else if(location >= 0xff1a && location <= 0xff1e){
+            soundChip.waveChannel.handleByte(location - 0xff1a, toWrite);
+        }
+        
+        if(location >= 0xff30 && location <= 0xff3f){
+            soundChip.waveChannel.handleWaveByte(location- 0xff30, toWrite);
         }
         
         mem[location] = toWrite & 0xFF;
