@@ -174,9 +174,9 @@ public class PPU {
 			int pixel;
 			Tile backgroundTile = map.getTile(yPos / 8, xPos / 8);
 			if (windowEnabled && currentX >= windowX && currentY >= windowY) {
-				currentTile = window.getTile(yPos / 8, xPos / 8);
+				currentTile = window.getTile((currentY - windowY) / 8, (currentX - windowX) / 8);
 				currentPallette = background;
-				pixel = currentTile.getPixel(yPos % 8, xPos % 8);
+				pixel = currentTile.getPixel((currentY - windowY)  % 8, (currentX - windowX) % 8);
 			}
 			else if (spritesEnabled && sprites.containsKey(currentX + 8)) {
 				ISprite currentSprite = sprites.get(currentX + 8);
