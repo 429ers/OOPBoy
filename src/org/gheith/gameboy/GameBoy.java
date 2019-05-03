@@ -23,7 +23,9 @@ class MainMenuBar extends MenuBar {
 	public MainMenuBar(GameBoy gb) {
     
         this.gameBoy = gb;
-        Menu menu = new Menu("File");
+        Menu fileMenu = new Menu("File");
+        Menu controlMenu = new Menu("Control");
+        Menu saveMenu = new Menu("Save");
         
         MenuItem reset = new MenuItem("Reset");
         reset.addActionListener((ActionEvent e) -> {
@@ -65,13 +67,16 @@ class MainMenuBar extends MenuBar {
                 pause.setLabel("Pause");
             }
         });
-        menu.add(openRom);
-        menu.add(reset);
-        menu.add(pause);
-        menu.add(quickSave);
-        menu.add(quickLoad);
+
+        fileMenu.add(openRom);
+        controlMenu.add(pause);
+        controlMenu.add(reset);
+        saveMenu.add(quickSave);
+        saveMenu.add(quickLoad);
         
-        this.add(menu);
+        this.add(fileMenu);
+        this.add(controlMenu);
+        this.add(saveMenu);
     }
 }
 
