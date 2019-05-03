@@ -45,7 +45,7 @@ public class GameBoy extends JFrame{
         this.setTitle("GheithBoy");
         this.setVisible(true);
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        mmu = new MMU("roms/Super Mario Land.gb");
+        mmu = new MMU(fileName);
         cpu = new CPU(mmu);
         ppu = new PPU(mmu, gbs);
         gbs.addKeyListener(new Joypad(mmu));
@@ -124,7 +124,7 @@ public class GameBoy extends JFrame{
 
 	public static void main(String[] args) throws InterruptedException {
         
-        GameBoy gb = new GameBoy("roms/Super Mario Land.gb");
+        GameBoy gb = new GameBoy("roms/Tetris.gb");
 
         Scanner fin = new Scanner(System.in);
         if(args.length > 0 && args[0].equals("-d")) {
