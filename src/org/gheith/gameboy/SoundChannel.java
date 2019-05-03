@@ -8,27 +8,27 @@ public interface SoundChannel {
 }
 
 class SquareWave implements SoundChannel {
-    private int duty = 0;
-    private int lengthLoad = 0;
-    private int startingVolume = 0;
-    private boolean envelopeAdd = false;
-    private int envelopePeriod = 0;
-    private int frequency = 0;
-    private boolean playing = false;
-    private boolean lengthEnabled = false;
-    private int lengthCounter = 0;
-    
-    private int currentVolume = 0;
-    private long ticks = 0;
-    
+    protected int duty = 0;
+    protected int lengthLoad = 0;
+    protected int startingVolume = 0;
+    protected boolean envelopeAdd = false;
+    protected int envelopePeriod = 0;
+    protected int frequency = 0;
+    protected boolean playing = false;
+    protected boolean lengthEnabled = false;
+    protected int lengthCounter = 0;
+
+    protected int currentVolume = 0;
+    protected long ticks = 0;
+
     private byte[] soundBuffer = new byte[SAMPLE_RATE];
     private byte[] transition = new byte[SAMPLE_RATE];
-    
-    private SourceDataLine sourceDL;
-    
-    private static final int SAMPLE_RATE = 131072 / 3;
-    private static final int SAMPLES_PER_FRAME = SAMPLE_RATE/11;
-    private static final AudioFormat AUDIO_FORMAT = new AudioFormat(SAMPLE_RATE, 8, 1, true, false);
+
+    protected SourceDataLine sourceDL;
+
+    public static final int SAMPLE_RATE = 131072 / 3;
+    public static final int SAMPLES_PER_FRAME = SAMPLE_RATE/16;
+    public static final AudioFormat AUDIO_FORMAT = new AudioFormat(SAMPLE_RATE, 8, 1, true, false);
 
     SquareWave() {
         try {
@@ -39,7 +39,7 @@ class SquareWave implements SoundChannel {
             e.printStackTrace();
         }
     }
-    
+
     public static int getWaveform(int duty) {
         switch(duty){
             case 0:
@@ -55,6 +55,7 @@ class SquareWave implements SoundChannel {
         }
     }
 
+    //tick is 20 hz
     public void tick() {
         if (!this.playing) {
             sourceDL.stop();
@@ -65,7 +66,7 @@ class SquareWave implements SoundChannel {
         if (sourceDL == null) {
             return;
         }
-        
+
         ticks++;
 
         if (lengthEnabled) {
@@ -74,37 +75,39 @@ class SquareWave implements SoundChannel {
                 this.playing = false;
             }
         }
-        
+
         if(envelopePeriod != 0 && ticks % envelopePeriod == 0) {
             this.currentVolume += (envelopeAdd? 3: -3);
             if(this.currentVolume < 0) this.currentVolume = 0;
             if(this.currentVolume > 15) this.currentVolume = 15;
         }
-        
+
         int waveForm = getWaveform(this.duty);
         double chunkSize = (2048.0 - frequency) / 8 / 3;
-        
+
         int waveLength = (int)(8 * chunkSize);
-        
+
         for(int i = 0; i < waveLength; i++){
             int loc = (int)Math.round(i / chunkSize);
             soundBuffer[i] = (((waveForm >> loc) & 1) == 1)? (byte)(currentVolume): (byte)(-currentVolume);
         }
-        
+
         int samplesToWrite = Math.min(sourceDL.available(), SAMPLES_PER_FRAME);
         int samplesWritten;
         for(samplesWritten = 0; samplesWritten < samplesToWrite - waveLength; samplesWritten += waveLength){
             sourceDL.write(soundBuffer, 0, waveLength);
         }
-        
+
         int transitionSamples = samplesToWrite - samplesWritten;
         for(int i = 0; i < transitionSamples; i++){
-            transition[i] = (byte)((transitionSamples - i) * (currentVolume) / transitionSamples);
+            //I linearly decrease the amplitude to prevent a popping sound
+            //transition samples are negative because all duties end on 0
+            transition[i] = (byte)((transitionSamples - i) * (-currentVolume) / transitionSamples);
         }
-        
+
         sourceDL.write(transition, 0, transitionSamples);
     }
-    
+
     @Override
     //location is 0, 1, 2, 3, 4
     public void handleByte(int location, int toWrite) {
@@ -132,10 +135,64 @@ class SquareWave implements SoundChannel {
                 this.frequency &= 0xff;
                 this.frequency |= ((toWrite & 0x7) << 8);
         }
-        
+
         if(this.lengthEnabled){
             this.lengthCounter = this.lengthLoad;
             System.out.println(this.lengthCounter);
         }
+    }
+}
+
+class WaveChannel implements SoundChannel {
+    protected boolean dacPower = false;
+    protected int lengthLoad = 0;
+    protected int volumeCode = 0;
+    protected int frequency = 0;
+    protected boolean playing = false;
+    protected boolean lengthEnabled = false;
+    protected int lengthCounter = 0;
+    
+    protected byte[] samples = new byte[32];
+
+    public static final int SAMPLE_RATE = 131072 / 3;
+    public static final int SAMPLES_PER_FRAME = SAMPLE_RATE/16;
+    public static final AudioFormat AUDIO_FORMAT = new AudioFormat(SAMPLE_RATE, 8, 1, false, false);
+    
+    public void handleWaveByte(int location, int toWrite) {
+        if(location > 15 || location < 0){
+            throw new IllegalArgumentException("only 16 wave bytes");
+        }
+        
+        samples[2 * location] = (byte)(toWrite >> 4);
+        samples[2 * location + 1] = (byte)(toWrite & 0xf);
+    }
+
+    @Override
+    public void handleByte(int location, int toWrite) {
+        switch(location){
+            case 0:
+                this.dacPower = ((toWrite >> 7) & 1) == 1;
+                break;
+            case 1:
+                this.lengthLoad = toWrite;
+                break;
+            case 2:
+                this.volumeCode = (toWrite >> 5) & 3;
+                break;
+            case 3:
+                this.frequency = (this.frequency >> 8) << 8;
+                this.frequency |= toWrite & 0xff;
+                break;
+            case 4:
+                this.playing = (toWrite >> 7) == 1;
+                this.lengthEnabled = (toWrite >> 6) == 1;
+                this.frequency &= 0xff;
+                this.frequency |= ((toWrite & 0x7) << 8);
+        }
+    }
+
+    @Override
+    public void tick() {
+
     }
 }
