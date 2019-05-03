@@ -135,7 +135,7 @@ public class PPU {
 			boolean useTileSet1 = BitOps.extract(lcdc, 4, 4) == 1;
 			boolean useWindowTileMap1 = BitOps.extract(lcdc, 6, 6) == 0;
 			if (BitOps.extract(lcdc, 2, 2) == 1) {
-				System.out.println("want to be in 8x16 mode");
+				//System.out.println("want to be in 8x16 mode");
 				largeSpriteMode = true;
 			}
 			else {
@@ -279,7 +279,8 @@ public class PPU {
 					}
 					else {
 						ISprite conflictSprite = sprites.get(s.getSpriteX() + i);
-						if (s.getSpriteX() < conflictSprite.getSpriteX()) {
+						boolean isTransparent = s.getPixel(currentY - (s.getSpriteY() - 16), i) == 0;
+						if (s.getSpriteX() < conflictSprite.getSpriteX() && !isTransparent) {
 							sprites.put(s.getSpriteX() + i, s);
 						}
 					}
