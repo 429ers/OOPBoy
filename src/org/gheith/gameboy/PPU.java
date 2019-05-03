@@ -244,10 +244,10 @@ public class PPU implements Serializable {
 	private void drawFrame() {
 		long currentTime = System.currentTimeMillis();
 		long deltaTime = currentTime - timeOfLastFrame;
-		if (deltaTime < 16) {
+		if (deltaTime < 15) {
 			//System.out.println("sleep");
 			try {
-				Thread.sleep(17 - deltaTime);
+				Thread.sleep(16 - deltaTime);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

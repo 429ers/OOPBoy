@@ -46,7 +46,7 @@ class MainMenuBar extends MenuBar {
             //https://docs.oracle.com/javase/tutorial/uiswing/components/filechooser.html
             gameBoy.pause();
             JFileChooser fc = new JFileChooser();
-            int returnVal = fc.showOpenDialog(null);
+            int returnVal = fc.showOpenDialog(gameBoy);
 
             if(returnVal == JFileChooser.APPROVE_OPTION){
                 String fileName = fc.getSelectedFile().getAbsolutePath();
