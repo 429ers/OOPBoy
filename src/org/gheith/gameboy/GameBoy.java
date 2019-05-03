@@ -17,14 +17,20 @@ import java.util.Scanner;
 import javax.swing.*;
 
 class MainMenuBar extends MenuBar {
-    public MainMenuBar(GameBoy gb) {
+   
+	GameBoy gameBoy;
+
+	public MainMenuBar(GameBoy gb) {
+
+    
+        this.gameBoy = gb;
         Menu menu = new Menu("File");
         MenuItem openRom = new MenuItem("Open ROM");
         MenuItem quickSave = new MenuItem("Quicksave");
         MenuItem quickLoad = new MenuItem("Quickload");
         openRom.addActionListener(System.out::println);
-        quickSave.addActionListener(gb);;
-        quickLoad.addActionListener(gb);
+        quickSave.addActionListener(gameBoy);;
+        quickLoad.addActionListener(gameBoy);
         menu.add(openRom);
         menu.add(quickSave);
         menu.add(quickLoad);
