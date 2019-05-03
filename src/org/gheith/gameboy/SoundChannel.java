@@ -3,14 +3,16 @@ package org.gheith.gameboy;
 import javax.sound.sampled.*;
 import java.security.InvalidParameterException;
 import java.util.Arrays;
+import java.util.Random;
 
 class SoundChip {
     public SquareWave square1 = new SquareWave();
     public SquareWave square2 = new SquareWave();
     public WaveChannel waveChannel = new WaveChannel();
+    public Noise noiseChannel = new Noise();
     
     public static final int SAMPLE_RATE = 131072 / 3;
-    public static final int SAMPLES_PER_FRAME = SAMPLE_RATE/16;
+    public static final int SAMPLES_PER_FRAME = SAMPLE_RATE/28;
     public static final AudioFormat AUDIO_FORMAT = new AudioFormat(SAMPLE_RATE,  8, 1, false, false);
     
     private SourceDataLine sourceDL;
@@ -37,7 +39,7 @@ class SoundChip {
         
         if(channelEnabled) {
             for (int i = 0; i < samplesToWrite; i++) {
-                masterBuffer[i] += (byte) (tempBuffer[i] / 4);
+                masterBuffer[i] += (tempBuffer[i]);
             }
         }
         
@@ -45,7 +47,7 @@ class SoundChip {
         
         if(channelEnabled) {
             for (int i = 0; i < samplesToWrite; i++) {
-                masterBuffer[i] += (byte) (tempBuffer[i] / 4);
+                masterBuffer[i] += (tempBuffer[i]);
             }
         }
 
@@ -53,7 +55,15 @@ class SoundChip {
 
         if(channelEnabled) {
             for (int i = 0; i < samplesToWrite; i++) {
-                masterBuffer[i] += (byte) (tempBuffer[i] / 4);
+                masterBuffer[i] += (tempBuffer[i]);
+            }
+        }
+
+        channelEnabled = noiseChannel.tick(tempBuffer, samplesToWrite);
+
+        if(channelEnabled) {
+            for (int i = 0; i < samplesToWrite; i++) {
+                masterBuffer[i] += (tempBuffer[i]);
             }
         }
         
@@ -99,7 +109,7 @@ class SquareWave implements SoundChannel {
         }
     }
 
-    //tick is 20 hz
+    //tick is 30 hz
     public boolean tick(byte[] soundBuffer, int samplesToWrite) {
         if(!this.playing){
             return false;
@@ -108,14 +118,14 @@ class SquareWave implements SoundChannel {
         ticks++;
 
         if (lengthEnabled) {
-            lengthCounter-= 4;
+            lengthCounter-= 8;
             if (lengthCounter <= 0) {
                 this.playing = false;
             }
         }
 
         if(envelopePeriod != 0 && ticks % envelopePeriod == 0) {
-            this.currentVolume += (envelopeAdd? 3: -3);
+            this.currentVolume += (envelopeAdd? 2: -2);
             if(this.currentVolume < 0) this.currentVolume = 0;
             if(this.currentVolume > 15) this.currentVolume = 15;
         }
@@ -225,6 +235,10 @@ class WaveChannel implements SoundChannel {
                 this.frequency &= 0xff;
                 this.frequency |= ((toWrite & 0x7) << 8);
         }
+        if(this.lengthEnabled){
+            this.lengthCounter = this.lengthLoad;
+            System.out.println(this.lengthCounter);
+        }
     }
     
     private byte volumeAdjust(byte toAdjust) {
@@ -243,12 +257,12 @@ class WaveChannel implements SoundChannel {
 
     @Override
     public boolean tick(byte[] soundBuffer, int samplesToWrite) {
-        if(!this.playing){
+        if(!this.playing || !this.dacPower){
             return false;
         }
         
         if (lengthEnabled) {
-            lengthCounter-= 4;
+            lengthCounter-= 2;
             if (lengthCounter <= 0) {
                 this.playing = false;
             }
@@ -258,13 +272,14 @@ class WaveChannel implements SoundChannel {
 
         int waveLength = (int)(32 * chunkSize);
 
+        System.out.println(Arrays.toString(samples));
         for(int i = 0; i < waveLength; i++){
             int loc = (int)(i / chunkSize);
             soundBuffer[i] = volumeAdjust(samples[loc]);
         }
 
         int samplesWritten;
-        for(samplesWritten = 0; samplesWritten < samplesToWrite - waveLength; samplesWritten += waveLength){
+        for(samplesWritten = waveLength; samplesWritten < samplesToWrite - waveLength; samplesWritten += waveLength){
             System.arraycopy(soundBuffer, 0, soundBuffer, samplesWritten, waveLength);
         }
 
@@ -273,6 +288,100 @@ class WaveChannel implements SoundChannel {
             soundBuffer[samplesWritten + i] = (byte)((transitionSamples - i) * (soundBuffer[waveLength-1]) / transitionSamples);
         }
         
+        return true;
+    }
+}
+
+class Noise implements SoundChannel {
+    protected int lengthLoad = 0;
+    protected int startingVolume = 0;
+    protected boolean envelopeAdd = false;
+    protected int envelopePeriod = 0;
+    protected int frequency = 0;
+    protected boolean playing = false;
+    protected boolean lengthEnabled = false;
+    protected int lengthCounter = 0;
+    protected int divisorCode = 0;
+    
+    protected int currentVolume = 0;
+    protected long ticks = 0;
+    Random rand = new Random();
+    
+    @Override
+    public void handleByte(int location, int toWrite) {
+        switch(location){
+            case 0:
+                //do nothing
+                break;
+            case 1:
+                this.lengthLoad = toWrite & 0x3f;
+                break;
+            case 2:
+                this.startingVolume = (toWrite >> 4) & 0xf;
+                this.currentVolume = this.startingVolume;
+                this.envelopeAdd = ((toWrite >> 3) & 1) == 1;
+                this.envelopePeriod = toWrite & 0x7;
+                break;
+            case 3:
+                this.divisorCode = toWrite & 0x7;
+                break;
+            case 4:
+                this.playing = (toWrite >> 7) == 1;
+                this.lengthEnabled = (toWrite >> 6) == 1;
+        }
+
+        if(this.lengthEnabled){
+            this.lengthCounter = this.lengthLoad;
+            System.out.println(this.lengthCounter);
+        }
+    }
+
+    @Override
+    public boolean tick(byte[] soundBuffer, int samplesToWrite) {
+        if(!this.playing){
+            return false;
+        }
+
+        ticks++;
+
+        if (lengthEnabled) {
+            lengthCounter-= 8;
+            if (lengthCounter <= 0) {
+                this.playing = false;
+            }
+        }
+
+        if(envelopePeriod != 0 && ticks % envelopePeriod == 0) {
+            this.currentVolume += (envelopeAdd? 2: -2);
+            if(this.currentVolume < 0) this.currentVolume = 0;
+            if(this.currentVolume > 15) this.currentVolume = 15;
+        }
+        
+        if(this.currentVolume == 0){
+            return false;
+        }
+
+        double chunkSize = (2048.0 - frequency) / 8 / 3;
+
+        int waveLength = (int)(8 * chunkSize);
+
+        System.out.println(currentVolume);
+        for(int i = 0; i < waveLength; i++){
+            int loc = (int)(i / chunkSize);
+            soundBuffer[i] = (byte)rand.nextInt(currentVolume);
+        }
+
+        //replicate the wave until there's (0, waveLength] bytes left to write
+        int samplesWritten;
+        for(samplesWritten = waveLength; samplesWritten < samplesToWrite - waveLength; samplesWritten += waveLength){
+            System.arraycopy(soundBuffer, 0, soundBuffer, samplesWritten, waveLength);
+        }
+
+        int transitionSamples = samplesToWrite - samplesWritten;
+        for(int i = 0; i < transitionSamples; i++){
+            soundBuffer[samplesWritten + i] = (byte)((transitionSamples - i) * (soundBuffer[waveLength-1]) / transitionSamples);
+        }
+
         return true;
     }
 }

@@ -174,6 +174,8 @@ public class MMU {
             soundChip.square2.handleByte(location - 0xff15, toWrite);
         }else if(location >= 0xff1a && location <= 0xff1e){
             soundChip.waveChannel.handleByte(location - 0xff1a, toWrite);
+        }else if(location >= 0xff1f && location <= 0xff23){
+            soundChip.noiseChannel.handleByte(location - 0xff1f, toWrite);
         }
         
         if(location >= 0xff30 && location <= 0xff3f){
