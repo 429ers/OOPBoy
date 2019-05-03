@@ -213,28 +213,7 @@ public class PPU {
 		drewFrame = false;
 		// Send V-Blank interrupt
 		if (currentY == 145 && cycleCount == 0) {
-			
-		
-			long currentTime = System.currentTimeMillis();
-			long deltaTime = currentTime - timeOfLastFrame;
-			if (deltaTime < 16) {
-				//System.out.println("sleep");
-				try {
-					Thread.sleep(17 - deltaTime);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-			timeOfLastFrame = System.currentTimeMillis();
-			int status = mem.readByte(0xFF41) & 0x3F;
-			mem.writeByte(0xFF41, status | 0x40);
-			gbs.drawFrame(frame);
-			drewFrame = true;
-			int interruptRegister = mem.readByte(0xFF0F) & 0xFE;
-			mem.writeByte(0xFF0F, interruptRegister | 0x01); 
-			//mem.writeByte(0xFF85, 0xFF);
-			//mem.writeByte(0xFF44, 0x90);
+			drawFrame();
 		}
 		
 		//send LCDC interrupt
@@ -248,7 +227,28 @@ public class PPU {
 	}
 	
 	
-	
+	private void drawFrame() {
+		long currentTime = System.currentTimeMillis();
+		long deltaTime = currentTime - timeOfLastFrame;
+		if (deltaTime < 16) {
+			//System.out.println("sleep");
+			try {
+				Thread.sleep(17 - deltaTime);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		timeOfLastFrame = System.currentTimeMillis();
+		int status = mem.readByte(0xFF41) & 0x3F;
+		mem.writeByte(0xFF41, status | 0x40);
+		gbs.drawFrame(frame);
+		drewFrame = true;
+		int interruptRegister = mem.readByte(0xFF0F) & 0xFE;
+		mem.writeByte(0xFF0F, interruptRegister | 0x01); 
+		//mem.writeByte(0xFF85, 0xFF);
+		//mem.writeByte(0xFF44, 0x90);
+	}
 	
 	
 	public void loadSprites() {
