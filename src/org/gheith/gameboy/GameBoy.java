@@ -9,7 +9,11 @@ import java.util.Scanner;
 import javax.swing.*;
 
 class MainMenuBar extends MenuBar {
-    public MainMenuBar() {
+    GameBoy gameBoy;
+    
+    public MainMenuBar(GameBoy gb) {
+        this.gameBoy = gb;
+        
         Menu menu = new Menu("File");
         MenuItem openRom = new MenuItem("Open ROM");
         openRom.addActionListener(System.out::println);
@@ -40,7 +44,7 @@ public class GameBoy extends JFrame{
         gbs.setPreferredSize(new Dimension(500, 500));
         gbs.setFocusable(true);
         this.add(gbs);
-        this.setMenuBar(new MainMenuBar());
+        this.setMenuBar(new MainMenuBar(this));
         this.pack();
         this.setTitle("GheithBoy");
         this.setVisible(true);
