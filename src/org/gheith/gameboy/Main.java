@@ -20,15 +20,16 @@ public class Main {
 		GameBoyScreen gbs = new GameBoyScreen(img);
 		gbs.setDoubleBuffered(true);
 		gbs.setPreferredSize(new Dimension(500, 500));
+		gbs.setFocusable(true);
 		frame.add(gbs);
 		frame.pack();
 		frame.setTitle("GheithBoy");
 		frame.setVisible(true);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-		MMU mmu = new MMU("Super Mario Land.gb");
+		MMU mmu = new MMU("Tetris.gb");
         CPU cpu = new CPU(mmu);
         PPU ppu = new PPU(mmu, gbs);
-		frame.addKeyListener(new Joypad(mmu));
+        gbs.addKeyListener(new Joypad(mmu));
         ppu.loadTileSets();
         ppu.loadMap(true, true);
         HashSet<Integer> breakPoints = new HashSet<>();

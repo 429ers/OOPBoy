@@ -8,7 +8,7 @@ public class Timer {
             64, //65.536 khz
             256 //16.384 khz
     };
-    public static final int DIV_PERIOD = 144;
+    public static final int DIV_PERIOD = 256;
     
     private boolean timerEnabled = false;
     private int currentClock = 0;

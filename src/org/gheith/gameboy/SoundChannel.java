@@ -116,9 +116,9 @@ class SquareWave implements SoundChannel {
         }
         
         ticks++;
-
+        
         if (lengthEnabled) {
-            lengthCounter-= 8;
+            lengthCounter-= 1;
             if (lengthCounter <= 0) {
                 this.playing = false;
             }
@@ -186,7 +186,7 @@ class SquareWave implements SoundChannel {
 
         if(this.lengthEnabled){
             this.lengthCounter = this.lengthLoad;
-            System.out.println(this.lengthCounter);
+            //System.out.println(this.lengthCounter);
         }
     }
 }
@@ -237,7 +237,7 @@ class WaveChannel implements SoundChannel {
         }
         if(this.lengthEnabled){
             this.lengthCounter = this.lengthLoad;
-            System.out.println(this.lengthCounter);
+            //System.out.println(this.lengthCounter);
         }
     }
     
@@ -262,7 +262,7 @@ class WaveChannel implements SoundChannel {
         }
         
         if (lengthEnabled) {
-            lengthCounter-= 2;
+            lengthCounter-= 1;
             if (lengthCounter <= 0) {
                 this.playing = false;
             }
@@ -272,7 +272,7 @@ class WaveChannel implements SoundChannel {
 
         int waveLength = (int)(32 * chunkSize);
 
-        System.out.println(Arrays.toString(samples));
+        //System.out.println(Arrays.toString(samples));
         for(int i = 0; i < waveLength; i++){
             int loc = (int)(i / chunkSize);
             soundBuffer[i] = volumeAdjust(samples[loc]);
@@ -332,7 +332,7 @@ class Noise implements SoundChannel {
 
         if(this.lengthEnabled){
             this.lengthCounter = this.lengthLoad;
-            System.out.println(this.lengthCounter);
+            //System.out.println(this.lengthCounter);
         }
     }
 
@@ -365,7 +365,6 @@ class Noise implements SoundChannel {
 
         int waveLength = (int)(8 * chunkSize);
 
-        System.out.println(currentVolume);
         for(int i = 0; i < waveLength; i++){
             int loc = (int)(i / chunkSize);
             soundBuffer[i] = (byte)rand.nextInt(currentVolume);
