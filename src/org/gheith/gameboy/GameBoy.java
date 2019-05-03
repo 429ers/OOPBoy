@@ -1,6 +1,7 @@
 package org.gheith.gameboy;
 
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -15,21 +16,62 @@ class MainMenuBar extends MenuBar {
         this.gameBoy = gb;
         
         Menu menu = new Menu("File");
+        
+        MenuItem reset = new MenuItem("Reset");
+        reset.addActionListener((ActionEvent e) -> {
+            GameBoy oldGameBoy = gameBoy;
+            gameBoy = new GameBoy(gameBoy.romFileName);
+            gameBoy.start();
+            
+            oldGameBoy.dispose();
+        });
+        
         MenuItem openRom = new MenuItem("Open ROM");
-        openRom.addActionListener(System.out::println);
+        openRom.addActionListener((ActionEvent e) -> {
+            //https://docs.oracle.com/javase/tutorial/uiswing/components/filechooser.html
+            gameBoy.pause();
+            JFileChooser fc = new JFileChooser();
+            int returnVal = fc.showOpenDialog(null);
+            
+            if(returnVal == JFileChooser.APPROVE_OPTION){
+                String fileName = fc.getSelectedFile().getAbsolutePath();
+                gameBoy.dispose();
+                gameBoy = new GameBoy(fileName);
+            }
+            
+            gameBoy.start();
+        });
+        
+        MenuItem pause = new MenuItem("Pause");
+        pause.addActionListener((ActionEvent e) -> {
+            if(!gameBoy.paused) {
+                gameBoy.pause();
+                pause.setLabel("Resume");
+            }else{
+                gameBoy.start();
+                pause.setLabel("Pause");
+            }
+        });
+        
         menu.add(openRom);
+        menu.add(reset);
+        menu.add(pause);
         this.add(menu);
     }
 }
 
 public class GameBoy extends JFrame{
-
+    
+    static final String DEFAULT_ROM = "roms/Tetris.gb";
+    
     HashSet<Integer> breakPoints = new HashSet<>();
     LinkedList<Integer> history = new LinkedList<>();
     MMU mmu;
     CPU cpu;
     PPU ppu;
     GameBoyScreen gbs;
+    String romFileName;
+    boolean paused;
     
     Scanner fin = new Scanner(System.in);
     int numInstructonsUntilBreak = -1;
@@ -38,6 +80,7 @@ public class GameBoy extends JFrame{
     
     public GameBoy(String fileName) {
         super();
+        this.romFileName = fileName;
         BufferedImage img = new BufferedImage(160, 144, BufferedImage.TYPE_3BYTE_BGR);
         gbs = new GameBoyScreen(img);
         gbs.setDoubleBuffered(true);
@@ -125,10 +168,31 @@ public class GameBoy extends JFrame{
             System.out.println(numInstructonsUntilBreak);
         }
     }
+    
+    public void pause() {
+        paused = true;
+    }
+    
+    public void start() {
+        new Thread(() -> {
+            paused = false;
+
+            while (!paused) {
+                this.tick();
+            }
+
+            System.out.println("stopped ticking");
+        }).start();
+    }
+    
+    public void dispose() {
+        this.pause();
+        super.dispose();
+    }
 
 	public static void main(String[] args) throws InterruptedException {
-        
-        GameBoy gb = new GameBoy("roms/Tetris.gb");
+
+        GameBoy gb = new GameBoy(DEFAULT_ROM);
 
         Scanner fin = new Scanner(System.in);
         if(args.length > 0 && args[0].equals("-d")) {
@@ -136,10 +200,7 @@ public class GameBoy extends JFrame{
             gb.breakPoints.add(fin.nextInt(16));
         }
         
-        while (true) {
-    		gb.tick();
-        }
-        
+        gb.start();
 	}
 
 }

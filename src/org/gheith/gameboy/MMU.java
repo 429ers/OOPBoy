@@ -1,9 +1,5 @@
 package org.gheith.gameboy;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-
 public class MMU {
     private int[] mem = new int[0xFFFF+1];
     private Cartridge rom;
