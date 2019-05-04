@@ -355,10 +355,10 @@ class Noise implements SoundChannel, Serializable {
     protected int startingVolume = 0;
     protected boolean envelopeAdd = false;
     protected int envelopePeriod = 0;
-    protected int frequency = 0;
     protected boolean playing = false;
     protected boolean lengthEnabled = false;
     protected int lengthCounter = 0;
+    protected int shiftClock = 0;
     protected int divisorCode = 0;
     
     protected int currentVolume = 0;
@@ -381,6 +381,7 @@ class Noise implements SoundChannel, Serializable {
                 this.envelopePeriod = toWrite & 0x7;
                 break;
             case 3:
+                this.shiftClock = (toWrite >> 4) & 0xf;
                 this.divisorCode = toWrite & 0x7;
                 break;
             case 4:
@@ -419,24 +420,20 @@ class Noise implements SoundChannel, Serializable {
             return false;
         }
 
-        double chunkSize = (2048.0 - frequency) / 8 / 3;
+        int chunkSize = (int)(524288.0 / divisorCode / Math.pow(2, shiftClock+1) * SoundChip.SAMPLE_RATE);
 
-        int waveLength = (int)(8 * chunkSize);
-
-        for(int i = 0; i < waveLength; i++){
-            int loc = (int)(i / chunkSize);
-            soundBuffer[i] = (byte)rand.nextInt(currentVolume);
+        int i, j = 0;
+        for(i = 0; i < samplesToWrite - chunkSize; i+= chunkSize){
+            byte chunkVal = (byte)rand.nextInt(currentVolume);
+            for(j = 0; j < chunkSize; j++){
+                soundBuffer[i + j] = chunkVal;
+            }
         }
-
-        //replicate the wave until there's (0, waveLength] bytes left to write
-        int samplesWritten;
-        for(samplesWritten = waveLength; samplesWritten < samplesToWrite - waveLength; samplesWritten += waveLength){
-            System.arraycopy(soundBuffer, 0, soundBuffer, samplesWritten, waveLength);
-        }
-
-        int transitionSamples = samplesToWrite - samplesWritten;
-        for(int i = 0; i < transitionSamples; i++){
-            soundBuffer[samplesWritten + i] = soundBuffer[i];
+        
+        //fill up remainder
+        byte remainderVal = (byte)rand.nextInt(currentVolume);
+        for(int k = i + j; k < samplesToWrite; k++){
+            soundBuffer[k] = remainderVal;
         }
 
         return true;
