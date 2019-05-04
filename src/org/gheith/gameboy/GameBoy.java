@@ -163,6 +163,8 @@ public class GameBoy extends JFrame implements ActionListener{
 			e.printStackTrace();
 		}
     	ppu.setGBS(gbs);
+    	mmu.setJoypad(joypad);
+    	gbs.addKeyListener(joypad);
     	
     }
     
