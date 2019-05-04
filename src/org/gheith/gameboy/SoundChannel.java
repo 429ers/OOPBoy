@@ -157,7 +157,7 @@ class SquareWave implements SoundChannel, Serializable {
         int waveLength = (int)(8 * chunkSize);
 
         for(int i = 0; i < samplesToWrite; i++){
-            int samplesFromStart = (i - offset + waveLength) % waveLength;
+            int samplesFromStart = (i + offset) % waveLength;
             int loc = (int)(samplesFromStart / chunkSize);
             soundBuffer[i] = (((waveForm >> loc) & 1) == 1)? (byte)(currentVolume): (byte)0;
         }
@@ -317,7 +317,7 @@ class WaveChannel implements SoundChannel, Serializable {
 
         //System.out.println(Arrays.toString(samples));
         for(int i = 0; i < samplesToWrite; i++){
-            int samplesFromStart = (i - offset + waveLength) % waveLength;
+            int samplesFromStart = (i + offset) % waveLength;
             int loc = (int)(samplesFromStart / chunkSize);
             soundBuffer[i] = volumeAdjust(samples[loc]);
         }
