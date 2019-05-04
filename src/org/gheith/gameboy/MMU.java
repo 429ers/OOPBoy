@@ -21,7 +21,7 @@ public class MMU implements Serializable {
     private CPU cpu;
     private PPU ppu;
     private Joypad joypad;
-    SoundChip soundChip = new SoundChip();
+    transient SoundChip soundChip = new SoundChip();
     
     public void setCPU(CPU cpu){
         this.cpu = cpu;
@@ -30,7 +30,11 @@ public class MMU implements Serializable {
     public CPU getCPU() {
     	return this.cpu;
     }
-    
+
+    public Joypad getJoypad() {
+        return joypad;
+    }
+
     public void setPPU(PPU ppu) {
         this.ppu = ppu;
     }
