@@ -65,6 +65,10 @@ public class MMU implements Serializable {
             return rom.readByte(location);
         }
         
+        if (location >= 0xA000 && location <= 0xBFFF) {
+        	return rom.readByte(location);
+        }
+        
         if(location == DIV_REGISTER){
             return cpu.timer.getDIV();
         }
@@ -139,6 +143,10 @@ public class MMU implements Serializable {
         if(location < 0x7fff){
             rom.writeByte(location, toWrite);
             return;
+        }
+        
+        if (location >= 0xA000 && location <= 0xBFFF) {
+        	rom.writeByte(location, toWrite);
         }
         
         if(location == IF_REGISTER) { // IF register
