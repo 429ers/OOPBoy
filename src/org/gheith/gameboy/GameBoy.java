@@ -10,6 +10,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Scanner;
@@ -38,8 +40,23 @@ class MainMenuBar extends MenuBar {
         
         MenuItem quickSave = new MenuItem("Quicksave");
         MenuItem quickLoad = new MenuItem("Quickload");
+        MenuItem loadFile = new MenuItem("Load save file");
+        MenuItem snapshot = new MenuItem("Snapshot");
         quickSave.addActionListener(gameBoy);
         quickLoad.addActionListener(gameBoy);
+        snapshot.addActionListener(gameBoy);
+        loadFile.addActionListener((ActionEvent e) -> {
+            gameBoy.pause();
+            JFileChooser fc = new JFileChooser();
+            int returnVal = fc.showOpenDialog(gameBoy);
+
+            if(returnVal == JFileChooser.APPROVE_OPTION){
+                String fileName = fc.getSelectedFile().getAbsolutePath();
+                gameBoy.queueLoad(fileName);
+            }
+
+            gameBoy.start();
+        });
         
         MenuItem openRom = new MenuItem("Open ROM");
         openRom.addActionListener((ActionEvent e) -> {
@@ -73,6 +90,8 @@ class MainMenuBar extends MenuBar {
         controlMenu.add(reset);
         saveMenu.add(quickSave);
         saveMenu.add(quickLoad);
+        saveMenu.add(snapshot);
+        saveMenu.add(loadFile);
         
         this.add(fileMenu);
         this.add(controlMenu);
@@ -100,6 +119,8 @@ public class GameBoy extends JFrame implements ActionListener{
     int numInstructonsUntilBreak = -1;
     long framesDrawn = 0;
     boolean breaked = false;
+    
+    String saveFileName = "quicksave.gb";
     
     public GameBoy(String fileName) {
         super();
@@ -129,7 +150,7 @@ public class GameBoy extends JFrame implements ActionListener{
     
     public void saveState() {
     	try {
-			FileOutputStream saveFile = new FileOutputStream("savedata.gbsave");
+			FileOutputStream saveFile = new FileOutputStream(this.saveFileName);
 			ObjectOutputStream saveState = new ObjectOutputStream(saveFile);
 			saveState.writeObject(mmu);
 			saveState.close();
@@ -145,7 +166,7 @@ public class GameBoy extends JFrame implements ActionListener{
     public void loadState() {
         gbs.removeKeyListener(this.mmu.getJoypad());
     	try {
-			FileInputStream saveFile = new FileInputStream("savedata.gbsave");
+			FileInputStream saveFile = new FileInputStream(this.saveFileName);
 			ObjectInputStream saveState = new ObjectInputStream(saveFile);
 			this.mmu = (MMU) saveState.readObject();
 			this.mmu.soundChip = new SoundChip();
@@ -279,15 +300,30 @@ public class GameBoy extends JFrame implements ActionListener{
         
         gb.start();
 	}
+	
+	public void queueSave(String fileName){
+        this.saveFileName = fileName;
+        quickSave = true;
+    }
+    
+    public void queueLoad(String fileName) {
+        this.saveFileName = fileName;
+        quickLoad = true;
+    }
+    
+    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getActionCommand().equals("Quicksave")) {
-			quickSave = true;
+			queueSave("quicksave.gbsave");
 		}
 		else if (e.getActionCommand().equals("Quickload")) {
-			quickLoad = true;
+			queueLoad("quicksave.gbsave");
 		}
+		else if(e.getActionCommand().equals("Snapshot")) {
+		    queueSave("snapshot-" + DATE_FORMAT.format(new Date()) + ".gbsave");
+        }
 	}
 
 }
