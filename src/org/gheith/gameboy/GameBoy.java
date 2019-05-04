@@ -5,12 +5,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashSet;
@@ -57,7 +52,7 @@ class MainMenuBar extends MenuBar {
         });
         loadFile.addActionListener((ActionEvent e) -> {
             gameBoy.pause();
-            JFileChooser fc = new JFileChooser();
+            JFileChooser fc = new JFileChooser(new File(System.getProperty("user.dir")));
             int returnVal = fc.showOpenDialog(gameBoy);
 
             if(returnVal == JFileChooser.APPROVE_OPTION){
@@ -72,7 +67,7 @@ class MainMenuBar extends MenuBar {
         openRom.addActionListener((ActionEvent e) -> {
             //https://docs.oracle.com/javase/tutorial/uiswing/components/filechooser.html
             gameBoy.pause();
-            JFileChooser fc = new JFileChooser();
+            JFileChooser fc = new JFileChooser(new File(System.getProperty("user.dir")));
             int returnVal = fc.showOpenDialog(gameBoy);
 
             if(returnVal == JFileChooser.APPROVE_OPTION){
