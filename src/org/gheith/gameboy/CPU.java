@@ -74,6 +74,8 @@ public class CPU implements Serializable {
     }
     
     public void executeOneInstruction(boolean printOutput) {
+        if(halted) return;
+
         int opcode = mem.readByte(regs.PC.read());
         
         Operation op = operations[opcode];
