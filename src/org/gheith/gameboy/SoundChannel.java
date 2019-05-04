@@ -2,6 +2,8 @@ package org.gheith.gameboy;
 
 import javax.sound.sampled.*;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.security.InvalidParameterException;
 import java.util.Arrays;
@@ -18,13 +20,25 @@ class SoundChip implements Serializable {
     public Noise noiseChannel = new Noise();
     
     public static final int SAMPLE_RATE = 131072 / 3;
-    public static final int SAMPLES_PER_FRAME = SAMPLE_RATE/58;
+    public static final int SAMPLES_PER_FRAME = SAMPLE_RATE/59;
     public static final AudioFormat AUDIO_FORMAT = new AudioFormat(SAMPLE_RATE,  8, 1, false, false);
     
     private transient SourceDataLine sourceDL;
     
     byte[] masterBuffer = new byte[SAMPLES_PER_FRAME];
     byte[] tempBuffer = new byte[SAMPLES_PER_FRAME];
+    
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        in.defaultReadObject();
+
+        try {
+            sourceDL = AudioSystem.getSourceDataLine(AUDIO_FORMAT);
+            sourceDL.open(AUDIO_FORMAT);
+            sourceDL.start();
+        } catch (LineUnavailableException e) {
+            e.printStackTrace();
+        }
+    }
 
     SoundChip() {
         try {

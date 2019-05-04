@@ -21,7 +21,7 @@ public class MMU implements Serializable {
     private CPU cpu;
     private PPU ppu;
     private Joypad joypad;
-    transient SoundChip soundChip = new SoundChip();
+    SoundChip soundChip = new SoundChip();
     
     public void setCPU(CPU cpu){
         this.cpu = cpu;

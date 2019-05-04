@@ -181,7 +181,6 @@ public class GameBoy extends JFrame{
 			FileInputStream saveFile = new FileInputStream(this.saveFileName);
 			ObjectInputStream saveState = new ObjectInputStream(saveFile);
 			this.mmu = (MMU) saveState.readObject();
-			this.mmu.soundChip = new SoundChip();
 			this.cpu = mmu.getCPU();
 			this.ppu = mmu.getPPU();
 			saveState.close();
