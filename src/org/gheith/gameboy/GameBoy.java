@@ -3,6 +3,7 @@ package org.gheith.gameboy;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -41,8 +42,8 @@ class MainMenuBar extends MenuBar {
             oldGameBoy.dispose();
         });
         
-        MenuItem quickSave = new MenuItem("Quicksave");
-        MenuItem quickLoad = new MenuItem("Quickload");
+        MenuItem quickSave = new MenuItem("Quicksave", new MenuShortcut(KeyEvent.VK_S));
+        MenuItem quickLoad = new MenuItem("Quickload", new MenuShortcut(KeyEvent.VK_L));
         MenuItem loadFile = new MenuItem("Load save file");
         MenuItem snapshot = new MenuItem("Snapshot");
         quickSave.addActionListener((ActionEvent e) -> {
@@ -67,7 +68,7 @@ class MainMenuBar extends MenuBar {
             gameBoy.start();
         });
         
-        MenuItem openRom = new MenuItem("Open ROM");
+        MenuItem openRom = new MenuItem("Open ROM", new MenuShortcut(KeyEvent.VK_N));
         openRom.addActionListener((ActionEvent e) -> {
             //https://docs.oracle.com/javase/tutorial/uiswing/components/filechooser.html
             gameBoy.pause();
