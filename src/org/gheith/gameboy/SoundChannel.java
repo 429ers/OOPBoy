@@ -108,6 +108,7 @@ class SquareWave implements SoundChannel, Serializable {
 
     protected int currentVolume = 0;
     protected long ticks = 0;
+    protected int offset = 0;
 
     private byte[] transition = new byte[SAMPLE_RATE];
 
@@ -155,23 +156,13 @@ class SquareWave implements SoundChannel, Serializable {
 
         int waveLength = (int)(8 * chunkSize);
 
-        for(int i = 0; i < waveLength; i++){
-            int loc = (int)(i / chunkSize);
+        for(int i = 0; i < samplesToWrite; i++){
+            int samplesFromStart = (i - offset + waveLength) % waveLength;
+            int loc = (int)(samplesFromStart / chunkSize);
             soundBuffer[i] = (((waveForm >> loc) & 1) == 1)? (byte)(currentVolume): (byte)0;
         }
-
-        //replicate the wave until there's (0, waveLength] bytes left to write
-        int samplesWritten;
-        for(samplesWritten = waveLength; samplesWritten < samplesToWrite - waveLength; samplesWritten += waveLength){
-            System.arraycopy(soundBuffer, 0, soundBuffer, samplesWritten, waveLength); 
-        }
-
-        int transitionSamples = samplesToWrite - samplesWritten;
-        for(int i = 0; i < transitionSamples; i++){
-            //I linearly decrease the amplitude to prevent a popping sound
-            //transition samples are negative because all duties end on 0
-            soundBuffer[samplesWritten + i] = (byte)((transitionSamples - i) * (currentVolume) / transitionSamples);
-        }
+        
+        offset = (offset + samplesToWrite) % waveLength;
         
         return true;
     }
@@ -179,6 +170,8 @@ class SquareWave implements SoundChannel, Serializable {
     @Override
     //location is 0, 1, 2, 3, 4
     public void handleByte(int location, int toWrite) {
+        int newFrequency = frequency;
+        
         switch(location){
             case 0:
                 //do nothing
@@ -194,14 +187,26 @@ class SquareWave implements SoundChannel, Serializable {
                 this.envelopePeriod = toWrite & 0x7;
                 break;
             case 3:
-                this.frequency = (this.frequency >> 8) << 8;
-                this.frequency |= toWrite & 0xff;
+                newFrequency = (newFrequency >> 8) << 8;
+                newFrequency |= toWrite & 0xff;
                 break;
             case 4:
                 this.playing |= (toWrite >> 7) == 1;
                 this.lengthEnabled = (toWrite >> 6) == 1;
-                this.frequency &= 0xff;
-                this.frequency |= ((toWrite & 0x7) << 8);
+                newFrequency &= 0xff;
+                newFrequency |= ((toWrite & 0x7) << 8);
+        }
+        
+        if(newFrequency != frequency) {
+            //if the frequency has changed, update the offset so it's (approximately) at the same spot in the wave
+            double oldChunkSize = (2048.0 - frequency) / 8 / 3;
+            double oldWaveLength = (8 * oldChunkSize);
+            double newChunkSize = (2048.0 - newFrequency) / 8 / 3;
+            double newWaveLength = (8 * newChunkSize);
+            
+            offset = (int)(offset * newWaveLength / oldWaveLength);
+            
+            frequency = newFrequency;
         }
 
         if(this.lengthEnabled){
@@ -224,6 +229,7 @@ class WaveChannel implements SoundChannel, Serializable {
     protected boolean lengthEnabled = false;
     protected int lengthCounter = 0;
     
+    protected int offset;
     protected byte[] samples = new byte[32];
 
     public static final int SAMPLE_RATE = SoundChip.SAMPLE_RATE;
@@ -239,6 +245,7 @@ class WaveChannel implements SoundChannel, Serializable {
 
     @Override
     public void handleByte(int location, int toWrite) {
+        int newFrequency = this.frequency;
         switch(location){
             case 0:
                 this.dacPower = ((toWrite >> 7) & 1) == 1;
@@ -250,14 +257,26 @@ class WaveChannel implements SoundChannel, Serializable {
                 this.volumeCode = (toWrite >> 5) & 3;
                 break;
             case 3:
-                this.frequency = (this.frequency >> 8) << 8;
-                this.frequency |= toWrite & 0xff;
+                newFrequency = (newFrequency >> 8) << 8;
+                newFrequency |= toWrite & 0xff;
                 break;
             case 4:
                 this.playing |= (toWrite >> 7) == 1;
                 this.lengthEnabled = (toWrite >> 6) == 1;
-                this.frequency &= 0xff;
-                this.frequency |= ((toWrite & 0x7) << 8);
+                newFrequency &= 0xff;
+                newFrequency |= ((toWrite & 0x7) << 8);
+        }
+
+        if(newFrequency != frequency) {
+            //if the frequency has changed, update the offset so it's (approximately) at the same spot in the wave
+            double oldChunkSize = (2048.0 - frequency) / 16 / 3;
+            double oldWaveLength = (32 * oldChunkSize);
+            double newChunkSize = (2048.0 - newFrequency) / 16 / 3;
+            double newWaveLength = (32 * newChunkSize);
+
+            offset = (int)(offset * newWaveLength / oldWaveLength);
+
+            frequency = newFrequency;
         }
         if(this.lengthEnabled){
             this.lengthCounter = this.lengthLoad;
@@ -297,20 +316,13 @@ class WaveChannel implements SoundChannel, Serializable {
         int waveLength = (int)(32 * chunkSize);
 
         //System.out.println(Arrays.toString(samples));
-        for(int i = 0; i < waveLength; i++){
-            int loc = (int)(i / chunkSize);
+        for(int i = 0; i < samplesToWrite; i++){
+            int samplesFromStart = (i - offset + waveLength) % waveLength;
+            int loc = (int)(samplesFromStart / chunkSize);
             soundBuffer[i] = volumeAdjust(samples[loc]);
         }
-
-        int samplesWritten;
-        for(samplesWritten = waveLength; samplesWritten < samplesToWrite - waveLength; samplesWritten += waveLength){
-            System.arraycopy(soundBuffer, 0, soundBuffer, samplesWritten, waveLength);
-        }
-
-        int transitionSamples = samplesToWrite - samplesWritten;
-        for(int i = 0; i < transitionSamples; i++){
-            soundBuffer[samplesWritten + i] = (byte)((transitionSamples - i) * (soundBuffer[waveLength-1]) / transitionSamples);
-        }
+        
+        offset = (offset + samplesToWrite) % waveLength;
         
         return true;
     }
@@ -406,7 +418,7 @@ class Noise implements SoundChannel, Serializable {
 
         int transitionSamples = samplesToWrite - samplesWritten;
         for(int i = 0; i < transitionSamples; i++){
-            soundBuffer[samplesWritten + i] = (byte)((transitionSamples - i) * (soundBuffer[waveLength-1]) / transitionSamples);
+            soundBuffer[samplesWritten + i] = soundBuffer[i];
         }
 
         return true;
