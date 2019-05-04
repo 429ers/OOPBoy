@@ -143,14 +143,14 @@ public class GameBoy extends JFrame implements ActionListener{
     }
     
     public void loadState() {
+        gbs.removeKeyListener(this.mmu.getJoypad());
     	try {
 			FileInputStream saveFile = new FileInputStream("savedata.gbsave");
 			ObjectInputStream saveState = new ObjectInputStream(saveFile);
 			this.mmu = (MMU) saveState.readObject();
+			this.mmu.soundChip = new SoundChip();
 			this.cpu = mmu.getCPU();
-			this.cpu.setMMU(mmu);
 			this.ppu = mmu.getPPU();
-			this.ppu.setMMU(mmu);
 			saveState.close();
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -162,8 +162,8 @@ public class GameBoy extends JFrame implements ActionListener{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+    	gbs.addKeyListener(this.mmu.getJoypad());
     	ppu.setGBS(gbs);
-    	
     }
     
     public void tick() {
