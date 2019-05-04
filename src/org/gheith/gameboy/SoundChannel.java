@@ -420,7 +420,14 @@ class Noise implements SoundChannel, Serializable {
             return false;
         }
 
-        int chunkSize = (int)(524288.0 / divisorCode / Math.pow(2, shiftClock+1) * SoundChip.SAMPLE_RATE);
+        long chunkSize;
+        if(divisorCode != 0) {
+            chunkSize = (long) (524288.0 / SoundChip.SAMPLE_RATE / divisorCode) >> (shiftClock + 1);
+        }else{
+            chunkSize = (long) (524288.0 / SoundChip.SAMPLE_RATE * 2) >> (shiftClock + 1);
+        }
+
+        if (chunkSize == 0) chunkSize = 1;
 
         int i, j = 0;
         for(i = 0; i < samplesToWrite - chunkSize; i+= chunkSize){
