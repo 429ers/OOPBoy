@@ -23,6 +23,7 @@ class Mbc1 implements Cartridge {
 	private int ramBank;
 	private int upperBits;
 	private String fileName;
+	private RandomAccessFile cartridgeRam;
     
     private byte[][] banks;
     private byte[] ram;
@@ -65,6 +66,12 @@ class Mbc1 implements Cartridge {
 				}
 	        	
 	        }
+	        try {
+				cartridgeRam = new RandomAccessFile(this.fileName ,"rw");
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
         }
     }
 
@@ -106,10 +113,8 @@ class Mbc1 implements Cartridge {
         	// Write to save file
         	if (hasBattery) {
 	        	try {
-					RandomAccessFile cartridgeRam = new RandomAccessFile(this.fileName, "rw");
 					cartridgeRam.seek(ramLocation);
 					cartridgeRam.write(toWrite);
-					cartridgeRam.close();
 					System.out.println("wrote to save file");
 					
 				} catch (FileNotFoundException e) {
