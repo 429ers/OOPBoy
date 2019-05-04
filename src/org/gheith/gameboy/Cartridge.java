@@ -6,21 +6,15 @@ import java.security.InvalidParameterException;
 public interface Cartridge extends Serializable {
     static Cartridge fromFile(String fileName) {
         File file = new File(fileName);
-        byte[] romBytes = new byte[(int)file.length()];
-        int romSize = 0;
+        byte[] rom = new byte[(int)file.length()];
+        
         try {
-            romSize = new FileInputStream(file).read(romBytes);
+            new FileInputStream(file).read(rom);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        
-        int[] rom = new int[romBytes.length];
-        
-        for(int i = 0; i < rom.length; i++){
-            rom[i] = romBytes[i] & 0xff;
-        }
 
-        int cartridgeType = rom[0x0147];
+        int cartridgeType = rom[0x0147] & 0xff;
         
         if(cartridgeType == 0x00){
             return new Rom(rom);
@@ -40,14 +34,14 @@ class Rom implements Cartridge {
 	 * 
 	 */
 	private static final long serialVersionUID = -7294699536390467641L;
-	int[] rom;
+	byte[] rom;
 
-    public Rom(int[] rom) {
+    public Rom(byte[] rom) {
         this.rom = rom;
     }
     
     public int readByte(int location){
-        return rom[location];
+        return rom[location] & 0xff;
     }
     
     public void writeByte(int location, int toWrite){
@@ -63,13 +57,13 @@ class Mbc1 implements Cartridge {
 
 	public static final int BANK_SIZE = 0x4000;
     
-    private int[][] banks;
+    private byte[][] banks;
     int currentBank = 1;
     
-    public Mbc1(int[] rom){
+    public Mbc1(byte[] rom){
         int numBanks = rom.length / BANK_SIZE;
         
-        banks = new int[numBanks][BANK_SIZE];
+        banks = new byte[numBanks][BANK_SIZE];
         
         for(int i = 0; i < rom.length; i++){
             banks[i / BANK_SIZE][i % BANK_SIZE] = rom[i];
@@ -80,10 +74,10 @@ class Mbc1 implements Cartridge {
         if(location > 0x7fff) throw new InvalidParameterException("Out of cartridge memory");
         
         if(location < BANK_SIZE){
-            return banks[0][location];
+            return banks[0][location] & 0xff;
         }
         
-        return banks[currentBank][location - BANK_SIZE];
+        return banks[currentBank][location - BANK_SIZE] & 0xff;
     }
 
     public void writeByte(int location, int toWrite) {
