@@ -21,6 +21,12 @@ public interface Cartridge extends Serializable {
         }else if(cartridgeType < 0x04){
             return new Mbc1(rom, fileName);
         }
+        else if (cartridgeType >= 0x0F && cartridgeType <= 0x13) {
+        	return new Mbc3(rom, fileName);
+        }
+        else {
+        	System.out.printf("Cartridge type %x is not supported\n", cartridgeType);
+        }
         
         throw new InvalidParameterException("Cartridge type not supported yet");
     }
