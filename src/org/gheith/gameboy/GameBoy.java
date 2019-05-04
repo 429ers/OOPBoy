@@ -27,6 +27,7 @@ class MainMenuBar extends MenuBar {
         Menu controlMenu = new Menu("Control");
         Menu saveMenu = new Menu("Save");
         Menu loadMenu = new Menu("Load");
+        Menu debugMenu = new Menu("Debug");
         
         MenuItem reset = new MenuItem("Reset");
         reset.addActionListener((ActionEvent e) -> {
@@ -95,6 +96,11 @@ class MainMenuBar extends MenuBar {
             }
         });
 
+        MenuItem breakPoint = new MenuItem("Break here");
+        breakPoint.addActionListener((ActionEvent e) -> {
+            gameBoy.breaked = true;
+        });
+
         fileMenu.add(openRom);
         fileMenu.add(exit);
         controlMenu.add(pause);
@@ -103,11 +109,13 @@ class MainMenuBar extends MenuBar {
         loadMenu.add(quickLoad);
         saveMenu.add(snapshot);
         loadMenu.add(loadFile);
+        debugMenu.add(breakPoint);
         
         this.add(fileMenu);
         this.add(controlMenu);
         this.add(saveMenu);
         this.add(loadMenu);
+        this.add(debugMenu);
     }
 }
 
