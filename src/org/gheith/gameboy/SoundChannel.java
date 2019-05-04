@@ -20,7 +20,7 @@ class SoundChip implements Serializable {
     public Noise noiseChannel = new Noise();
     
     public static final int SAMPLE_RATE = 131072 / 3;
-    public static final int SAMPLES_PER_FRAME = SAMPLE_RATE/59;
+    public static final int SAMPLES_PER_FRAME = SAMPLE_RATE/57;
     public static final AudioFormat AUDIO_FORMAT = new AudioFormat(SAMPLE_RATE,  8, 1, false, false);
     
     private transient SourceDataLine sourceDL;
@@ -169,6 +169,8 @@ class SquareWave implements SoundChannel, Serializable {
         double chunkSize = (2048.0 - frequency) / 8 / 3;
 
         int waveLength = (int)(8 * chunkSize);
+
+        if(waveLength == 0) return false;
 
         for(int i = 0; i < samplesToWrite; i++){
             int samplesFromStart = (i + offset) % waveLength;
@@ -328,6 +330,8 @@ class WaveChannel implements SoundChannel, Serializable {
         double chunkSize = (2048.0 - frequency) / 16 / 3;
 
         int waveLength = (int)(32 * chunkSize);
+
+        if(waveLength == 0) return false;
 
         //System.out.println(Arrays.toString(samples));
         for(int i = 0; i < samplesToWrite; i++){
