@@ -21,4 +21,10 @@ class Rom implements Cartridge {
     public void writeByte(int location, int toWrite){
         //do nothing
     }
+
+	@Override
+	public void cleanUp() {
+		// TODO Auto-generated method stub
+		return;
+	}
 }

@@ -46,12 +46,14 @@ class MainMenuBar extends MenuBar {
             gameBoy.queueSave("quicksave.gbsave");
         });
         quickLoad.addActionListener((ActionEvent e) -> {
+        	gameBoy.mmu.cleanUp();
             gameBoy.queueLoad("quicksave.gbsave");
         });
         snapshot.addActionListener((ActionEvent e) -> {
             gameBoy.queueSave("snapshot-" + DATE_FORMAT.format(new Date()) + ".gbsave");
         });
         loadFile.addActionListener((ActionEvent e) -> {
+        	gameBoy.mmu.cleanUp();
             gameBoy.pause();
             JFileChooser fc = new JFileChooser(new File(System.getProperty("user.dir")));
             int returnVal = fc.showOpenDialog(gameBoy);
@@ -295,7 +297,7 @@ public class GameBoy extends JFrame{
             while (!paused) {
                 this.tick();
             }
-
+            mmu.cleanUp();
             System.out.println("stopped ticking");
         }).start();
     }

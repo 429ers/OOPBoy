@@ -1,6 +1,6 @@
 package org.gheith.gameboy;
 
-public class Mbc2 implements Cartridge{
+public class Mbc3 implements Cartridge{
 
 	/**
 	 * 
@@ -15,6 +15,12 @@ public class Mbc2 implements Cartridge{
 
 	@Override
 	public void writeByte(int location, int toWrite) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void cleanUp() {
 		// TODO Auto-generated method stub
 		
 	}

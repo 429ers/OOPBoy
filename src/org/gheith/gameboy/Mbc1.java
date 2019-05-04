@@ -23,7 +23,6 @@ class Mbc1 implements Cartridge {
 	private int ramBank;
 	private int upperBits;
 	private String fileName;
-	private RandomAccessFile cartridgeRam;
     
     private byte[][] banks;
     private byte[] ram;
@@ -66,12 +65,6 @@ class Mbc1 implements Cartridge {
 				}
 	        	
 	        }
-	        try {
-				cartridgeRam = new RandomAccessFile(this.fileName ,"rw");
-			} catch (FileNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
         }
     }
 
@@ -107,24 +100,10 @@ class Mbc1 implements Cartridge {
         	ramEnabled = (toWrite & 0x0A) == 0x0A;
         }
         
-        if (location >= 0xA000 && location <= 0xBFFF && ramEnabled) {
+        if (location >= 0xA000 && location <= 0xBFFF /*&& ramEnabled*/) {
         	int ramLocation = (ramBank * RAM_BANK_SIZE) + location % 0xA000;
         	ram[ramLocation] = (byte) toWrite;
-        	// Write to save file
-        	if (hasBattery) {
-	        	try {
-					cartridgeRam.seek(ramLocation);
-					cartridgeRam.write(toWrite);
-					System.out.println("wrote to save file");
-					
-				} catch (FileNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-        	}
+        	
         }
         
         // Either ram bank number or upper 2 bits of rom bank number
@@ -142,4 +121,24 @@ class Mbc1 implements Cartridge {
         	isRomBankingMode = toWrite == 0;
         }
     }
+
+	@Override
+	public void cleanUp() {
+		// Write to save file
+    	if (hasBattery) {
+        	try {
+        		FileOutputStream cartridgeRam = new FileOutputStream(this.fileName);
+				cartridgeRam.write(ram);
+				cartridgeRam.close();
+				System.out.println("wrote to save file");
+				
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+    	}
+	}
 }

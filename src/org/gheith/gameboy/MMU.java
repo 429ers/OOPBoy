@@ -52,6 +52,12 @@ public class MMU implements Serializable {
         this.rom = Cartridge.fromFile(fileName);
     }
     
+    public void cleanUp() {
+    	if (rom != null) {
+    		rom.cleanUp();
+    	}
+    }
+    
     public void setJoypad(Joypad joypad) {
     	this.joypad = joypad;
     }
