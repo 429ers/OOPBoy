@@ -19,6 +19,8 @@ import java.util.Scanner;
 import javax.swing.*;
 
 class MainMenuBar extends MenuBar {
+
+    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
    
 	GameBoy gameBoy;
 
@@ -28,6 +30,7 @@ class MainMenuBar extends MenuBar {
         Menu fileMenu = new Menu("File");
         Menu controlMenu = new Menu("Control");
         Menu saveMenu = new Menu("Save");
+        Menu loadMenu = new Menu("Load");
         
         MenuItem reset = new MenuItem("Reset");
         reset.addActionListener((ActionEvent e) -> {
@@ -42,9 +45,15 @@ class MainMenuBar extends MenuBar {
         MenuItem quickLoad = new MenuItem("Quickload");
         MenuItem loadFile = new MenuItem("Load save file");
         MenuItem snapshot = new MenuItem("Snapshot");
-        quickSave.addActionListener(gameBoy);
-        quickLoad.addActionListener(gameBoy);
-        snapshot.addActionListener(gameBoy);
+        quickSave.addActionListener((ActionEvent e) -> {
+            gameBoy.queueSave("quicksave.gbsave");
+        });
+        quickLoad.addActionListener((ActionEvent e) -> {
+            gameBoy.queueLoad("quicksave.gbsave");
+        });
+        snapshot.addActionListener((ActionEvent e) -> {
+            gameBoy.queueSave("snapshot-" + DATE_FORMAT.format(new Date()) + ".gbsave");
+        });
         loadFile.addActionListener((ActionEvent e) -> {
             gameBoy.pause();
             JFileChooser fc = new JFileChooser();
@@ -73,6 +82,11 @@ class MainMenuBar extends MenuBar {
 
             gameBoy.start();
         });
+        
+        MenuItem exit = new MenuItem("Exit");
+        exit.addActionListener((ActionEvent e) -> {
+            System.exit(0);
+        });
 
         MenuItem pause = new MenuItem("Pause");
         pause.addActionListener((ActionEvent e) -> {
@@ -86,20 +100,22 @@ class MainMenuBar extends MenuBar {
         });
 
         fileMenu.add(openRom);
+        fileMenu.add(exit);
         controlMenu.add(pause);
         controlMenu.add(reset);
         saveMenu.add(quickSave);
-        saveMenu.add(quickLoad);
+        loadMenu.add(quickLoad);
         saveMenu.add(snapshot);
-        saveMenu.add(loadFile);
+        loadMenu.add(loadFile);
         
         this.add(fileMenu);
         this.add(controlMenu);
         this.add(saveMenu);
+        this.add(loadMenu);
     }
 }
 
-public class GameBoy extends JFrame implements ActionListener{
+public class GameBoy extends JFrame{
     
     public static final String DEFAULT_ROM = "roms/Tetris.gb";
 
@@ -310,20 +326,5 @@ public class GameBoy extends JFrame implements ActionListener{
         this.saveFileName = fileName;
         quickLoad = true;
     }
-    
-    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
-
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		if (e.getActionCommand().equals("Quicksave")) {
-			queueSave("quicksave.gbsave");
-		}
-		else if (e.getActionCommand().equals("Quickload")) {
-			queueLoad("quicksave.gbsave");
-		}
-		else if(e.getActionCommand().equals("Snapshot")) {
-		    queueSave("snapshot-" + DATE_FORMAT.format(new Date()) + ".gbsave");
-        }
-	}
 
 }
