@@ -100,7 +100,7 @@ class Mbc1 implements Cartridge {
         	ramEnabled = (toWrite & 0x0A) == 0x0A;
         }
         
-        if (location >= 0xA000 && location <= 0xBFFF /*&& ramEnabled*/) {
+        if (location >= 0xA000 && location <= 0xBFFF && ramEnabled) {
         	int ramLocation = (ramBank * RAM_BANK_SIZE) + location % 0xA000;
         	ram[ramLocation] = (byte) toWrite;
         	

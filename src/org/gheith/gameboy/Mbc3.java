@@ -15,7 +15,7 @@ public class Mbc3 implements Cartridge{
 	private static final long serialVersionUID = -7093578351089391407L;
 	
 	public static final int BANK_SIZE = 0x4000;
-	private static final int RAM_BANK_SIZE = 0x2000;
+	private static final int RAM_BANK_SIZE = 0x4000;
 	
 	private boolean ramEnabled;
 	private boolean isRomBankingMode;
@@ -76,8 +76,10 @@ public class Mbc3 implements Cartridge{
         
         if (location >= 0xA000 && location <= 0xBFFF) {
         	if (ramBank >= 8) {
+        		System.out.println("read rtc");
         		return 0;
         	}
+        	System.out.println("read ram");
         	int ramLocation = (ramBank * RAM_BANK_SIZE) + location % 0xA000;
         	return ram[ramLocation] & 0xFF;
         }
@@ -96,6 +98,16 @@ public class Mbc3 implements Cartridge{
 			ramEnabled = true;
 		}
 		
+		else if (location >= 0xA000 && location <= 0xBFFF && ramEnabled) {
+			if (ramBank < 0x8) {
+				int ramLocation = (ramBank * RAM_BANK_SIZE) + location % 0xA000;
+				ram[ramLocation] = (byte) toWrite;
+			}
+			else {
+				System.out.println("wrote rtc");
+			}
+		}
+		
 		// Rom bank selection
 		else if (location >= 0x2000 && location <= 0x3FFF) {
 			currentBank = toWrite;
@@ -103,6 +115,7 @@ public class Mbc3 implements Cartridge{
 		
 		// RAM bank / RTC selection
 		else if (location >= 0x4000 && location <= 0x5FFF) {
+			System.out.println("latched rtc");
 			ramBank = toWrite;
 			if (ramBank == 0) {
 				ramBank = 1;

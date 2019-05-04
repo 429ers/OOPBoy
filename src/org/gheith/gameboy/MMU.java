@@ -153,6 +153,7 @@ public class MMU implements Serializable {
         
         if (location >= 0xA000 && location <= 0xBFFF) {
         	rom.writeByte(location, toWrite);
+        	return;
         }
         
         if(location == IF_REGISTER) { // IF register
