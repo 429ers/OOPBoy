@@ -18,7 +18,7 @@ class SoundChip implements Serializable {
     public Noise noiseChannel = new Noise();
     
     public static final int SAMPLE_RATE = 131072 / 3;
-    public static final int SAMPLES_PER_FRAME = SAMPLE_RATE/28;
+    public static final int SAMPLES_PER_FRAME = SAMPLE_RATE/58;
     public static final AudioFormat AUDIO_FORMAT = new AudioFormat(SAMPLE_RATE,  8, 1, false, false);
     
     private transient SourceDataLine sourceDL;
@@ -138,7 +138,7 @@ class SquareWave implements SoundChannel, Serializable {
         ticks++;
         
         if (lengthEnabled) {
-            lengthCounter-= 8;
+            lengthCounter-= 4;
             if (lengthCounter <= 0) {
                 this.playing = false;
                 System.out.println("timer ran out");
@@ -146,7 +146,7 @@ class SquareWave implements SoundChannel, Serializable {
         }
 
         if(envelopePeriod != 0 && ticks % envelopePeriod == 0) {
-            this.currentVolume += (envelopeAdd? 2: -2);
+            this.currentVolume += (envelopeAdd? 1: -1);
             if(this.currentVolume < 0) this.currentVolume = 0;
             if(this.currentVolume > 15) this.currentVolume = 15;
         }
@@ -305,7 +305,7 @@ class WaveChannel implements SoundChannel, Serializable {
         }
         
         if (lengthEnabled) {
-            lengthCounter-= 8;
+            lengthCounter-= 4;
             if (lengthCounter <= 0) {
                 this.playing = false;
             }
@@ -385,14 +385,14 @@ class Noise implements SoundChannel, Serializable {
         ticks++;
 
         if (lengthEnabled) {
-            lengthCounter-= 8;
+            lengthCounter-= 4;
             if (lengthCounter <= 0) {
                 this.playing = false;
             }
         }
 
         if(envelopePeriod != 0 && ticks % envelopePeriod == 0) {
-            this.currentVolume += (envelopeAdd? 2: -2);
+            this.currentVolume += (envelopeAdd? 1: -1);
             if(this.currentVolume < 0) this.currentVolume = 0;
             if(this.currentVolume > 15) this.currentVolume = 15;
         }

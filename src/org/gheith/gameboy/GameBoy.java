@@ -254,9 +254,7 @@ public class GameBoy extends JFrame{
             ppu.tick();
             if(ppu.drewFrame()){
                 framesDrawn++;
-                if(framesDrawn % 2 == 0) {
-                    mmu.soundChip.tick();
-                }
+                mmu.soundChip.tick();
             }
             cpu.timer.tick();
         }
