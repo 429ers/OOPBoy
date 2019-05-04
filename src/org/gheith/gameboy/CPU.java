@@ -80,7 +80,7 @@ public class CPU implements Serializable {
         
         int currentPC = regs.PC.read();
         
-        int result = op.execute();
+        int result = op.execute(this);
         
         if(printOutput) {
             System.out.println(Integer.toString(currentPC, 16) + ": " + op.description);
@@ -91,7 +91,7 @@ public class CPU implements Serializable {
         }
     }
 
-    class Operation{ //any operation that is not a jump
+    static class Operation{ //any operation that is not a jump
         String description;
         Lambda lambda;
         int ticks;
@@ -106,11 +106,11 @@ public class CPU implements Serializable {
         }
         
         //sets the flags to the values they need to be and allows flags to be written to only when the instruction should affect the flag
-        protected void handleFlags() {
+        protected void handleFlags(CPU cpu) {
             final int[] flags = new int[] { ZFLAG, NFLAG, HFLAG, CFLAG };
             boolean[] writable = new boolean[8];
             
-            regs.flags.enableFlagWrites(true, true, true, true);
+            cpu.regs.flags.enableFlagWrites(true, true, true, true);
             
             for(int i = 0; i < flagsAffected.length(); i+= 2) {
                 char descriptor = flagsAffected.charAt(i);
@@ -119,11 +119,11 @@ public class CPU implements Serializable {
                 
                 switch(descriptor){
                     case '0':
-                        regs.flags.setFlag(flag, false);
+                        cpu.regs.flags.setFlag(flag, false);
                         writable[flag] = false;
                         break;
                     case '1':
-                        regs.flags.setFlag(flag, true);
+                        cpu.regs.flags.setFlag(flag, true);
                         writable[flag] = false;
                         break;
                     case '-':
@@ -134,23 +134,23 @@ public class CPU implements Serializable {
                 }
             }
             
-            regs.flags.enableFlagWrites(writable[ZFLAG], writable[NFLAG], writable[HFLAG], writable[CFLAG]);
+            cpu.regs.flags.enableFlagWrites(writable[ZFLAG], writable[NFLAG], writable[HFLAG], writable[CFLAG]);
         }
 
-        public int execute() {
-            handleFlags();
+        public int execute(CPU cpu) {
+            handleFlags(cpu);
             
-            int result = this.lambda.exec(CPU.this);
+            int result = this.lambda.exec(cpu);
             
-            CPU.this.clockCycles += this.ticks;
-            CPU.this.clockCycleDelta = this.ticks;
-            CPU.this.regs.PC.write(CPU.this.regs.PC.read() + length);
+            cpu.clockCycles += this.ticks;
+            cpu.clockCycleDelta = this.ticks;
+            cpu.regs.PC.write(cpu.regs.PC.read() + length);
             
             return result;
         }
     }
     
-    class Jump extends Operation{//this includes relative, conditional, calls, and returns
+    static class Jump extends Operation{//this includes relative, conditional, calls, and returns
         int ticksIfJumped, ticksIfNotJumped;
         public Jump(String description, Lambda lambda, int length, String flagsAffected, int ticksIfJumped, int ticksIfNotJumped) {
             super(description, lambda, length, flagsAffected, ticksIfJumped);
@@ -158,22 +158,22 @@ public class CPU implements Serializable {
             this.ticksIfNotJumped = ticksIfNotJumped;
         }
 
-        public int execute() {
-            handleFlags();
+        public int execute(CPU cpu) {
+            handleFlags(cpu);
             
-            int result = this.lambda.exec(CPU.this);
+            int result = this.lambda.exec(cpu);
 
             if (result == RELJUMP || result == NOJUMP){
                 //apparently offsets are calculated based on the future PC
-                CPU.this.regs.PC.write(CPU.this.regs.PC.read() + length);
+                cpu.regs.PC.write(cpu.regs.PC.read() + length);
             }
 
             if(result == NOJUMP) {
-                CPU.this.clockCycles += this.ticksIfNotJumped;
-                CPU.this.clockCycleDelta = this.ticksIfNotJumped;
+                cpu.clockCycles += this.ticksIfNotJumped;
+                cpu.clockCycleDelta = this.ticksIfNotJumped;
             }else{
-                CPU.this.clockCycles += this.ticksIfJumped;
-                CPU.this.clockCycles = this.ticksIfJumped;
+                cpu.clockCycles += this.ticksIfJumped;
+                cpu.clockCycles = this.ticksIfJumped;
             }
             
             return result;
@@ -847,7 +847,7 @@ public class CPU implements Serializable {
         Operation cbOperation = cbOperations[cbOpcode];
         cbOperation.length = 1; //the operation increases the PC by 1 because CB already increases it by 1
         
-        return cbOperation.execute();
+        return cbOperation.execute(this);
     }
 
     static Operation[] operations = new Operation[256];

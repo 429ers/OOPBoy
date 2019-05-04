@@ -148,7 +148,9 @@ public class GameBoy extends JFrame implements ActionListener{
 			ObjectInputStream saveState = new ObjectInputStream(saveFile);
 			this.mmu = (MMU) saveState.readObject();
 			this.cpu = mmu.getCPU();
+			this.cpu.setMMU(mmu);
 			this.ppu = mmu.getPPU();
+			this.ppu.setMMU(mmu);
 			saveState.close();
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -216,7 +218,6 @@ public class GameBoy extends JFrame implements ActionListener{
             if(ppu.drewFrame()){
                 framesDrawn++;
                 if(framesDrawn % 2 == 0) {
-                	System.out.println("doing stuff");
                     mmu.soundChip.tick();
                 }
             }
