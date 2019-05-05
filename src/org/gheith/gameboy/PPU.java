@@ -139,6 +139,9 @@ public class PPU implements Serializable {
 		
 		*/
 		scrollX = mem.readByte(0xFF43);
+		int lcdc = mem.readByte(0xff40);
+		spritesEnabled = BitOps.extract(lcdc, 1, 1) == 1;
+		//spritesEnabled = true;
 		if (cycleCount == OAM_SEARCH_START) {
 			scrollY = mem.readByte(0xFF42);
 			if (currentY < ACTUAL_LINES) {
@@ -146,7 +149,7 @@ public class PPU implements Serializable {
 				mem.writeByte(0xFF41, status | 0x80);
 			}
 			mem.writeByte(0xFF44, currentY);
-			int lcdc = mem.readByte(0xff40);
+			//int lcdc = mem.readByte(0xff40);
 			boolean useTileSet1 = BitOps.extract(lcdc, 4, 4) == 1;
 			boolean useWindowTileMap1 = BitOps.extract(lcdc, 6, 6) == 0;
 			if (BitOps.extract(lcdc, 2, 2) == 1) {
@@ -162,7 +165,7 @@ public class PPU implements Serializable {
 				this.loadMap(useTileSet1, useBackgroundMap1);
 				this.loadPallettes();
 			}
-			spritesEnabled = BitOps.extract(lcdc, 1, 1) == 1;
+			//spritesEnabled = BitOps.extract(lcdc, 1, 1) == 1;
 			if (spritesEnabled) {
 				loadSprites();
 			}
@@ -189,9 +192,27 @@ public class PPU implements Serializable {
 			int pixel;
 			Tile backgroundTile = map.getTile(yPos / 8, xPos / 8);
 			if (windowEnabled && currentX >= windowX && currentY >= windowY) {
-				currentTile = window.getTile((currentY - windowY) / 8, (currentX - windowX) / 8);
-				currentPallette = background;
-				pixel = currentTile.getPixel((currentY - windowY)  % 8, (currentX - windowX) % 8);
+				Tile windowTile = window.getTile((currentY - windowY) / 8, (currentX - windowX) / 8);
+				int windowPixel = windowTile.getPixel((currentY - windowY)  % 8, (currentX - windowX) % 8);
+				if (spritesEnabled && sprites.containsKey(currentX + 8)) {
+					ISprite currentSprite = sprites.get(currentX + 8);
+					int spritePixel = currentSprite.getPixel(currentY - (currentSprite.getSpriteY() - 16), currentX - (currentSprite.getSpriteX() - 8));
+					if ((currentSprite.getPriority() == 0 || windowPixel == 0) && spritePixel != 0) {
+						//currentTile = currentSprite.getTile();
+						currentPallette = currentSprite.usePalletteZero() ? obp0 : obp1;
+						pixel = spritePixel;
+					}
+					else {
+						currentTile = windowTile;
+						currentPallette = background;
+						pixel = windowPixel;
+					}
+				}
+				else {
+					currentTile = windowTile;
+					currentPallette = background;
+					pixel = windowPixel;
+				}
 			}
 			else if (spritesEnabled && sprites.containsKey(currentX + 8)) {
 				ISprite currentSprite = sprites.get(currentX + 8);
