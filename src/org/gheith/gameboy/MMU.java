@@ -263,21 +263,4 @@ public class MMU implements Serializable {
         
         return new Location(address);
     }
-
-    public ReadWritable SPr8Location(Register sp, Register pc, RegisterFile.FlagSet flags) {
-        byte r8 = (byte)readByte(pc.read()+1); //r8 is a signed byte value
-        int spVal = sp.read();
-        int address = spVal + r8;
-        
-        //https://stackoverflow.com/questions/5159603/gbz80-how-does-ld-hl-spe-affect-h-and-c-flags
-        if(r8 >= 0){
-            flags.setFlag(RegisterFile.HFLAG, (spVal & 0xF) + (r8 & 0xF) > 0xF);
-            flags.setFlag(RegisterFile.CFLAG, (spVal & 0xFF) + r8 > 0xFF);
-        }else{
-            flags.setFlag(RegisterFile.HFLAG, (address & 0xF) <= (spVal & 0xF));
-            flags.setFlag(RegisterFile.CFLAG, (address & 0xFF) <= (spVal & 0xFF));
-        }
-
-        return new Location(address);
-    }
 }

@@ -302,6 +302,7 @@ public class GameBoy extends JFrame{
                     System.out.printf("%x ", i);
                 }
                 System.out.println();
+                return;
             }else if(!cmd.equals("n")){
                 System.out.println("Command not recognized");
                 return;

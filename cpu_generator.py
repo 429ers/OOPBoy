@@ -16,7 +16,7 @@ special_operands = {
     "(C)": "cpu.mem.shortRegisterLocation(cpu.regs.C)",
     "(HL+)": "cpu.mem.registerLocation(selfIncrement(cpu.regs.HL))",
     "(HL-)": "cpu.mem.registerLocation(selfDecrement(cpu.regs.HL))",
-    "SP+r8": "cpu.mem.SPr8Location(cpu.regs.SP, cpu.regs.PC, cpu.regs.flags)",
+    "SP+r8": "cpu.SPr16()",
 }
 
 registers = ['A', 'B', 'D', 'H', 'F', 'C', 'E', 'L', 'AF', 'BC', 'DE', 'HL', 'SP', 'PC']

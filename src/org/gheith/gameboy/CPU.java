@@ -229,6 +229,28 @@ public class CPU implements Serializable {
         };
     }
     
+    Readable SPr16() {
+        byte r8 = (byte)mem.readByte(regs.PC.read()+1); //r8 is a signed byte value
+        int spVal = regs.SP.read();
+        int address = spVal + r8;
+
+        //https://stackoverflow.com/questions/5159603/gbz80-how-does-ld-hl-spe-affect-h-and-c-flags
+        if(r8 >= 0){
+            regs.flags.setFlag(RegisterFile.HFLAG, (spVal & 0xF) + (r8 & 0xF) > 0xF);
+            regs.flags.setFlag(RegisterFile.CFLAG, (spVal & 0xFF) + r8 > 0xFF);
+        }else{
+            regs.flags.setFlag(RegisterFile.HFLAG, (address & 0xF) <= (spVal & 0xF));regs.
+            flags.setFlag(RegisterFile.CFLAG, (address & 0xFF) <= (spVal & 0xFF));
+        }
+
+        return new Readable() {
+            @Override
+            public int read() {
+                return address;
+            }
+        };
+    }
+    
     //represents a 16-bit address right after PC
     Readable a16() {
         return d16();
@@ -1109,7 +1131,7 @@ public class CPU implements Serializable {
         operations[0xf5] = new Operation("PUSH AF", (CPU cpu) -> cpu.PUSH(cpu.regs.AF), 1, "- - - -", 16);
         operations[0xf6] = new Operation("OR d8", (CPU cpu) -> cpu.OR(cpu.d8()), 2, "Z 0 0 0", 8);
         operations[0xf7] = new Jump("RST 30H", (CPU cpu) -> cpu.RST(0x30), 1, "- - - -", 16, 16);
-        operations[0xf8] = new Operation("LD HL,SP+r8", (CPU cpu) -> cpu.LD(cpu.regs.HL, cpu.mem.SPr8Location(cpu.regs.SP, cpu.regs.PC, cpu.regs.flags)), 2, "0 0 H C", 12);
+        operations[0xf8] = new Operation("LD HL,SP+r8", (CPU cpu) -> cpu.LD(cpu.regs.HL, cpu.SPr16()), 2, "0 0 H C", 12);
         operations[0xf9] = new Operation("LD SP,HL", (CPU cpu) -> cpu.LD(cpu.regs.SP, cpu.regs.HL), 1, "- - - -", 8);
         operations[0xfa] = new Operation("LD A,(a16)", (CPU cpu) -> cpu.LD(cpu.regs.A, cpu.mem.a16Location(cpu.regs.PC)), 3, "- - - -", 16);
         operations[0xfb] = new Operation("EI", CPU::EI, 1, "- - - -", 4);
