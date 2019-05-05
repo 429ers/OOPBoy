@@ -204,6 +204,17 @@ public class CPU implements Serializable {
             }
         };
     }
+    
+    Readable r8() {
+        int value = (byte)mem.readByte(regs.PC.read() + 1);
+        
+        return new Readable() {
+            @Override
+            public int read(){ 
+                return value;
+            }
+        };
+    }
 
     //represents an 8-bit signed immediate value, which is added to 0xff00
     Readable a8() {
@@ -229,7 +240,7 @@ public class CPU implements Serializable {
         };
     }
     
-    Readable SPr16() {
+    Readable SPr8() {
         byte r8 = (byte)mem.readByte(regs.PC.read()+1); //r8 is a signed byte value
         int spVal = regs.SP.read();
         int address = spVal + r8;
@@ -239,8 +250,8 @@ public class CPU implements Serializable {
             regs.flags.setFlag(RegisterFile.HFLAG, (spVal & 0xF) + (r8 & 0xF) > 0xF);
             regs.flags.setFlag(RegisterFile.CFLAG, (spVal & 0xFF) + r8 > 0xFF);
         }else{
-            regs.flags.setFlag(RegisterFile.HFLAG, (address & 0xF) <= (spVal & 0xF));regs.
-            flags.setFlag(RegisterFile.CFLAG, (address & 0xFF) <= (spVal & 0xFF));
+            regs.flags.setFlag(RegisterFile.HFLAG, (address & 0xF) <= (spVal & 0xF));
+            regs.flags.setFlag(RegisterFile.CFLAG, (address & 0xFF) <= (spVal & 0xFF));
         }
 
         return new Readable() {
@@ -332,7 +343,13 @@ public class CPU implements Serializable {
     
     int LD (Writable dest, Readable src){
         int val = src.read();
-        dest.write(val);
+        
+        //LD (a16), SP is a special case since it involves writing sixteen bits to memory
+        if(dest instanceof MMU.Location && src == regs.SP){
+            ((MMU.Location) dest).writeLong(val);
+        }else {
+            dest.write(val);
+        }
         return val;
     }
     
@@ -379,8 +396,22 @@ public class CPU implements Serializable {
         int result = sum & fullMask;
         
         regs.flags.setFlag(ZFLAG, (result == 0));
-        regs.flags.setFlag(CFLAG, (sum != result));
-        regs.flags.setFlag(HFLAG, ((op1 & halfMask) + (op2 & halfMask) > halfMask) );
+        if(dest == regs.SP) { //SP is the only operand that takes a negative src
+            int r8 = op1;
+            int spVal = op2;
+            int address = result;
+            //copied from SPr8()
+            if(r8 >= 0){
+                regs.flags.setFlag(RegisterFile.HFLAG, (spVal & 0xF) + (r8 & 0xF) > 0xF);
+                regs.flags.setFlag(RegisterFile.CFLAG, (spVal & 0xFF) + r8 > 0xFF);
+            }else{
+                regs.flags.setFlag(RegisterFile.HFLAG, (address & 0xF) <= (spVal & 0xF));
+                regs.flags.setFlag(RegisterFile.CFLAG, (address & 0xFF) <= (spVal & 0xFF));
+            }
+        }else {
+            regs.flags.setFlag(CFLAG, (sum != result));
+            regs.flags.setFlag(HFLAG, ((op1 & halfMask) + (op2 & halfMask) > halfMask));
+        }
         
         dest.write(result);
         
@@ -1115,7 +1146,7 @@ public class CPU implements Serializable {
         operations[0xe5] = new Operation("PUSH HL", (CPU cpu) -> cpu.PUSH(cpu.regs.HL), 1, "- - - -", 16);
         operations[0xe6] = new Operation("AND d8", (CPU cpu) -> cpu.AND(cpu.d8()), 2, "Z 0 1 0", 8);
         operations[0xe7] = new Jump("RST 20H", (CPU cpu) -> cpu.RST(0x20), 1, "- - - -", 16, 16);
-        operations[0xe8] = new Operation("ADD SP,r8", (CPU cpu) -> cpu.ADD(cpu.regs.SP, cpu.d8()), 2, "0 0 H C", 16);
+        operations[0xe8] = new Operation("ADD SP,r8", (CPU cpu) -> cpu.ADD(cpu.regs.SP, cpu.r8()), 2, "0 0 H C", 16);
         operations[0xe9] = new Jump("JP HL", (CPU cpu) -> cpu.JP(cpu.regs.HL), 1, "- - - -", 4, 4);
         operations[0xea] = new Operation("LD (a16),A", (CPU cpu) -> cpu.LD(cpu.mem.a16Location(cpu.regs.PC), cpu.regs.A), 3, "- - - -", 16);
         operations[0xeb] = new Operation("XXX", CPU::XXX, 0, "- - - -", 0);
@@ -1131,7 +1162,7 @@ public class CPU implements Serializable {
         operations[0xf5] = new Operation("PUSH AF", (CPU cpu) -> cpu.PUSH(cpu.regs.AF), 1, "- - - -", 16);
         operations[0xf6] = new Operation("OR d8", (CPU cpu) -> cpu.OR(cpu.d8()), 2, "Z 0 0 0", 8);
         operations[0xf7] = new Jump("RST 30H", (CPU cpu) -> cpu.RST(0x30), 1, "- - - -", 16, 16);
-        operations[0xf8] = new Operation("LD HL,SP+r8", (CPU cpu) -> cpu.LD(cpu.regs.HL, cpu.SPr16()), 2, "0 0 H C", 12);
+        operations[0xf8] = new Operation("LD HL,SP+r8", (CPU cpu) -> cpu.LD(cpu.regs.HL, cpu.SPr8()), 2, "0 0 H C", 12);
         operations[0xf9] = new Operation("LD SP,HL", (CPU cpu) -> cpu.LD(cpu.regs.SP, cpu.regs.HL), 1, "- - - -", 8);
         operations[0xfa] = new Operation("LD A,(a16)", (CPU cpu) -> cpu.LD(cpu.regs.A, cpu.mem.a16Location(cpu.regs.PC)), 3, "- - - -", 16);
         operations[0xfb] = new Operation("EI", CPU::EI, 1, "- - - -", 4);

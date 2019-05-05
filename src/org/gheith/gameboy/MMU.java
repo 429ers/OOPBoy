@@ -241,6 +241,11 @@ public class MMU implements Serializable {
         public void write(int val) {
             MMU.this.writeByte(address, val);
         }
+        
+        public void writeLong(int val) {
+            MMU.this.writeByte(address, val & 0xff);
+            MMU.this.writeByte(address + 1, (val >> 8) & 0xff);
+        }
     }
 
     public Location shortRegisterLocation(Register r) {
