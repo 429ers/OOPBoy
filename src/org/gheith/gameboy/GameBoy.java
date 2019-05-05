@@ -105,11 +105,11 @@ class MainMenuBar extends MenuBar {
         breakPoint.addActionListener((ActionEvent e) -> {
             gameBoy.breaked = true;
         });
-        MenuItem fastMode = new MenuItem("Toggle fast mode");
+        CheckboxMenuItem fastMode = new CheckboxMenuItem("Fast mode");
         fastMode.addActionListener((ActionEvent e) -> {
             gameBoy.fastMode = !gameBoy.fastMode;
         });
-        MenuItem audioToggle = new MenuItem("Toggle audio");
+        CheckboxMenuItem audioToggle = new CheckboxMenuItem("Mute");
         audioToggle.addActionListener((ActionEvent e) -> {
             gameBoy.audioOn = !gameBoy.audioOn;
         });
