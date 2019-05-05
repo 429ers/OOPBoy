@@ -86,6 +86,7 @@ class MainMenuBar extends MenuBar {
         
         MenuItem exit = new MenuItem("Exit");
         exit.addActionListener((ActionEvent e) -> {
+            gameBoy.mmu.cleanUp();
             System.exit(0);
         });
 
@@ -104,6 +105,14 @@ class MainMenuBar extends MenuBar {
         breakPoint.addActionListener((ActionEvent e) -> {
             gameBoy.breaked = true;
         });
+        MenuItem fastMode = new MenuItem("Toggle fast mode");
+        fastMode.addActionListener((ActionEvent e) -> {
+            gameBoy.fastMode = !gameBoy.fastMode;
+        });
+        MenuItem audioToggle = new MenuItem("Toggle audio");
+        audioToggle.addActionListener((ActionEvent e) -> {
+            gameBoy.audioOn = !gameBoy.audioOn;
+        });
 
         fileMenu.add(openRom);
         fileMenu.add(exit);
@@ -114,6 +123,8 @@ class MainMenuBar extends MenuBar {
         saveMenu.add(snapshot);
         loadMenu.add(loadFile);
         debugMenu.add(breakPoint);
+        debugMenu.add(fastMode);
+        debugMenu.add(audioToggle);
         
         this.add(fileMenu);
         this.add(controlMenu);
@@ -138,6 +149,10 @@ public class GameBoy extends JFrame{
     private boolean quickSave;
     private boolean quickLoad;
     private Joypad joypad;
+    
+    boolean audioOn = true;
+    boolean fastMode = false;
+    long timeOfLastFrame = -1;
     
     Scanner fin = new Scanner(System.in);
     int numInstructonsUntilBreak = -1;
@@ -306,8 +321,19 @@ public class GameBoy extends JFrame{
         for (int i = 0; i < cycles; i++) {
             ppu.tick();
             if(ppu.drewFrame()){
+                long currentTime = System.currentTimeMillis();
+                long deltaTime = currentTime - timeOfLastFrame;
+                if (deltaTime < 15 && !fastMode) {
+                    //System.out.println("sleep");
+                    try {
+                        Thread.sleep(16 - deltaTime);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+                timeOfLastFrame = System.currentTimeMillis();
                 framesDrawn++;
-                mmu.soundChip.tick();
+                if(audioOn) mmu.soundChip.tick();
             }
             cpu.timer.tick();
         }

@@ -35,7 +35,6 @@ public class PPU implements Serializable {
 	private int windowX;
 	private int windowY;
 	private int LYCompare = -1;
-	private long timeOfLastFrame;
 	private boolean largeSpriteMode;
 	
 	/*
@@ -80,7 +79,6 @@ public class PPU implements Serializable {
 		currentY = 0;
 		this.gbs = gbs;
 		sprites = new HashMap<Integer, ISprite>();
-		timeOfLastFrame = -1;
 	}
 	
 	public PPU() {
@@ -253,24 +251,12 @@ public class PPU implements Serializable {
 	
 	
 	private void drawFrame() {
-		long currentTime = System.currentTimeMillis();
-		long deltaTime = currentTime - timeOfLastFrame;
-		if (deltaTime < 15) {
-			//System.out.println("sleep");
-			try {
-				Thread.sleep(16 - deltaTime);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		timeOfLastFrame = System.currentTimeMillis();
 		int status = mem.readByte(0xFF41) & 0x3F;
 		mem.writeByte(0xFF41, status | 0x40);
 		gbs.drawFrame(frame);
 		drewFrame = true;
 		int interruptRegister = mem.readByte(0xFF0F) & 0xFE;
-		mem.writeByte(0xFF0F, interruptRegister | 0x01); 
+		mem.writeByte(0xFF0F, interruptRegister | 0x01);
 		//mem.writeByte(0xFF85, 0xFF);
 		//mem.writeByte(0xFF44, 0x90);
 	}
