@@ -1,11 +1,7 @@
 package org.gheith.gameboy;
 
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
+import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.text.SimpleDateFormat;
@@ -106,11 +102,11 @@ class MainMenuBar extends MenuBar {
             gameBoy.breaked = true;
         });
         CheckboxMenuItem fastMode = new CheckboxMenuItem("Fast mode");
-        fastMode.addActionListener((ActionEvent e) -> {
+        fastMode.addItemListener((ItemEvent e) -> {
             gameBoy.fastMode = !gameBoy.fastMode;
         });
         CheckboxMenuItem audioToggle = new CheckboxMenuItem("Mute");
-        audioToggle.addActionListener((ActionEvent e) -> {
+        audioToggle.addItemListener((ItemEvent e) -> {
             gameBoy.audioOn = !gameBoy.audioOn;
         });
 
