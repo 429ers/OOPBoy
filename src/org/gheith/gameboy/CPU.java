@@ -74,7 +74,14 @@ public class CPU implements Serializable {
     }
     
     public void executeOneInstruction(boolean printOutput) {
-        if(halted) return;
+        
+    	/*
+    	if(halted) {
+        	//System.out.println("halted!");
+        	clockCycleDelta = 1;
+        	return;
+        }
+        */
 
         int opcode = mem.readByte(regs.PC.read());
         

@@ -15,7 +15,7 @@ public interface Cartridge extends Serializable {
         }
 
         int cartridgeType = rom[0x0147] & 0xff;
-        
+    	System.out.printf("Game is using cartridge type %x\n", cartridgeType);
         if(cartridgeType == 0x00){
             return new Rom(rom);
         }else if(cartridgeType < 0x04){
