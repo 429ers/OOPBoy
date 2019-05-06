@@ -171,6 +171,7 @@ public class GameBoy extends JFrame{
     int numInstructonsUntilBreak = -1;
     long framesDrawn = 0;
     boolean breaked = false;
+    LinkCable cable;
     
     String saveFileName = "quicksave.gb";
     
@@ -180,6 +181,7 @@ public class GameBoy extends JFrame{
         mmu = new MMU(newRom);
         cpu = new CPU(mmu);
         ppu = new PPU(mmu, gbs);
+        cable = new LinkCable(mmu, cpu.interruptHandler);
         joypad = new Joypad(mmu, cpu.interruptHandler);
         gbs.addKeyListener(joypad);
     }
@@ -249,11 +251,11 @@ public class GameBoy extends JFrame{
         ppu = new PPU(mmu, gbs);
         this.joypad = new Joypad(mmu, cpu.interruptHandler);
         gbs.addKeyListener(joypad);
-        
         ppu.loadTileSets();
         ppu.loadMap(true, true);
         quickSave = false;
         quickLoad = false;
+        cable = new LinkCable(mmu, cpu.interruptHandler);
     }
     
     public void saveState() {
@@ -360,6 +362,7 @@ public class GameBoy extends JFrame{
                 if(audioOn) mmu.soundChip.tick();
             }
             cpu.timer.tick();
+            cable.tick();
         }
         if (quickSave) {
         	System.out.println("quicksaving...");
