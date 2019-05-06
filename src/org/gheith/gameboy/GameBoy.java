@@ -27,15 +27,26 @@ class MainMenuBar extends MenuBar {
         Menu loadMenu = new Menu("Load");
         Menu debugMenu = new Menu("Debug");
         
-        MenuItem reset = new MenuItem("Reset");
+        MenuItem reset = new MenuItem("Reset", new MenuShortcut(KeyEvent.VK_R));
         reset.addActionListener((ActionEvent e) -> {
-            gameBoy.switchRom(gameBoy.romFileName);
+            gameBoy.pause();
+            int n = JOptionPane.showConfirmDialog(
+                gameBoy,
+                "Are you sure?",
+                "Confirm reset",
+                JOptionPane.YES_NO_OPTION);
+            
+            if(n == JOptionPane.YES_OPTION) {
+                gameBoy.switchRom(gameBoy.romFileName);
+            }
+            
+            gameBoy.start();
         });
         
         MenuItem quickSave = new MenuItem("Quicksave", new MenuShortcut(KeyEvent.VK_S));
         MenuItem quickLoad = new MenuItem("Quickload", new MenuShortcut(KeyEvent.VK_L));
-        MenuItem loadFile = new MenuItem("Load save file");
-        MenuItem snapshot = new MenuItem("Snapshot");
+        MenuItem loadFile = new MenuItem("Load save file", new MenuShortcut(KeyEvent.VK_L, true));
+        MenuItem snapshot = new MenuItem("Snapshot", new MenuShortcut(KeyEvent.VK_S, true));
         quickSave.addActionListener((ActionEvent e) -> {
             gameBoy.queueSave("quicksave.gbsave");
         });
@@ -77,11 +88,22 @@ class MainMenuBar extends MenuBar {
         
         MenuItem exit = new MenuItem("Exit");
         exit.addActionListener((ActionEvent e) -> {
-            gameBoy.mmu.cleanUp();
-            System.exit(0);
+            gameBoy.pause();
+            int n = JOptionPane.showConfirmDialog(
+                    gameBoy,
+                    "Are you sure?",
+                    "Confirm exit",
+                    JOptionPane.YES_NO_OPTION);
+
+            if(n == JOptionPane.YES_OPTION) {
+                gameBoy.mmu.cleanUp();
+                System.exit(0);
+            }
+            
+            gameBoy.start();
         });
 
-        MenuItem pause = new MenuItem("Pause");
+        MenuItem pause = new MenuItem("Pause", new MenuShortcut(KeyEvent.VK_P));
         pause.addActionListener((ActionEvent e) -> {
             if(!gameBoy.paused) {
                 gameBoy.pause();
