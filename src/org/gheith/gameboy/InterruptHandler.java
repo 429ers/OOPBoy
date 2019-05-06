@@ -15,15 +15,15 @@ public class InterruptHandler implements Serializable {
     public static final int LCDC = 0x0048;
     public static final int TIMER_OVERFLOW = 0x0050;
     public static final int SERIAL_COMPLETION = 0x0058;
-    public static final int HIGH_TO_LOW = 0x0060;
+    public static final int JOYPAD = 0x0060;
     
     public HashMap<Integer, Boolean> specificEnabled = new HashMap<>();
     {
-        specificEnabled.put(VBLANK, true);
-        specificEnabled.put(LCDC, true);
-        specificEnabled.put(TIMER_OVERFLOW, true);
-        specificEnabled.put(SERIAL_COMPLETION, true);
-        specificEnabled.put(HIGH_TO_LOW, true);
+        specificEnabled.put(VBLANK, false);
+        specificEnabled.put(LCDC, false);
+        specificEnabled.put(TIMER_OVERFLOW, false);
+        specificEnabled.put(SERIAL_COMPLETION, false);
+        specificEnabled.put(JOYPAD, false);
     }
     
     private boolean interruptsEnabled = false; // this is the IME flag
@@ -78,7 +78,7 @@ public class InterruptHandler implements Serializable {
         }
         IFflag >>= 1;
         if((IFflag & 1) == 1){
-            this.issueInterruptIfEnabled(InterruptHandler.HIGH_TO_LOW);
+            this.issueInterruptIfEnabled(InterruptHandler.JOYPAD);
         }
     }
     
@@ -92,6 +92,6 @@ public class InterruptHandler implements Serializable {
         IEflag >>= 1;
         this.setSpecificEnabled(InterruptHandler.SERIAL_COMPLETION, (IEflag & 1) == 1);
         IEflag >>= 1;
-        this.setSpecificEnabled(InterruptHandler.HIGH_TO_LOW, (IEflag & 1) == 1);
+        this.setSpecificEnabled(InterruptHandler.JOYPAD, (IEflag & 1) == 1);
     }
 }

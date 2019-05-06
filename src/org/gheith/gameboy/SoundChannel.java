@@ -208,7 +208,7 @@ class SquareWave implements SoundChannel, Serializable {
                 break;
             case 4:
                 this.playing |= (toWrite >> 7) == 1;
-                this.lengthEnabled = (toWrite >> 6) == 1;
+                this.lengthEnabled = ((toWrite >> 6) & 1) == 1;
                 newFrequency &= 0xff;
                 newFrequency |= ((toWrite & 0x7) << 8);
         }
@@ -278,7 +278,7 @@ class WaveChannel implements SoundChannel, Serializable {
                 break;
             case 4:
                 this.playing |= (toWrite >> 7) == 1;
-                this.lengthEnabled = (toWrite >> 6) == 1;
+                this.lengthEnabled = ((toWrite >> 6) & 1) == 1;
                 newFrequency &= 0xff;
                 newFrequency |= ((toWrite & 0x7) << 8);
         }
@@ -386,12 +386,11 @@ class Noise implements SoundChannel, Serializable {
                 break;
             case 4:
                 this.playing |= (toWrite >> 7) == 1;
-                this.lengthEnabled = (toWrite >> 6) == 1;
+                this.lengthEnabled = ((toWrite >> 6) & 1) == 1;
         }
 
         if(this.lengthEnabled){
             this.lengthCounter = this.lengthLoad;
-            //System.out.println(this.lengthCounter);
         }
     }
 

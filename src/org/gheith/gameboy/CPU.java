@@ -114,12 +114,10 @@ public class CPU implements Serializable {
             this.flagsAffected = flagsAffected;
         }
         
-        //sets the flags to the values they need to be and allows flags to be written to only when the instruction should affect the flag
-        protected void handleFlags(CPU cpu) {
+        // allows flags to be written to only when the instruction should affect the flag
+        protected void handleFlagsWritable(CPU cpu) {
             final int[] flags = new int[] { ZFLAG, NFLAG, HFLAG, CFLAG };
             boolean[] writable = new boolean[8];
-            
-            cpu.regs.flags.enableFlagWrites(true, true, true, true);
             
             for(int i = 0; i < flagsAffected.length(); i+= 2) {
                 char descriptor = flagsAffected.charAt(i);
@@ -128,13 +126,7 @@ public class CPU implements Serializable {
                 
                 switch(descriptor){
                     case '0':
-                        cpu.regs.flags.setFlag(flag, false);
-                        writable[flag] = false;
-                        break;
                     case '1':
-                        cpu.regs.flags.setFlag(flag, true);
-                        writable[flag] = false;
-                        break;
                     case '-':
                         writable[flag] = false;
                         break;
@@ -145,11 +137,36 @@ public class CPU implements Serializable {
             
             cpu.regs.flags.enableFlagWrites(writable[ZFLAG], writable[NFLAG], writable[HFLAG], writable[CFLAG]);
         }
+        
+        protected void handleFlagsValues(CPU cpu) {
+            final int[] flags = new int[] { ZFLAG, NFLAG, HFLAG, CFLAG };
+            cpu.regs.flags.enableFlagWrites(true, true, true, true);
+
+            for(int i = 0; i < flagsAffected.length(); i+= 2) {
+                char descriptor = flagsAffected.charAt(i);
+
+                int flag = flags[i / 2];
+
+                switch(descriptor){
+                    case '0':
+                        cpu.regs.flags.setFlag(flag, false);
+                        break;
+                    case '1':
+                        cpu.regs.flags.setFlag(flag, true);
+                        break;
+                    case '-':
+                    default:
+                        break;
+                }
+            }
+        }
 
         public int execute(CPU cpu) {
-            handleFlags(cpu);
+            handleFlagsWritable(cpu);
             
             int result = this.lambda.exec(cpu);
+            
+            handleFlagsValues(cpu);
             
             cpu.clockCycles += this.ticks;
             cpu.clockCycleDelta = this.ticks;
@@ -168,9 +185,11 @@ public class CPU implements Serializable {
         }
 
         public int execute(CPU cpu) {
-            handleFlags(cpu);
+            handleFlagsWritable(cpu);
             
             int result = this.lambda.exec(cpu);
+            
+            handleFlagsValues(cpu);
 
             if (result == RELJUMP || result == NOJUMP){
                 //apparently offsets are calculated based on the future PC
@@ -586,20 +605,24 @@ public class CPU implements Serializable {
     
     //http://z80-heaven.wikidot.com/instructions-set:daa
     //https://www.reddit.com/r/EmuDev/comments/4ycoix/a_guide_to_the_gameboys_halfcarry_flag/
+    //https://ehaskins.com/2018-01-30%20Z80%20DAA/
     int DAA() {
         int original = regs.A.read();
         int result = original;
         
         int direction = regs.flags.getFlag(NFLAG)? -1: 1;
 
-        if(regs.flags.getFlag(CFLAG) || result > 0x99){
+        if(regs.flags.getFlag(CFLAG) || (!regs.flags.getFlag(NFLAG) && original > 0x99)){
             result += direction * 0x60;
-            regs.flags.setFlag(CFLAG, true);
         }
         
-        if(regs.flags.getFlag(HFLAG) || (result & 0xf) > 9){
+        if(regs.flags.getFlag(HFLAG) || (!regs.flags.getFlag(NFLAG) && (original & 0xf) > 9)){
             result += direction * 0x6;
         }
+        
+        regs.flags.setFlag(CFLAG, result != (result & 0xff));
+        
+        result &= 0xff;
         
         regs.flags.setFlag(ZFLAG, (result == 0));
         

@@ -11,6 +11,7 @@ public class Joypad implements KeyListener, Serializable {
 	 */
 	private static final long serialVersionUID = 1687374353560163196L;
 	private MMU mmu;
+	private InterruptHandler interruptHandler;
 	private int a;
 	private int b;
 	private int select;
@@ -20,8 +21,9 @@ public class Joypad implements KeyListener, Serializable {
 	private int left;
 	private int right;
 
-	public Joypad(MMU mmu) {
+	public Joypad(MMU mmu, InterruptHandler interruptHandler) {
 		this.mmu = mmu;
+		this.interruptHandler = interruptHandler;
 		mmu.setJoypad(this);
 		a = 1;
 		b = 1;
@@ -62,6 +64,8 @@ public class Joypad implements KeyListener, Serializable {
 			select = 0;
 			break;
 		}
+		
+		interruptHandler.issueInterruptIfEnabled(InterruptHandler.JOYPAD);
 	}
 
 	@Override

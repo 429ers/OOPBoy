@@ -132,7 +132,7 @@ class MainMenuBar extends MenuBar {
 
 public class GameBoy extends JFrame{
     
-    public static final String DEFAULT_ROM = "roms/Tetris.gb";
+    public static final String DEFAULT_ROM = "roms/Zelda.gb";
 
     HashSet<Integer> breakPoints = new HashSet<>();
     LinkedList<Integer> history = new LinkedList<>();
@@ -220,7 +220,7 @@ public class GameBoy extends JFrame{
         mmu = new MMU(fileName);
         cpu = new CPU(mmu);
         ppu = new PPU(mmu, gbs);
-        this.joypad = new Joypad(mmu);
+        this.joypad = new Joypad(mmu, cpu.interruptHandler);
         gbs.addKeyListener(joypad);
         
         ppu.loadTileSets();
