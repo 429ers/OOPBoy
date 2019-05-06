@@ -369,7 +369,6 @@ public class GameBoy extends JFrame{
                 this.tick();
             }
             mmu.cleanUp();
-            System.out.println("stopped ticking");
         }).start();
     }
     

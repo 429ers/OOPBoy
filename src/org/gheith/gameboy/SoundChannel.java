@@ -155,7 +155,6 @@ class SquareWave implements SoundChannel, Serializable {
             lengthCounter-= 4;
             if (lengthCounter <= 0) {
                 this.playing = false;
-                System.out.println("timer ran out");
             }
         }
 

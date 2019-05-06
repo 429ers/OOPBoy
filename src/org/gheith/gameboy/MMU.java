@@ -143,7 +143,6 @@ public class MMU implements Serializable {
     public void writeByte(int location, int toWrite){
         if(location == 0xff50 && toWrite == 0x01){
             bootRomEnabled = false;
-            System.out.println("Boot rom disabled");
         }
         
         if(location < 0x7fff){
