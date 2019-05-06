@@ -40,46 +40,46 @@ public class InterruptHandler implements Serializable {
         this.cpu = cpu;
     }
     
-    public void issueInterruptIfEnabled(int handle){
+    public boolean issueInterruptIfEnabled(int handle){
         cpu.halted = false;
 
         if(!interruptsEnabled) {
-            return;
+            return false;
         }
-        if(!specificEnabled.getOrDefault(handle, false)) return;
+        if(!specificEnabled.getOrDefault(handle, false)) return false;
         
         interruptsEnabled = false;
+        cpu.interrupted = true;
         
         cpu.PUSH(cpu.regs.PC);
         cpu.regs.PC.write(handle);
+        return true;
     }
     
-    public void handleIF(int IFflag){
+    public boolean handleIF(int IFflag){
         //read IFflag bit by bit based on priority and issue an interrupt if needed
-        
+        //lower priority simultaneous interrupts are ignored
         if((IFflag & 1) == 1){ //VBLANK requested
-            this.issueInterruptIfEnabled(InterruptHandler.VBLANK);
-            return; //lower priority simultaneous interrupts are ignored
+            return this.issueInterruptIfEnabled(InterruptHandler.VBLANK);
         }
         IFflag >>= 1;
         if((IFflag & 1) == 1){ 
-            this.issueInterruptIfEnabled(InterruptHandler.LCDC);
-            return;
+            return this.issueInterruptIfEnabled(InterruptHandler.LCDC);
         }
         IFflag >>= 1;
         if((IFflag & 1) == 1){ 
-            this.issueInterruptIfEnabled(InterruptHandler.TIMER_OVERFLOW);
-            return;
+            return this.issueInterruptIfEnabled(InterruptHandler.TIMER_OVERFLOW);
         }
         IFflag >>= 1;
         if((IFflag & 1) == 1){
-            this.issueInterruptIfEnabled(InterruptHandler.SERIAL_COMPLETION);
-            return;
+            return this.issueInterruptIfEnabled(InterruptHandler.SERIAL_COMPLETION);
         }
         IFflag >>= 1;
         if((IFflag & 1) == 1){
             this.issueInterruptIfEnabled(InterruptHandler.JOYPAD);
         }
+        
+        return false;
     }
     
     public void handleIE(int IEflag) {

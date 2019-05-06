@@ -156,7 +156,8 @@ public class MMU implements Serializable {
         }
         
         if(location == IF_REGISTER) { // IF register
-            cpu.interruptHandler.handleIF(toWrite);
+            boolean interrupted = cpu.interruptHandler.handleIF(toWrite);
+            if (interrupted) return;
         }
         
         if(location == IE_REGISTER) { //IE register

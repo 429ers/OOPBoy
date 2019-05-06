@@ -41,8 +41,9 @@ public class CPU implements Serializable {
     	return clockCycleDelta;
     }
 
+    public boolean interrupted = false;
     private int clockCycles = 0;
-
+    
     public static final int ZFLAG = RegisterFile.ZFLAG;
     public static final int NFLAG = RegisterFile.NFLAG;
     public static final int HFLAG = RegisterFile.HFLAG;
@@ -164,19 +165,30 @@ public class CPU implements Serializable {
         public int execute(CPU cpu) {
             handleFlagsWritable(cpu);
             
+            cpu.interrupted = false;
+            int startingPC = cpu.regs.PC.read();
+            
             int result = this.lambda.exec(cpu);
             
             handleFlagsValues(cpu);
             
             cpu.clockCycles += this.ticks;
             cpu.clockCycleDelta = this.ticks;
-            cpu.regs.PC.write(cpu.regs.PC.read() + length);
+            if(!cpu.interrupted) {
+                cpu.regs.PC.write(cpu.regs.PC.read() + length);
+            }else{ 
+                //we were interrupted by a load into IF, we need to replace the PC that was pushed with the PC that would have been next
+                LongRegister temp = new LongRegister();
+                cpu.POP(temp);
+                temp.write(temp.read() + length);
+                cpu.PUSH(temp);
+            }
             
             return result;
         }
     }
     
-    static class Jump extends Operation{//this includes relative, conditional, calls, and returns
+    static class Jump extends Operation{ //this includes relative, conditional, calls, and returns
         int ticksIfJumped, ticksIfNotJumped;
         public Jump(String description, Lambda lambda, int length, String flagsAffected, int ticksIfJumped, int ticksIfNotJumped) {
             super(description, lambda, length, flagsAffected, ticksIfJumped);
