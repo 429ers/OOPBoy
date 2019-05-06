@@ -29,11 +29,7 @@ class MainMenuBar extends MenuBar {
         
         MenuItem reset = new MenuItem("Reset");
         reset.addActionListener((ActionEvent e) -> {
-            GameBoy oldGameBoy = gameBoy;
-            gameBoy = new GameBoy(gameBoy.romFileName);
-            gameBoy.start();
-            
-            oldGameBoy.dispose();
+            gameBoy.switchRom(gameBoy.romFileName);
         });
         
         MenuItem quickSave = new MenuItem("Quicksave", new MenuShortcut(KeyEvent.VK_S));
@@ -73,10 +69,9 @@ class MainMenuBar extends MenuBar {
 
             if(returnVal == JFileChooser.APPROVE_OPTION){
                 String fileName = fc.getSelectedFile().getAbsolutePath();
-                gameBoy.dispose();
-                gameBoy = new GameBoy(fileName);
+                gameBoy.switchRom(fileName);
             }
-
+            
             gameBoy.start();
         });
         
@@ -144,7 +139,7 @@ public class GameBoy extends JFrame{
     boolean paused;
     private boolean quickSave;
     private boolean quickLoad;
-    private Joypad joypad;
+    Joypad joypad;
     
     boolean audioOn = true;
     boolean fastMode = false;
@@ -156,6 +151,16 @@ public class GameBoy extends JFrame{
     boolean breaked = false;
     
     String saveFileName = "quicksave.gb";
+    
+    public void switchRom(String newRom) {
+        this.romFileName = newRom;
+        mmu.cleanUp();
+        mmu = new MMU(newRom);
+        cpu = new CPU(mmu);
+        ppu = new PPU(mmu, gbs);
+        joypad = new Joypad(mmu, cpu.interruptHandler);
+        gbs.addKeyListener(joypad);
+    }
     
     public GameBoy(String fileName) {
         super();
