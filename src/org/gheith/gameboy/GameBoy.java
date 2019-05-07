@@ -174,16 +174,60 @@ public class GameBoy extends JFrame{
     LinkCable cable;
     
     String saveFileName = "quicksave.gb";
+
+    WindowListener listener = new WindowListener() {
+        @Override
+        public void windowActivated(WindowEvent e) { }
+
+        @Override
+        public void windowClosed(WindowEvent e) {
+            mmu.cleanUp();
+        }
+
+        @Override
+        public void windowClosing(WindowEvent e) { }
+
+        @Override
+        public void windowDeactivated(WindowEvent e) { }
+
+        @Override
+        public void windowDeiconified(WindowEvent e) { }
+
+        @Override
+        public void windowIconified(WindowEvent e) { }
+
+        @Override
+        public void windowOpened(WindowEvent e) { }
+    };
     
     public void switchRom(String newRom) {
         this.romFileName = newRom;
-        mmu.cleanUp();
+        if(mmu != null) mmu.cleanUp();
         mmu = new MMU(newRom);
         cpu = new CPU(mmu);
         ppu = new PPU(mmu, gbs);
         cable = new LinkCable(mmu, cpu.interruptHandler);
         joypad = new Joypad(mmu, cpu.interruptHandler);
         gbs.addKeyListener(joypad);
+    }
+    
+    public GameBoy() {
+        super();
+        BufferedImage img = new BufferedImage(160, 144, BufferedImage.TYPE_3BYTE_BGR);
+        gbs = new GameBoyScreen(img);
+        gbs.setDoubleBuffered(true);
+        gbs.setPreferredSize(new Dimension(500, 500));
+        gbs.setFocusable(true);
+        this.add(gbs);
+        this.setMenuBar(new MainMenuBar(this));
+        this.pack();
+        this.setTitle("GheithBoy");
+        this.setVisible(true);
+        this.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+        this.addWindowListener(listener);
+
+        quickSave = false;
+        quickLoad = false;
     }
     
     public GameBoy(String fileName) {
@@ -200,51 +244,6 @@ public class GameBoy extends JFrame{
         this.setTitle("GheithBoy");
         this.setVisible(true);	
         this.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-        WindowListener listener = new WindowListener() {
-
-			@Override
-			public void windowActivated(WindowEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
-
-			@Override
-			public void windowClosed(WindowEvent e) {
-				// TODO Auto-generated method stub
-				mmu.cleanUp();
-			}
-
-			@Override
-			public void windowClosing(WindowEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
-
-			@Override
-			public void windowDeactivated(WindowEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
-
-			@Override
-			public void windowDeiconified(WindowEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
-
-			@Override
-			public void windowIconified(WindowEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
-
-			@Override
-			public void windowOpened(WindowEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
-        	
-        };
         this.addWindowListener(listener);
         mmu = new MMU(fileName);
         cpu = new CPU(mmu);
@@ -417,7 +416,7 @@ public class GameBoy extends JFrame{
             gb.breakPoints.add(fin.nextInt(16));
         }
         
-        gb.start();
+        //gb.start();
 	}
 	
 	public void queueSave(String fileName){
