@@ -3,7 +3,7 @@ package org.gheith.gameboy;
 import java.io.Serializable;
 
 public class Timer implements Serializable {
-    private InterruptHandler interruptHandler;
+    private MMU mmu;
     public static final int[] PERIODS = new int[] { //number of cpu cycles until update
             1024, //4.096 khz
             16, //262.144 khz
@@ -21,8 +21,8 @@ public class Timer implements Serializable {
     private int divCounter = 0; //the small counter for DIV
     private int divRegister = 0; //the big counter for DIV
     
-    public Timer(InterruptHandler interruptHandler) {
-        this.interruptHandler = interruptHandler;
+    public Timer(MMU mmu) {
+        this.mmu = mmu;
     }
     
     public void tick() {
@@ -38,7 +38,7 @@ public class Timer implements Serializable {
                 countRegister++;
                 if(countRegister > 0xff){
                     countRegister = modulo;
-                    interruptHandler.issueInterruptIfEnabled(InterruptHandler.TIMER_OVERFLOW);
+                    mmu.writeByte(MMU.IF_REGISTER, 0b100);
                 }
                 counter = 0;
             }

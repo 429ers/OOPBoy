@@ -18,16 +18,18 @@ public class CPU implements Serializable {
     RegisterFile regs = new RegisterFile();
     InterruptHandler interruptHandler = new InterruptHandler(this);
     private int clockCycleDelta;
-    Timer timer = new Timer(this.interruptHandler);
+    Timer timer;
     
     public CPU(MMU mem) {
     	this.mem = mem;
-    	mem.setCPU(this);
+        mem.setCPU(this);
+        timer = new Timer(mem);
     }
 
     public CPU() {
     	mem = new MMU();
     	mem.setCPU(this);
+    	timer = new Timer(mem);
     }
     
     public void setMMU(MMU mmu) {
@@ -166,7 +168,6 @@ public class CPU implements Serializable {
             handleFlagsWritable(cpu);
             
             cpu.interrupted = false;
-            int startingPC = cpu.regs.PC.read();
             
             int result = this.lambda.exec(cpu);
             
