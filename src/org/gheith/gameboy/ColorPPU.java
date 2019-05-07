@@ -1,6 +1,8 @@
 package org.gheith.gameboy;
 
 import java.awt.image.BufferedImage;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ColorPPU implements IPPU {
 	private MMU mem;
@@ -18,6 +20,7 @@ public class ColorPPU implements IPPU {
 	private int windowX;
 	private int windowY;
 	private ColorTileMap currentTileMap;
+	private Map<Integer, IColorSprite> sprites;
 	private transient BufferedImage frame;
 	
 	public ColorPPU(MMU mem) {
@@ -27,6 +30,7 @@ public class ColorPPU implements IPPU {
 		tileSetManager = new TileSetManager(mem);
 		gbs = new GameBoyScreen();
 		frame = new BufferedImage(160, 144, BufferedImage.TYPE_3BYTE_BGR);
+		sprites = new HashMap<>();
 	}
 
 	public void tick() {
@@ -44,9 +48,8 @@ public class ColorPPU implements IPPU {
 				this.tileSetManager.updateTileSets();
 				//this.loadMap(lcdControl., useBackgroundMap1);
 			}
-			//spritesEnabled = BitOps.extract(lcdc, 1, 1) == 1;
 			if (lcdControl.isSpritesEnabled()) {
-				//loadSprites();
+				loadSprites();
 			}
 			//loadWindow(useTileSet1, useWindowTileMap1);
 			windowX = mem.readByte(0xff4b) - 7;
@@ -106,6 +109,41 @@ public class ColorPPU implements IPPU {
 		mem.writeByte(0xFF0F, interruptRegister | 0x01);
 		//mem.writeByte(0xFF85, 0xFF);
 		//mem.writeByte(0xFF44, 0x90);
+	}
+	
+	public void loadSprites() {
+		sprites.clear();
+		int spriteCount = 0;
+		int spritesFound = 0;
+		int memAddress = 0xFE00;
+		while (spriteCount < 40 && spritesFound < 10) {
+			IColorSprite s = null;
+			if (!lcdControl.isUseSmallSprites()) {
+				s = new ColorLargeSprite(mem, memAddress, tileSetManager);
+			}
+			else {
+				s = new ColorSmallSprite(mem, memAddress, tileSetManager);
+			}
+			if (s.inRange(currentY + 16)) {
+				spritesFound++;
+				for (int i = 0; i < 8; i++) {
+					if (!sprites.containsKey(s.getSpriteX() + i)) {
+						if (s.getPixel(currentY - (s.getSpriteY() - 16), i) != 0) {
+							sprites.put(s.getSpriteX() + i, s);
+						}
+					}
+					else {
+						IColorSprite conflictSprite = sprites.get(s.getSpriteX() + i);
+						boolean isTransparent = s.getPixel(currentY - (s.getSpriteY() - 16), i) == 0;
+						if (s.getSpriteX() < conflictSprite.getSpriteX() && !isTransparent) {
+							sprites.put(s.getSpriteX() + i, s);
+						}
+					}
+				}
+			}
+			spriteCount++;
+			memAddress += 4;
+		}
 	}
 	
 	
