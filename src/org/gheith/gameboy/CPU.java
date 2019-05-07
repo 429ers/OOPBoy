@@ -73,6 +73,7 @@ public class CPU implements Serializable {
         Operation op = operations[opcode];
         int currentPC = regs.PC.read();
         System.out.println(Integer.toString(currentPC, 16) + ": " + op.description);
+        System.out.printf("DIV: %x, TIMA: %x\n", timer.getDIV(), timer.getTIMA());
         regs.dump();
     }
     
@@ -96,6 +97,8 @@ public class CPU implements Serializable {
         
         if(printOutput) {
             System.out.println(Integer.toString(currentPC, 16) + ": " + op.description);
+            
+            System.out.printf("DIV: %x, TIMA: %x\n", timer.getDIV(), timer.getTIMA());
 
             System.out.println("result: " + Integer.toString(result, 16));
             
@@ -214,7 +217,7 @@ public class CPU implements Serializable {
                 cpu.clockCycleDelta = this.ticksIfNotJumped;
             }else{
                 cpu.clockCycles += this.ticksIfJumped;
-                cpu.clockCycles = this.ticksIfJumped;
+                cpu.clockCycleDelta = this.ticksIfJumped;
             }
             
             return result;

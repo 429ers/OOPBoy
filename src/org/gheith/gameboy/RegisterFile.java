@@ -97,6 +97,10 @@ class FlagRegister implements ShortRegister {
     public void write(int val) {
         wrapped.write(val & 0xf0);
     }
+
+    public String toString() {
+        return String.format("%04X", this.read());
+    }
 }
 
 public class RegisterFile implements Serializable {
