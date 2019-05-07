@@ -78,7 +78,7 @@ public class CPU implements Serializable {
     
     public void executeOneInstruction(boolean printOutput) {
         
-    	/*
+        /*
     	if(halted) {
         	//System.out.println("halted!");
         	clockCycleDelta = 1;
@@ -616,24 +616,35 @@ public class CPU implements Serializable {
         return result;
     }
     
+    //this link is about the z80, not the GB z80
     //http://z80-heaven.wikidot.com/instructions-set:daa
+    //this link is wrong
     //https://www.reddit.com/r/EmuDev/comments/4ycoix/a_guide_to_the_gameboys_halfcarry_flag/
+    //this link might be wrong
     //https://ehaskins.com/2018-01-30%20Z80%20DAA/
+    //this link works
+    //https://forums.nesdev.com/viewtopic.php?f=20&t=15944
     int DAA() {
         int original = regs.A.read();
         int result = original;
         
-        int direction = regs.flags.getFlag(NFLAG)? -1: 1;
-
-        if(regs.flags.getFlag(CFLAG) || (!regs.flags.getFlag(NFLAG) && original > 0x99)){
-            result += direction * 0x60;
+        //pseudocode from https://forums.nesdev.com/viewtopic.php?f=20&t=15944
+        if(!regs.flags.getFlag(NFLAG)){
+            if(regs.flags.getFlag(CFLAG) || original > 0x99) {
+                result += 0x60;
+                regs.flags.setFlag(CFLAG, true);
+            }
+            if(regs.flags.getFlag(HFLAG) || (original & 0x0f) > 0x09) {
+                result += 0x6;
+            }
+        }else{
+            if(regs.flags.getFlag(CFLAG)) {
+                result -= 0x60;
+            }
+            if(regs.flags.getFlag(HFLAG)) {
+                result -= 0x6;
+            }
         }
-        
-        if(regs.flags.getFlag(HFLAG) || (!regs.flags.getFlag(NFLAG) && (original & 0xf) > 9)){
-            result += direction * 0x6;
-        }
-        
-        regs.flags.setFlag(CFLAG, result != (result & 0xff));
         
         result &= 0xff;
         
