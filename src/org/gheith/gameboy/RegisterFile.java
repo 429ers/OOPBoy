@@ -82,6 +82,23 @@ class LongRegister implements Register, Serializable {
     }
 }
 
+class FlagRegister implements ShortRegister {
+    ShortRegister wrapped;
+    public FlagRegister(ShortRegister toWrap) {
+        this.wrapped = toWrap;
+    }
+
+    @Override
+    public int read() {
+        return wrapped.read() & 0xf0;
+    }
+
+    @Override
+    public void write(int val) {
+        wrapped.write(val & 0xf0);
+    }
+}
+
 public class RegisterFile implements Serializable {
     /**
 	 * 
@@ -162,7 +179,7 @@ public class RegisterFile implements Serializable {
     public RegisterFile(){
         AF = new LongRegister();
         A = AF.upperByte;
-        F = AF.lowerByte;
+        F = new FlagRegister(AF.lowerByte);
         
         BC = new LongRegister();
         B = BC.upperByte;
