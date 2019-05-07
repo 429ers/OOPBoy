@@ -62,6 +62,10 @@ public class MMU implements Serializable {
     	this.joypad = joypad;
     }
     
+    public int readByteFromVRAM(int location, boolean isBankOne) {
+    	return 0xff;
+    }
+    
     public int readByte(int location) {
         if(bootRomEnabled && location < bootRom.length){
             return bootRom[location];
