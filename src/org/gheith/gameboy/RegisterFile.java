@@ -179,7 +179,8 @@ public class RegisterFile implements Serializable {
     public RegisterFile(){
         AF = new LongRegister();
         A = AF.upperByte;
-        F = new FlagRegister(AF.lowerByte);
+        AF.lowerByte = new FlagRegister(AF.lowerByte);
+        F = AF.lowerByte;
         
         BC = new LongRegister();
         B = BC.upperByte;
