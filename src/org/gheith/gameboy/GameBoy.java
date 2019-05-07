@@ -416,7 +416,7 @@ public class GameBoy extends JFrame{
             gb.breakPoints.add(fin.nextInt(16));
         }
         
-        //gb.start();
+        gb.start();
 	}
 	
 	public void queueSave(String fileName){
