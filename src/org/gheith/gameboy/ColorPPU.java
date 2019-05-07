@@ -7,7 +7,8 @@ import java.util.Map;
 public class ColorPPU implements IPPU {
 	private MMU mem;
 	private LCDControl lcdControl;
-	private ColorPaletteManager colorPaletteManager;
+	private ColorPaletteManager backgroundColorPaletteManager;
+	private ColorPaletteManager spriteColorPaletteManager;
 	private TileSetManager tileSetManager;
 	private int currentX;
 	private int currentY;
@@ -19,7 +20,6 @@ public class ColorPPU implements IPPU {
 	private int LYCompare;
 	private int windowX;
 	private int windowY;
-	private ColorTileMap currentTileMap;
 	private Map<Integer, IColorSprite> sprites;
 	private ColorTileMap background;
 	private ColorTileMap window;
@@ -28,7 +28,6 @@ public class ColorPPU implements IPPU {
 	public ColorPPU(MMU mem) {
 		this.mem = mem;
 		lcdControl = new LCDControl(mem);
-		colorPaletteManager = new ColorPaletteManager();
 		tileSetManager = new TileSetManager(mem);
 		gbs = new GameBoyScreen();
 		frame = new BufferedImage(160, 144, BufferedImage.TYPE_3BYTE_BGR);
@@ -47,10 +46,14 @@ public class ColorPPU implements IPPU {
 		int tileSetNum = lcdControl.isUse8000TileDataForWindowAndBackground() == true ? 0 : 1;
 		window = new ColorTileMap(mem, address, tileSetManager, tileSetNum);
 	}
+	
+	public void setPaletteManagers(ColorPaletteManager background, ColorPaletteManager sprites) {
+		this.backgroundColorPaletteManager = background;
+		this.spriteColorPaletteManager = sprites;
+	}
 
 	public void tick() {
 	
-		
 		scrollX = mem.readByte(0xFF43);
 		if (cycleCount == OAM_SEARCH_START) {
 			scrollY = mem.readByte(0xFF42);
@@ -95,18 +98,18 @@ public class ColorPPU implements IPPU {
 					int spritePixel = currentSprite.getPixel(currentY - (currentSprite.getSpriteY() - 16), currentX - (currentSprite.getSpriteX() - 8));
 					if ((currentSprite.getPriority() == 0 || windowPixel == 0) && spritePixel != 0) {
 						//currentTile = currentSprite.getTile();
-						currentPalette = colorPaletteManager.getPalette(currentSprite.getPaletteNumber());
+						currentPalette = spriteColorPaletteManager.getPalette(currentSprite.getPaletteNumber());
 						pixel = spritePixel;
 					}
 					else {
 						currentTile = windowTile;
-						currentPalette = colorPaletteManager.getPalette(window.getPaletteNumber((currentY - windowY)  % 8, (currentX - windowX) % 8));
+						currentPalette = backgroundColorPaletteManager.getPalette(window.getPaletteNumber((currentY - windowY)  % 8, (currentX - windowX) % 8));
 						pixel = windowPixel;
 					}
 				}
 				else {
 					currentTile = windowTile;
-					currentPalette = colorPaletteManager.getPalette(background.getPaletteNumber(yPos / 8, xPos / 8));
+					currentPalette = backgroundColorPaletteManager.getPalette(background.getPaletteNumber(yPos / 8, xPos / 8));
 					pixel = windowPixel;
 				}
 			}
@@ -115,18 +118,18 @@ public class ColorPPU implements IPPU {
 				int spritePixel = currentSprite.getPixel(currentY - (currentSprite.getSpriteY() - 16), currentX - (currentSprite.getSpriteX() - 8));
 				if ((currentSprite.getPriority() == 0 || backgroundTile.getPixel(yPos % 8, xPos % 8) == 0) && spritePixel != 0) {
 					//currentTile = currentSprite.getTile();
-					currentPalette = colorPaletteManager.getPalette(currentSprite.getPaletteNumber());
+					currentPalette = spriteColorPaletteManager.getPalette(currentSprite.getPaletteNumber());
 					pixel = spritePixel;
 				}
 				else {
 					currentTile = backgroundTile;
-					currentPalette = colorPaletteManager.getPalette(background.getPaletteNumber(yPos / 8, xPos / 8));
+					currentPalette = backgroundColorPaletteManager.getPalette(background.getPaletteNumber(yPos / 8, xPos / 8));
 					pixel = currentTile.getPixel(yPos % 8, xPos % 8);
 				}
 			}
 			else {
 				currentTile = backgroundTile;
-				currentPalette = colorPaletteManager.getPalette(background.getPaletteNumber(yPos / 8, xPos / 8));
+				currentPalette = backgroundColorPaletteManager.getPalette(background.getPaletteNumber(yPos / 8, xPos / 8));
 				pixel = currentTile.getPixel(yPos % 8, xPos % 8);
 			}
 			if (frame == null) {
@@ -153,6 +156,7 @@ public class ColorPPU implements IPPU {
 		drewFrame = false;
 		// Send V-Blank interrupt
 		if (currentY == 145 && cycleCount == 0) {
+			drewFrame = true;
 			drawFrame();
 		}
 		
