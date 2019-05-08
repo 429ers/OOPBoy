@@ -81,7 +81,6 @@ public class CPU implements Serializable {
     
     public void interrupt(int handle) {
         this.interrupted = true;
-        this.halted = false;
         pendingInterrupt = handle;
     }
     
@@ -253,10 +252,13 @@ public class CPU implements Serializable {
     void serviceInterrupts() {
         if(interrupted) {
             clockCycleDelta += 24;
-            interruptHandler.setInterruptsEnabled(false);
             interrupted = false;
-            PUSH(regs.PC);
-            regs.PC.write(pendingInterrupt);
+            this.halted = false;
+            if(pendingInterrupt != -1) {
+                PUSH(regs.PC);
+                regs.PC.write(pendingInterrupt);
+                interruptHandler.setInterruptsEnabled(false);
+            }
         }
     }
     
