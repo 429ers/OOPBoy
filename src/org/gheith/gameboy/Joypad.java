@@ -60,6 +60,7 @@ public class Joypad implements KeyListener, Serializable {
 		case KeyEvent.VK_ENTER:
 			start = 0;
 			break;
+        case KeyEvent.VK_SHIFT:
 		case KeyEvent.VK_BACK_SPACE:
 			select = 0;
 			break;
