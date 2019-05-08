@@ -28,7 +28,7 @@ public class ColorPPU implements IPPU {
 	public ColorPPU(MMU mem) {
 		this.mem = mem;
 		lcdControl = new LCDControl(mem);
-		tileSetManager = new TileSetManager(mem);
+		tileSetManager = new TileSetManager(true);
 		gbs = new GameBoyScreen();
 		frame = new BufferedImage(160, 144, BufferedImage.TYPE_3BYTE_BGR);
 		sprites = new HashMap<>();
@@ -63,7 +63,7 @@ public class ColorPPU implements IPPU {
 			}
 			mem.writeByte(0xFF44, currentY);
 			if (currentY == 0) {
-				this.tileSetManager.updateTileSets();
+				//this.tileSetManager.updateTileSets();
 				this.loadMap();
 			}
 			if (lcdControl.isSpritesEnabled()) {

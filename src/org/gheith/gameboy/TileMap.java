@@ -7,41 +7,44 @@ public class TileMap implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 1536789195081436980L;
-	private Tile[][] map;
+	private int[][] map;
+	private TileSetManager tileSetManager;
+	int tileSetNum;
 	
-	public TileMap(MMU memory, int startAddress, TileSet tileSet) {
-		map = new Tile[32][32];
-		
+	public TileMap(MMU memory, int startAddress, int tileSetNum, TileSetManager manager) {
+		map = new int[32][32];
+		this.tileSetManager = manager;
+		this.tileSetNum = tileSetNum;
 		for (int i = 0; i < 32; i++) {
 			for (int j = 0; j < 32; j++) {
 				int tileNumberAddress = startAddress + (i * 32) + j;
 				int tileNumber;
-				if (tileSet.isTileSetOne()) {
+				if (tileSetNum == 0) {
 					tileNumber = memory.readByte(tileNumberAddress);
 				}
 				else {
 					tileNumber = (byte) memory.readByte(tileNumberAddress);
 				}
-				if (tileSet.getTile(tileNumber) == null) {
-					System.out.println("failed to find tile num "+ tileNumber);
-				}
-				map[i][j] = tileSet.getTile(tileNumber);
+				map[i][j] = tileNumber;
 			}
 		}
 		
-		Tile[][] mapTranspose = new Tile[32][32];
 		
-		for (int i = 0; i < 32; i++) {
-			for (int j = 0; j < 32; j++) {
-				mapTranspose[i][j] = map[j][i];
-			}
-		}
-		//this.map = mapTranspose;
 		
 	}
 	
+	
+	
+
+	
 	public Tile getTile(int x, int y) {
-		return map[x % 32][y % 32];
+		TileSet t = tileSetManager.getTileSet(0, tileSetNum);
+		int tileNum = map[x % 32][y % 32];
+		Tile tile = t.getTile(map[x % 32][y % 32]);
+		if (tile == null) {
+			System.out.println("failed to find tile num: " + tileNum);
+		}
+		return t.getTile(map[x % 32][y % 32]);
 	}
 	
 }
