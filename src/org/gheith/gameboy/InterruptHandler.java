@@ -41,18 +41,15 @@ public class InterruptHandler implements Serializable {
     }
     
     public boolean issueInterruptIfEnabled(int handle){
-        cpu.halted = false;
-
         if(!interruptsEnabled) {
             return false;
         }
         if(!specificEnabled.getOrDefault(handle, false)) return false;
         
         interruptsEnabled = false;
-        cpu.interrupted = true;
         
-        cpu.PUSH(cpu.regs.PC);
-        cpu.regs.PC.write(handle);
+        cpu.interrupt(handle);
+        
         return true;
     }
     
