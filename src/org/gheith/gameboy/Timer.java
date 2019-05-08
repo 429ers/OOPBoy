@@ -57,7 +57,6 @@ public class Timer implements Serializable {
     
     public void setTIMA(int countRegister){
         this.countRegister = countRegister;
-        this.counter = 0;
     }
     
     public void resetDIV(){

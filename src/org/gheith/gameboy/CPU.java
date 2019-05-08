@@ -224,6 +224,24 @@ public class CPU implements Serializable {
         }
     }
     
+    static class CB extends Operation {
+        public CB() {
+            super("CB", null, 2, "Z N H C", 4);
+        }
+
+        public int execute(CPU cpu) {
+            int cbOpcode = cpu.mem.readByte(cpu.regs.PC.read() + 1); //the cb opcode follows directly after cb
+
+            Operation cbOperation = cbOperations[cbOpcode];
+            
+            int result = cbOperation.execute(cpu);
+            //cpu clockCycles and clockCycleDelta are set by the cbOperation
+            //PC is also advanced the correct amount by the cbOperation
+
+            return result;
+        }
+    }
+    
     enum Condition {
         NZ, Z, NC, C
     }
@@ -953,14 +971,6 @@ public class CPU implements Serializable {
         
         return RET();
     }
-    
-    int CB() {
-        int cbOpcode = mem.readByte(regs.PC.read() + 1); //the cb opcode follows directly after cb
-        Operation cbOperation = cbOperations[cbOpcode];
-        cbOperation.length = 1; //the operation increases the PC by 1 because CB already increases it by 1
-        
-        return cbOperation.execute(this);
-    }
 
     static Operation[] operations = new Operation[256];
     {
@@ -1167,7 +1177,7 @@ public class CPU implements Serializable {
         operations[0xc8] = new Jump("RET Z", (CPU cpu) -> cpu.RET(Condition.Z), 1, "- - - -", 20, 8);
         operations[0xc9] = new Jump("RET", CPU::RET, 1, "- - - -", 16, 16);
         operations[0xca] = new Jump("JP Z,a16", (CPU cpu) -> cpu.JP(Condition.Z, cpu.a16()), 3, "- - - -", 16, 12);
-        operations[0xcb] = new Operation("CB", CPU::CB, 1, "- - - -", 4);
+        operations[0xcb] = new CB();
         operations[0xcc] = new Jump("CALL Z,a16", (CPU cpu) -> cpu.CALL(Condition.Z, cpu.a16()), 3, "- - - -", 24, 12);
         operations[0xcd] = new Jump("CALL a16", (CPU cpu) -> cpu.CALL(cpu.a16()), 3, "- - - -", 24, 24);
         operations[0xce] = new Operation("ADC A,d8", (CPU cpu) -> cpu.ADC(cpu.regs.A, cpu.d8()), 2, "Z 0 H C", 8);
@@ -1295,7 +1305,7 @@ public class CPU implements Serializable {
         cbOperations[0x43] = new Operation("BIT 0,E", (CPU cpu) -> cpu.BIT(0, cpu.regs.E), 2, "Z 0 1 -", 8);
         cbOperations[0x44] = new Operation("BIT 0,H", (CPU cpu) -> cpu.BIT(0, cpu.regs.H), 2, "Z 0 1 -", 8);
         cbOperations[0x45] = new Operation("BIT 0,L", (CPU cpu) -> cpu.BIT(0, cpu.regs.L), 2, "Z 0 1 -", 8);
-        cbOperations[0x46] = new Operation("BIT 0,(HL)", (CPU cpu) -> cpu.BIT(0, cpu.mem.registerLocation(cpu.regs.HL)), 2, "Z 0 1 -", 16);
+        cbOperations[0x46] = new Operation("BIT 0,(HL)", (CPU cpu) -> cpu.BIT(0, cpu.mem.registerLocation(cpu.regs.HL)), 2, "Z 0 1 -", 12);
         cbOperations[0x47] = new Operation("BIT 0,A", (CPU cpu) -> cpu.BIT(0, cpu.regs.A), 2, "Z 0 1 -", 8);
         cbOperations[0x48] = new Operation("BIT 1,B", (CPU cpu) -> cpu.BIT(1, cpu.regs.B), 2, "Z 0 1 -", 8);
         cbOperations[0x49] = new Operation("BIT 1,C", (CPU cpu) -> cpu.BIT(1, cpu.regs.C), 2, "Z 0 1 -", 8);
@@ -1303,7 +1313,7 @@ public class CPU implements Serializable {
         cbOperations[0x4b] = new Operation("BIT 1,E", (CPU cpu) -> cpu.BIT(1, cpu.regs.E), 2, "Z 0 1 -", 8);
         cbOperations[0x4c] = new Operation("BIT 1,H", (CPU cpu) -> cpu.BIT(1, cpu.regs.H), 2, "Z 0 1 -", 8);
         cbOperations[0x4d] = new Operation("BIT 1,L", (CPU cpu) -> cpu.BIT(1, cpu.regs.L), 2, "Z 0 1 -", 8);
-        cbOperations[0x4e] = new Operation("BIT 1,(HL)", (CPU cpu) -> cpu.BIT(1, cpu.mem.registerLocation(cpu.regs.HL)), 2, "Z 0 1 -", 16);
+        cbOperations[0x4e] = new Operation("BIT 1,(HL)", (CPU cpu) -> cpu.BIT(1, cpu.mem.registerLocation(cpu.regs.HL)), 2, "Z 0 1 -", 12);
         cbOperations[0x4f] = new Operation("BIT 1,A", (CPU cpu) -> cpu.BIT(1, cpu.regs.A), 2, "Z 0 1 -", 8);
         cbOperations[0x50] = new Operation("BIT 2,B", (CPU cpu) -> cpu.BIT(2, cpu.regs.B), 2, "Z 0 1 -", 8);
         cbOperations[0x51] = new Operation("BIT 2,C", (CPU cpu) -> cpu.BIT(2, cpu.regs.C), 2, "Z 0 1 -", 8);
@@ -1311,7 +1321,7 @@ public class CPU implements Serializable {
         cbOperations[0x53] = new Operation("BIT 2,E", (CPU cpu) -> cpu.BIT(2, cpu.regs.E), 2, "Z 0 1 -", 8);
         cbOperations[0x54] = new Operation("BIT 2,H", (CPU cpu) -> cpu.BIT(2, cpu.regs.H), 2, "Z 0 1 -", 8);
         cbOperations[0x55] = new Operation("BIT 2,L", (CPU cpu) -> cpu.BIT(2, cpu.regs.L), 2, "Z 0 1 -", 8);
-        cbOperations[0x56] = new Operation("BIT 2,(HL)", (CPU cpu) -> cpu.BIT(2, cpu.mem.registerLocation(cpu.regs.HL)), 2, "Z 0 1 -", 16);
+        cbOperations[0x56] = new Operation("BIT 2,(HL)", (CPU cpu) -> cpu.BIT(2, cpu.mem.registerLocation(cpu.regs.HL)), 2, "Z 0 1 -", 12);
         cbOperations[0x57] = new Operation("BIT 2,A", (CPU cpu) -> cpu.BIT(2, cpu.regs.A), 2, "Z 0 1 -", 8);
         cbOperations[0x58] = new Operation("BIT 3,B", (CPU cpu) -> cpu.BIT(3, cpu.regs.B), 2, "Z 0 1 -", 8);
         cbOperations[0x59] = new Operation("BIT 3,C", (CPU cpu) -> cpu.BIT(3, cpu.regs.C), 2, "Z 0 1 -", 8);
@@ -1319,7 +1329,7 @@ public class CPU implements Serializable {
         cbOperations[0x5b] = new Operation("BIT 3,E", (CPU cpu) -> cpu.BIT(3, cpu.regs.E), 2, "Z 0 1 -", 8);
         cbOperations[0x5c] = new Operation("BIT 3,H", (CPU cpu) -> cpu.BIT(3, cpu.regs.H), 2, "Z 0 1 -", 8);
         cbOperations[0x5d] = new Operation("BIT 3,L", (CPU cpu) -> cpu.BIT(3, cpu.regs.L), 2, "Z 0 1 -", 8);
-        cbOperations[0x5e] = new Operation("BIT 3,(HL)", (CPU cpu) -> cpu.BIT(3, cpu.mem.registerLocation(cpu.regs.HL)), 2, "Z 0 1 -", 16);
+        cbOperations[0x5e] = new Operation("BIT 3,(HL)", (CPU cpu) -> cpu.BIT(3, cpu.mem.registerLocation(cpu.regs.HL)), 2, "Z 0 1 -", 12);
         cbOperations[0x5f] = new Operation("BIT 3,A", (CPU cpu) -> cpu.BIT(3, cpu.regs.A), 2, "Z 0 1 -", 8);
         cbOperations[0x60] = new Operation("BIT 4,B", (CPU cpu) -> cpu.BIT(4, cpu.regs.B), 2, "Z 0 1 -", 8);
         cbOperations[0x61] = new Operation("BIT 4,C", (CPU cpu) -> cpu.BIT(4, cpu.regs.C), 2, "Z 0 1 -", 8);
@@ -1327,7 +1337,7 @@ public class CPU implements Serializable {
         cbOperations[0x63] = new Operation("BIT 4,E", (CPU cpu) -> cpu.BIT(4, cpu.regs.E), 2, "Z 0 1 -", 8);
         cbOperations[0x64] = new Operation("BIT 4,H", (CPU cpu) -> cpu.BIT(4, cpu.regs.H), 2, "Z 0 1 -", 8);
         cbOperations[0x65] = new Operation("BIT 4,L", (CPU cpu) -> cpu.BIT(4, cpu.regs.L), 2, "Z 0 1 -", 8);
-        cbOperations[0x66] = new Operation("BIT 4,(HL)", (CPU cpu) -> cpu.BIT(4, cpu.mem.registerLocation(cpu.regs.HL)), 2, "Z 0 1 -", 16);
+        cbOperations[0x66] = new Operation("BIT 4,(HL)", (CPU cpu) -> cpu.BIT(4, cpu.mem.registerLocation(cpu.regs.HL)), 2, "Z 0 1 -", 12);
         cbOperations[0x67] = new Operation("BIT 4,A", (CPU cpu) -> cpu.BIT(4, cpu.regs.A), 2, "Z 0 1 -", 8);
         cbOperations[0x68] = new Operation("BIT 5,B", (CPU cpu) -> cpu.BIT(5, cpu.regs.B), 2, "Z 0 1 -", 8);
         cbOperations[0x69] = new Operation("BIT 5,C", (CPU cpu) -> cpu.BIT(5, cpu.regs.C), 2, "Z 0 1 -", 8);
@@ -1335,7 +1345,7 @@ public class CPU implements Serializable {
         cbOperations[0x6b] = new Operation("BIT 5,E", (CPU cpu) -> cpu.BIT(5, cpu.regs.E), 2, "Z 0 1 -", 8);
         cbOperations[0x6c] = new Operation("BIT 5,H", (CPU cpu) -> cpu.BIT(5, cpu.regs.H), 2, "Z 0 1 -", 8);
         cbOperations[0x6d] = new Operation("BIT 5,L", (CPU cpu) -> cpu.BIT(5, cpu.regs.L), 2, "Z 0 1 -", 8);
-        cbOperations[0x6e] = new Operation("BIT 5,(HL)", (CPU cpu) -> cpu.BIT(5, cpu.mem.registerLocation(cpu.regs.HL)), 2, "Z 0 1 -", 16);
+        cbOperations[0x6e] = new Operation("BIT 5,(HL)", (CPU cpu) -> cpu.BIT(5, cpu.mem.registerLocation(cpu.regs.HL)), 2, "Z 0 1 -", 12);
         cbOperations[0x6f] = new Operation("BIT 5,A", (CPU cpu) -> cpu.BIT(5, cpu.regs.A), 2, "Z 0 1 -", 8);
         cbOperations[0x70] = new Operation("BIT 6,B", (CPU cpu) -> cpu.BIT(6, cpu.regs.B), 2, "Z 0 1 -", 8);
         cbOperations[0x71] = new Operation("BIT 6,C", (CPU cpu) -> cpu.BIT(6, cpu.regs.C), 2, "Z 0 1 -", 8);
@@ -1343,7 +1353,7 @@ public class CPU implements Serializable {
         cbOperations[0x73] = new Operation("BIT 6,E", (CPU cpu) -> cpu.BIT(6, cpu.regs.E), 2, "Z 0 1 -", 8);
         cbOperations[0x74] = new Operation("BIT 6,H", (CPU cpu) -> cpu.BIT(6, cpu.regs.H), 2, "Z 0 1 -", 8);
         cbOperations[0x75] = new Operation("BIT 6,L", (CPU cpu) -> cpu.BIT(6, cpu.regs.L), 2, "Z 0 1 -", 8);
-        cbOperations[0x76] = new Operation("BIT 6,(HL)", (CPU cpu) -> cpu.BIT(6, cpu.mem.registerLocation(cpu.regs.HL)), 2, "Z 0 1 -", 16);
+        cbOperations[0x76] = new Operation("BIT 6,(HL)", (CPU cpu) -> cpu.BIT(6, cpu.mem.registerLocation(cpu.regs.HL)), 2, "Z 0 1 -", 12);
         cbOperations[0x77] = new Operation("BIT 6,A", (CPU cpu) -> cpu.BIT(6, cpu.regs.A), 2, "Z 0 1 -", 8);
         cbOperations[0x78] = new Operation("BIT 7,B", (CPU cpu) -> cpu.BIT(7, cpu.regs.B), 2, "Z 0 1 -", 8);
         cbOperations[0x79] = new Operation("BIT 7,C", (CPU cpu) -> cpu.BIT(7, cpu.regs.C), 2, "Z 0 1 -", 8);
@@ -1351,7 +1361,7 @@ public class CPU implements Serializable {
         cbOperations[0x7b] = new Operation("BIT 7,E", (CPU cpu) -> cpu.BIT(7, cpu.regs.E), 2, "Z 0 1 -", 8);
         cbOperations[0x7c] = new Operation("BIT 7,H", (CPU cpu) -> cpu.BIT(7, cpu.regs.H), 2, "Z 0 1 -", 8);
         cbOperations[0x7d] = new Operation("BIT 7,L", (CPU cpu) -> cpu.BIT(7, cpu.regs.L), 2, "Z 0 1 -", 8);
-        cbOperations[0x7e] = new Operation("BIT 7,(HL)", (CPU cpu) -> cpu.BIT(7, cpu.mem.registerLocation(cpu.regs.HL)), 2, "Z 0 1 -", 16);
+        cbOperations[0x7e] = new Operation("BIT 7,(HL)", (CPU cpu) -> cpu.BIT(7, cpu.mem.registerLocation(cpu.regs.HL)), 2, "Z 0 1 -", 12);
         cbOperations[0x7f] = new Operation("BIT 7,A", (CPU cpu) -> cpu.BIT(7, cpu.regs.A), 2, "Z 0 1 -", 8);
         cbOperations[0x80] = new Operation("RES 0,B", (CPU cpu) -> cpu.RES(0, cpu.regs.B), 2, "- - - -", 8);
         cbOperations[0x81] = new Operation("RES 0,C", (CPU cpu) -> cpu.RES(0, cpu.regs.C), 2, "- - - -", 8);
