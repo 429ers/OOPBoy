@@ -251,10 +251,10 @@ public class CPU implements Serializable {
     
     void serviceInterrupts() {
         if(interrupted) {
-            clockCycleDelta += 24;
             interrupted = false;
             this.halted = false;
             if(pendingInterrupt != -1) {
+                clockCycleDelta += 16;
                 PUSH(regs.PC);
                 regs.PC.write(pendingInterrupt);
                 interruptHandler.setInterruptsEnabled(false);
