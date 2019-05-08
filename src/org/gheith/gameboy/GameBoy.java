@@ -126,10 +126,11 @@ class MainMenuBar extends MenuBar {
         audioToggle.addItemListener((ItemEvent e) -> {
             gameBoy.audioOn = audioToggle.getState();
         });
-        CheckboxMenuItem haltToggle = new CheckboxMenuItem("Enable Halts");
+        CheckboxMenuItem haltToggle = new CheckboxMenuItem("Service Halts");
         haltToggle.addItemListener((ItemEvent e) -> {
             gameBoy.haltEnabled = haltToggle.getState();
         });
+        haltToggle.setState(gameBoy.haltEnabled);
 
         fileMenu.add(openRom);
         fileMenu.add(exit);
@@ -165,7 +166,7 @@ public class GameBoy extends JFrame{
     GameBoyScreen gbs;
     String romFileName;
     boolean paused;
-    boolean haltEnabled = false;
+    boolean haltEnabled = true;
     private boolean quickSave;
     private boolean quickLoad;
     Joypad joypad;

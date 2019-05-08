@@ -74,22 +74,18 @@ public class CPU implements Serializable {
         int currentPC = regs.PC.read();
         System.out.println(Integer.toString(currentPC, 16) + ": " + op.description);
         System.out.printf("DIV: %x, TIMA: %x\n", timer.getDIV(), timer.getTIMA());
+        System.out.println("Halted: " + halted);
+        System.out.println("Interrupts: " + interruptHandler);
         regs.dump();
     }
     
     public void interrupt(int handle) {
         this.interrupted = true;
+        this.halted = false;
         pendingInterrupt = handle;
     }
     
     public void executeOneInstruction(boolean printOutput, boolean haltEnabled) {
-        
-        if(interrupted){
-            PUSH(regs.PC);
-            regs.PC.write(pendingInterrupt);
-            halted = false;
-            interrupted = false;
-        }
         
     	if(halted && haltEnabled) {
         	clockCycleDelta = 4;
@@ -179,22 +175,18 @@ public class CPU implements Serializable {
         public int execute(CPU cpu) {
             handleFlagsWritable(cpu);
             
-            cpu.interrupted = false;
-            
             int result = this.lambda.exec(cpu);
             
             handleFlagsValues(cpu);
             
             cpu.clockCycles += this.ticks;
             cpu.clockCycleDelta = this.ticks;
-            if(!cpu.interrupted) {
-                cpu.regs.PC.write(cpu.regs.PC.read() + length);
-            }else{ 
-                //we were interrupted by a load into IF, we need to replace the PC that was pushed with the PC that would have been next
-                LongRegister temp = new LongRegister();
-                cpu.POP(temp);
-                temp.write(temp.read() + length);
-                cpu.PUSH(temp);
+            cpu.regs.PC.write(cpu.regs.PC.read() + length);
+            
+            if(cpu.interrupted) {
+                cpu.interrupted = false;
+                cpu.PUSH(cpu.regs.PC);
+                cpu.regs.PC.write(cpu.pendingInterrupt);
             }
             
             return result;
@@ -227,6 +219,12 @@ public class CPU implements Serializable {
             }else{
                 cpu.clockCycles += this.ticksIfJumped;
                 cpu.clockCycleDelta = this.ticksIfJumped;
+            }
+
+            if(cpu.interrupted) {
+                cpu.interrupted = false;
+                cpu.PUSH(cpu.regs.PC);
+                cpu.regs.PC.write(cpu.pendingInterrupt);
             }
             
             return result;

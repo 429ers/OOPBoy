@@ -42,9 +42,13 @@ public class InterruptHandler implements Serializable {
     
     public boolean issueInterruptIfEnabled(int handle){
         if(!interruptsEnabled) {
+            cpu.halted = false;
             return false;
         }
-        if(!specificEnabled.getOrDefault(handle, false)) return false;
+        if(!specificEnabled.getOrDefault(handle, false)) {
+            cpu.halted = false;
+            return false;
+        }
         
         interruptsEnabled = false;
         
@@ -90,5 +94,13 @@ public class InterruptHandler implements Serializable {
         this.setSpecificEnabled(InterruptHandler.SERIAL_COMPLETION, (IEflag & 1) == 1);
         IEflag >>= 1;
         this.setSpecificEnabled(InterruptHandler.JOYPAD, (IEflag & 1) == 1);
+    }
+    
+    public String toString() {
+        if(!interruptsEnabled){
+            return "IME OFF";
+        }else{
+            return specificEnabled.toString();
+        }
     }
 }
