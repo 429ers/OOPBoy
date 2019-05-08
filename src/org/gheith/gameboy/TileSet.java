@@ -10,12 +10,12 @@ public class TileSet implements Serializable {
 	 */
 	private static final long serialVersionUID = 4048349332307406439L;
 	private Map<Integer, Tile> tiles;
-	private boolean isSetOne;
-	private boolean isBankOne;
+	private boolean isSetZero;
+	private boolean isBankZero;
 	
 	
 	public TileSet(MMU memory, int startAddress, int numTiles, boolean isSetOne, boolean isBankOne) {
-		this.isSetOne = isSetOne;
+		this.isSetZero = isSetOne;
 		tiles = new HashMap<Integer, Tile>();
 		int tileNum = isSetOne ? 0 : -128;
 		for (int i = 0; i < numTiles; i++) {
@@ -27,12 +27,12 @@ public class TileSet implements Serializable {
 			tiles.put(tileNum, new Tile(tileBytes));
 			tileNum++;
 		}
-		this.isBankOne = isBankOne;
+		this.isBankZero = isBankOne;
 	}
 	
 	
 	public TileSet(MMU memory, int startAddress, int numTiles, boolean isSetOne) {
-		this.isSetOne = isSetOne;
+		this.isSetZero = isSetOne;
 		tiles = new HashMap<Integer, Tile>();
 		int tileNum = isSetOne ? 0 : -128;
 		for (int i = 0; i < numTiles; i++) {
@@ -44,16 +44,31 @@ public class TileSet implements Serializable {
 			tiles.put(tileNum, new Tile(tileBytes));
 			tileNum++;
 		}
-		this.isBankOne = true;
+		this.isBankZero = true;
 	}
 	
+	public TileSet(boolean isSetZero) {
+		this.isSetZero = isSetZero;
+		tiles = new HashMap<>();
+		int tileNum = isSetZero ? 0 : -128;
+		for (int i = 0; i < 256; i++) {
+			tiles.put(tileNum, new Tile());
+			tileNum++;
+		}
+		this.isBankZero = true;
+	}
+	
+	public void updateTile(int tileNum, int byteNum, int data) {
+		Tile t = tiles.get(tileNum);
+		t.updateTile(byteNum, data);
+	}
 	
 	public Tile getTile(int tileNumber) {
 		return tiles.get(tileNumber);
 	}
 	
 	public boolean isTileSetOne() {
-		return isSetOne;
+		return isSetZero;
 	}
 	
 }

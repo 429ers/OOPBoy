@@ -36,6 +36,7 @@ public class PPU implements Serializable {
 	private int windowY;
 	private int LYCompare = -1;
 	private boolean largeSpriteMode;
+	private TileSetManager tileSetManager;
 	
 	/*
 	public static final int OAM_SEARCH_LENGTH = 20;
@@ -90,21 +91,25 @@ public class PPU implements Serializable {
 	}
 	
 	public void loadTileSets() {
-		tileset1 = new TileSet(mem, 0x8000, 256, true);
-		tileset2 = new TileSet(mem, 0x8800, 256, false);
+		tileset1 = tileSetManager.getTileSet(0, 0);
+		tileset2 = tileSetManager.getTileSet(0, 1);
 	}
 	
 	
-	public void loadMap(boolean useTileSet1, boolean useMap1) {
-		TileSet ts = useTileSet1 ? tileset1 : tileset2;
+	public void loadMap(boolean useTileSet0, boolean useMap1) {
+		int ts = useTileSet0 ? 0 : 1;
 		int address = useMap1 ? 0x9800 : 0x9c00;
-		map = new TileMap(mem, address, ts);
+		map = new TileMap(mem, address, ts, tileSetManager);
 	}
 	
-	public void loadWindow(boolean useTileSet1, boolean useMap1) {
-		TileSet ts = useTileSet1 ? tileset1 : tileset2;
+	public void setTileSetManager(TileSetManager manager) {
+		this.tileSetManager = manager;
+	}
+	
+	public void loadWindow(boolean useTileSet0, boolean useMap1) {
+		int ts = useTileSet0 ? 0 : 1;
 		int address = useMap1 ? 0x9800 : 0x9c00;
-		window = new TileMap(mem, address, ts);
+		window = new TileMap(mem, address, ts, tileSetManager);
 	}
 	
 	public void loadPallettes() {
@@ -141,6 +146,7 @@ public class PPU implements Serializable {
 		scrollX = mem.readByte(0xFF43);
 		int lcdc = mem.readByte(0xff40);
 		spritesEnabled = BitOps.extract(lcdc, 1, 1) == 1;
+		
 		//spritesEnabled = true;
 		if (cycleCount == OAM_SEARCH_START) {
 			scrollY = mem.readByte(0xFF42);
@@ -150,8 +156,8 @@ public class PPU implements Serializable {
 			}
 			mem.writeByte(0xFF44, currentY);
 			//int lcdc = mem.readByte(0xff40);
-			boolean useTileSet1 = BitOps.extract(lcdc, 4, 4) == 1;
-			boolean useWindowTileMap1 = BitOps.extract(lcdc, 6, 6) == 0;
+			boolean useTileSet0 = BitOps.extract(lcdc, 4, 4) == 1;
+			boolean useWindowTileMap0 = BitOps.extract(lcdc, 6, 6) == 0;
 			if (BitOps.extract(lcdc, 2, 2) == 1) {
 				//System.out.println("want to be in 8x16 mode");
 				largeSpriteMode = true;
@@ -159,18 +165,18 @@ public class PPU implements Serializable {
 			else {
 				largeSpriteMode = false;
 			}
+			boolean useBackgroundMap0 = BitOps.extract(lcdc, 3, 3) == 0;
+			this.loadMap(useTileSet0, useBackgroundMap0);
+			this.loadTileSets();
 			if (currentY == 0) {
-				this.loadTileSets();
-				boolean useBackgroundMap1 = BitOps.extract(lcdc, 3, 3) == 0;
-				this.loadMap(useTileSet1, useBackgroundMap1);
 				this.loadPallettes();
 			}
 			//spritesEnabled = BitOps.extract(lcdc, 1, 1) == 1;
-			if (spritesEnabled) {
+			//if (spritesEnabled) {
 				loadSprites();
-			}
+			//}
 			windowEnabled = BitOps.extract(lcdc, 5, 5) == 1;
-			loadWindow(useTileSet1, useWindowTileMap1);
+			loadWindow(useTileSet0, useWindowTileMap0);
 			windowX = mem.readByte(0xff4b) - 7;
 			windowY = mem.readByte(0xff4a);
 			currentX = 0;

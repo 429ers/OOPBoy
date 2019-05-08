@@ -1,18 +1,36 @@
 package org.gheith.gameboy;
 
 public class TileSetManager {
-	private MMU mem;
 	private TileSet[][] tileSets;
+	private boolean isGBCMode;
 	
-	public TileSetManager(MMU mem) {
-		this.mem = mem;
+	public TileSetManager(boolean isGBCMode) {
+		this.isGBCMode = isGBCMode;
+		tileSets = new TileSet[2][2];
+		tileSets[0][0] = new TileSet(true);
+		tileSets[0][1] = new TileSet(false);
+		if (isGBCMode) {
+			tileSets[1][0] = new TileSet(true);
+			tileSets[1][1] = new TileSet(false);
+		}
 	}
 	
-	public void updateTileSets() {
-		tileSets[0][0] = new TileSet(mem, 0x8000, 256, true, true);
-		tileSets[0][1] = new TileSet(mem, 0x8800, 256, false, true);
-		tileSets[1][0] = new TileSet(mem, 0x8000, 256, true, false);
-		tileSets[1][1] = new TileSet(mem, 0x8800, 256, false, false);
+
+	
+	public void updateTileSets(int memAddress, int data, int bank) {
+		if (memAddress >= 0x8000 && memAddress <= 0x8FFF) {
+			int tileAddress = memAddress % 0x8000;
+			int tileNum = tileAddress / 16;
+			int byteNum = tileAddress % 16;
+			tileSets[0][0].updateTile(tileNum, byteNum, data);
+		}
+		if (memAddress >= 0x8800 && memAddress <= 0x97FF) {
+			int tileAddress = memAddress % 0x8800;
+			int tileNum = tileAddress / 16;
+			tileNum -= 128;
+			int byteNum = tileAddress % 16;
+			tileSets[0][1].updateTile(tileNum, byteNum, data);
+		}
 	}
 	
 	public TileSet getTileSet(int bank, int tileSetNum) {

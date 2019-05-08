@@ -161,6 +161,7 @@ public class GameBoy extends JFrame{
     MMU mmu;
     CPU cpu;
     PPU ppu;
+    TileSetManager tileSetManager;
     GameBoyScreen gbs;
     String romFileName;
     boolean paused;
@@ -215,6 +216,9 @@ public class GameBoy extends JFrame{
         cable = new LinkCable(mmu, cpu.interruptHandler);
         joypad = new Joypad(mmu, cpu.interruptHandler);
         gbs.addKeyListener(joypad);
+        tileSetManager = new TileSetManager(false);
+        mmu.setTileSetManager(tileSetManager);
+        ppu.setTileSetManager(tileSetManager);
     }
     
     public GameBoy() {
@@ -256,8 +260,10 @@ public class GameBoy extends JFrame{
         ppu = new PPU(mmu, gbs);
         this.joypad = new Joypad(mmu, cpu.interruptHandler);
         gbs.addKeyListener(joypad);
-        ppu.loadTileSets();
         ppu.loadMap(true, true);
+        tileSetManager = new TileSetManager(false);
+        mmu.setTileSetManager(tileSetManager);
+        ppu.setTileSetManager(tileSetManager);
         quickSave = false;
         quickLoad = false;
         cable = new LinkCable(mmu, cpu.interruptHandler);

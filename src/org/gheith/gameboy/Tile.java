@@ -32,15 +32,28 @@ public class Tile implements Serializable {
 				tileData[i][j] = x + y;
 			}
 		}
-		/*
-		int[][] tileTranspose = new int[8][8];
+	}
+	
+	public Tile() {
+		tileData = new int[8][8];
+	}
+	
+	public void updateTile(int byteNum, int data) {
+		int line = byteNum / 2;
 		for (int i = 0; i < 8; i++) {
-			for (int j = 0; j < 8; j++) {
-				tileTranspose[i][j] = tileData[j][i];
+			int current = tileData[line][i];
+			if (byteNum % 2 == 0) {
+				current = current & 0b10;
+				current += (int) BitOps.extract(data, 7 - i, 7 - i) & 0xFF;
+				tileData[line][i] = current;
+			}
+			else {
+				current = current & 0x01;
+				int newBits = (int) BitOps.extract(data, 7 - i, 7 - i) & 0xFF;
+				current += (newBits << 1);
+				tileData[line][i] = current;
 			}
 		}
-		this.tileData = tileTranspose;
-		*/
 	}
 	
 	public Tile(int[][] tileData) {
