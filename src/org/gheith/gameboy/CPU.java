@@ -44,6 +44,7 @@ public class CPU implements Serializable {
     }
 
     public boolean interrupted = false;
+    public boolean haltEnabled = false;
     private int clockCycles = 0;
     
     public static final int ZFLAG = RegisterFile.ZFLAG;
@@ -79,13 +80,11 @@ public class CPU implements Serializable {
     
     public void executeOneInstruction(boolean printOutput) {
         
-        /*
-    	if(halted) {
+    	if(halted && haltEnabled) {
         	//System.out.println("halted!");
         	clockCycleDelta = 1;
         	return;
         }
-        */
 
         int opcode = mem.readByte(regs.PC.read());
         

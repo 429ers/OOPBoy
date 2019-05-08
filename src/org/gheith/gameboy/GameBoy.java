@@ -120,11 +120,15 @@ class MainMenuBar extends MenuBar {
         });
         CheckboxMenuItem fastMode = new CheckboxMenuItem("Fast mode");
         fastMode.addItemListener((ItemEvent e) -> {
-            gameBoy.fastMode = !gameBoy.fastMode;
+            gameBoy.fastMode = fastMode.getState();
         });
         CheckboxMenuItem audioToggle = new CheckboxMenuItem("Mute");
         audioToggle.addItemListener((ItemEvent e) -> {
-            gameBoy.audioOn = !gameBoy.audioOn;
+            gameBoy.audioOn = audioToggle.getState();
+        });
+        CheckboxMenuItem haltToggle = new CheckboxMenuItem("Enable Halts");
+        haltToggle.addItemListener((ItemEvent e) -> {
+            gameBoy.cpu.haltEnabled = haltToggle.getState();
         });
 
         fileMenu.add(openRom);
@@ -138,6 +142,7 @@ class MainMenuBar extends MenuBar {
         debugMenu.add(breakPoint);
         debugMenu.add(fastMode);
         debugMenu.add(audioToggle);
+        debugMenu.add(haltToggle);
         
         this.add(fileMenu);
         this.add(controlMenu);
