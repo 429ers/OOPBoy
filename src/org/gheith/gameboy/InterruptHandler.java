@@ -50,8 +50,6 @@ public class InterruptHandler implements Serializable {
             return false;
         }
         
-        interruptsEnabled = false;
-        
         cpu.interrupt(handle);
         
         return true;

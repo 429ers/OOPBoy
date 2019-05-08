@@ -87,8 +87,11 @@ public class CPU implements Serializable {
     
     public void executeOneInstruction(boolean printOutput, boolean haltEnabled) {
         
+        clockCycleDelta = 0;
+        
     	if(halted && haltEnabled) {
         	clockCycleDelta = 4;
+        	serviceInterrupts();
         	return;
         }
 
@@ -106,6 +109,8 @@ public class CPU implements Serializable {
             System.out.printf("DIV: %x, TIMA: %x\n", timer.getDIV(), timer.getTIMA());
 
             System.out.println("result: " + Integer.toString(result, 16));
+            
+            System.out.println(clockCycleDelta);
             
             regs.dump();
         }
@@ -180,14 +185,10 @@ public class CPU implements Serializable {
             handleFlagsValues(cpu);
             
             cpu.clockCycles += this.ticks;
-            cpu.clockCycleDelta = this.ticks;
+            cpu.clockCycleDelta += this.ticks;
             cpu.regs.PC.write(cpu.regs.PC.read() + length);
             
-            if(cpu.interrupted) {
-                cpu.interrupted = false;
-                cpu.PUSH(cpu.regs.PC);
-                cpu.regs.PC.write(cpu.pendingInterrupt);
-            }
+            cpu.serviceInterrupts();
             
             return result;
         }
@@ -215,17 +216,13 @@ public class CPU implements Serializable {
 
             if(result == NOJUMP) {
                 cpu.clockCycles += this.ticksIfNotJumped;
-                cpu.clockCycleDelta = this.ticksIfNotJumped;
+                cpu.clockCycleDelta += this.ticksIfNotJumped;
             }else{
                 cpu.clockCycles += this.ticksIfJumped;
-                cpu.clockCycleDelta = this.ticksIfJumped;
+                cpu.clockCycleDelta += this.ticksIfJumped;
             }
-
-            if(cpu.interrupted) {
-                cpu.interrupted = false;
-                cpu.PUSH(cpu.regs.PC);
-                cpu.regs.PC.write(cpu.pendingInterrupt);
-            }
+            
+            cpu.serviceInterrupts();
             
             return result;
         }
@@ -251,6 +248,16 @@ public class CPU implements Serializable {
     
     enum Condition {
         NZ, Z, NC, C
+    }
+    
+    void serviceInterrupts() {
+        if(interrupted) {
+            clockCycleDelta += 24;
+            interruptHandler.setInterruptsEnabled(false);
+            interrupted = false;
+            PUSH(regs.PC);
+            regs.PC.write(pendingInterrupt);
+        }
     }
     
     //represents an 8-bit immediate value. assumes it's placed right after PC
