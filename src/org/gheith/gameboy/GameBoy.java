@@ -128,7 +128,7 @@ class MainMenuBar extends MenuBar {
         });
         CheckboxMenuItem haltToggle = new CheckboxMenuItem("Enable Halts");
         haltToggle.addItemListener((ItemEvent e) -> {
-            gameBoy.cpu.haltEnabled = haltToggle.getState();
+            gameBoy.haltEnabled = haltToggle.getState();
         });
 
         fileMenu.add(openRom);
@@ -164,6 +164,7 @@ public class GameBoy extends JFrame{
     GameBoyScreen gbs;
     String romFileName;
     boolean paused;
+    boolean haltEnabled = false;
     private boolean quickSave;
     private boolean quickLoad;
     Joypad joypad;
@@ -346,7 +347,7 @@ public class GameBoy extends JFrame{
             history.removeFirst();
         }
         history.addLast(cpu.regs.PC.read());
-        cpu.executeOneInstruction(breaked);
+        cpu.executeOneInstruction(breaked, haltEnabled);
         int cycles = cpu.getClockCycleDelta();
         for (int i = 0; i < cycles; i++) {
             ppu.tick();
