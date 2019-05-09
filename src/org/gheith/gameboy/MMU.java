@@ -17,6 +17,7 @@ public class MMU implements Serializable {
     public static final int TAC_REGISTER = 0xFF07;
     public static final int DMA_REGISTER = 0xFF46;
     public static final int LY_COMPARE_REGISTER = 0xFF45;
+    public static final int STEREO_SOUND_REGISTER = 0xFF25;
     
     boolean DEBUG = false;
     private boolean bootRomEnabled = true;
@@ -271,6 +272,10 @@ public class MMU implements Serializable {
             soundChip.waveChannel.handleByte(location - 0xff1a, toWrite);
         }else if(location >= 0xff1f && location <= 0xff23){
             soundChip.noiseChannel.handleByte(location - 0xff1f, toWrite);
+        }
+        
+        if(location == STEREO_SOUND_REGISTER) {
+            soundChip.handleStereo(toWrite);
         }
         
         if(location >= 0xff30 && location <= 0xff3f){

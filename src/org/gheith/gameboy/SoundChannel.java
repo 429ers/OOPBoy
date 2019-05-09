@@ -21,12 +21,24 @@ class SoundChip implements Serializable {
     
     public static final int SAMPLE_RATE = 131072 / 3;
     public static final int SAMPLES_PER_FRAME = SAMPLE_RATE/57;
-    public static final AudioFormat AUDIO_FORMAT = new AudioFormat(SAMPLE_RATE,  8, 1, false, false);
+    public static final AudioFormat AUDIO_FORMAT = new AudioFormat(SAMPLE_RATE,  8, 2, false, false);
+    
+    public static final int SQUARE1 = 0;
+    public static final int SQUARE2 = 1;
+    public static final int WAVE = 2;
+    public static final int NOISE = 3;
     
     private transient SourceDataLine sourceDL;
     
-    byte[] masterBuffer = new byte[SAMPLES_PER_FRAME];
+    byte[] masterBuffer = new byte[2 * SAMPLES_PER_FRAME];
     byte[] tempBuffer = new byte[SAMPLES_PER_FRAME];
+    
+    boolean[] leftEnabled = new boolean[4];
+    boolean[] rightEnabled = new boolean[4];
+    {
+        Arrays.fill(leftEnabled, true);
+        Arrays.fill(rightEnabled, true);
+    }
     
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
         in.defaultReadObject();
@@ -49,6 +61,16 @@ class SoundChip implements Serializable {
             e.printStackTrace();
         }
     }
+    
+    //handle the NR51 register
+    public void handleStereo(int val) {
+        for(int i = 0; i < 4; i++){
+            leftEnabled[i] = ((val >> i) & 1) == 1;
+        }
+        for(int i = 0; i < 4; i++){
+            rightEnabled[i] = ((val >> (4 + i)) & 1) == 1;
+        }
+    }
 
     public void tick() {
     	if (sourceDL == null) {
@@ -67,36 +89,64 @@ class SoundChip implements Serializable {
         boolean channelEnabled = square1.tick(tempBuffer, samplesToWrite);
         
         if(channelEnabled) {
-            for (int i = 0; i < samplesToWrite; i++) {
-                masterBuffer[i] += (tempBuffer[i]);
+            if(leftEnabled[SQUARE1]) {
+                for (int i = 0; i < samplesToWrite; i++) {
+                    masterBuffer[2*i] += (tempBuffer[i]);
+                }
+            }
+            if(rightEnabled[SQUARE1]){
+                for (int i = 0; i < samplesToWrite; i++) {
+                    masterBuffer[2*i + 1] += (tempBuffer[i]);
+                }
             }
         }
         
         channelEnabled = square2.tick(tempBuffer, samplesToWrite);
         
         if(channelEnabled) {
-            for (int i = 0; i < samplesToWrite; i++) {
-                masterBuffer[i] += (tempBuffer[i]);
+            if(leftEnabled[SQUARE2]) {
+                for (int i = 0; i < samplesToWrite; i++) {
+                    masterBuffer[2*i] += (tempBuffer[i]);
+                }
+            }
+            if(rightEnabled[SQUARE2]){
+                for (int i = 0; i < samplesToWrite; i++) {
+                    masterBuffer[2*i + 1] += (tempBuffer[i]);
+                }
             }
         }
 
         channelEnabled = waveChannel.tick(tempBuffer, samplesToWrite);
 
         if(channelEnabled) {
-            for (int i = 0; i < samplesToWrite; i++) {
-                masterBuffer[i] += (tempBuffer[i]);
+            if(leftEnabled[WAVE]) {
+                for (int i = 0; i < samplesToWrite; i++) {
+                    masterBuffer[2*i] += (tempBuffer[i]);
+                }
+            }
+            if(rightEnabled[WAVE]){
+                for (int i = 0; i < samplesToWrite; i++) {
+                    masterBuffer[2*i + 1] += (tempBuffer[i]);
+                }
             }
         }
 
         channelEnabled = noiseChannel.tick(tempBuffer, samplesToWrite);
 
         if(channelEnabled) {
-            for (int i = 0; i < samplesToWrite; i++) {
-                masterBuffer[i] += (tempBuffer[i]);
+            if(leftEnabled[NOISE]) {
+                for (int i = 0; i < samplesToWrite; i++) {
+                    masterBuffer[2*i] += (tempBuffer[i]);
+                }
+            }
+            if(rightEnabled[NOISE]){
+                for (int i = 0; i < samplesToWrite; i++) {
+                    masterBuffer[2*i + 1] += (tempBuffer[i]);
+                }
             }
         }
         
-        sourceDL.write(masterBuffer, 0, samplesToWrite);
+        sourceDL.write(masterBuffer, 0, samplesToWrite * 2);
     }
 }
 
