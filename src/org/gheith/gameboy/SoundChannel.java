@@ -82,7 +82,7 @@ class SoundChip implements Serializable {
                 e.printStackTrace();
             }
     	}
-        int samplesToWrite = Math.min(sourceDL.available(), SAMPLES_PER_FRAME);
+        int samplesToWrite = Math.min(sourceDL.available() / 2, SAMPLES_PER_FRAME);
         
         Arrays.fill(masterBuffer, (byte) 0);
         
