@@ -18,6 +18,7 @@ public class MMU implements Serializable {
     public static final int DMA_REGISTER = 0xFF46;
     public static final int LY_COMPARE_REGISTER = 0xFF45;
     public static final int STEREO_SOUND_REGISTER = 0xFF25;
+    public static final int VRAM_BANK_SELECT_REGISTER = 0xFF4F;
     
     boolean DEBUG = false;
     private boolean bootRomEnabled = true;
@@ -205,7 +206,7 @@ public class MMU implements Serializable {
         	return;
         }
         
-        if (location == 0xFF4F) {
+        if (location == VRAM_BANK_SELECT_REGISTER) {
         	currentVRAMBank = toWrite;
         }
         
