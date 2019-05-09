@@ -124,7 +124,7 @@ class MainMenuBar extends MenuBar {
         });
         CheckboxMenuItem audioToggle = new CheckboxMenuItem("Mute");
         audioToggle.addItemListener((ItemEvent e) -> {
-            gameBoy.audioOn = audioToggle.getState();
+            gameBoy.audioOn = !audioToggle.getState();
         });
         CheckboxMenuItem haltToggle = new CheckboxMenuItem("Service Halts");
         haltToggle.addItemListener((ItemEvent e) -> {
