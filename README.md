@@ -3,7 +3,7 @@ by Garrett Gu and Ryan Jacobs
 
 ![A screenshot of GheithBoy playing The Legend of Zelda: Link's Awakening](https://raw.githubusercontent.com/garrettgu10/gheithboy/screenshot.png)
 
-GheithBoy is a working, fast, and cross-platform Nintendo Game Boy emulator written in Java. It was created for CS 429h, the Honors Computer Architecture class taught by Professor Ahmed Gheith at the University of Texas at Austin.
+GheithBoy is a working, fast, and cross-platform Nintendo Game Boy emulator written in Java. 
 
 ## Features
 - Full CPU emulation (passes cpu_instrs, instr_timing)
