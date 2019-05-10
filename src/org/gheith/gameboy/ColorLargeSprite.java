@@ -30,9 +30,11 @@ public class ColorLargeSprite implements IColorSprite {
 		if (BitOps.extract(flags, 6, 6) == 1) {
 			tile1 = tile1.flipTileOverYAxis();
 			tile2 = tile2.flipTileOverYAxis();
+			/*
 			Tile temp = tile1;
 			tile1 = tile2;
 			tile2 = temp;
+			*/
 			//System.out.println("flip y");
 		}
 	}

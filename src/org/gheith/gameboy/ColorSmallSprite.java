@@ -24,7 +24,7 @@ public class ColorSmallSprite implements IColorSprite {
 		this.priority = (int) BitOps.extract(flags, 7, 7);
 		int bank = (int) BitOps.extract(flags, 3, 3);
 		TileSet tileset = tileSetManager.getTileSet(bank, 0);
-		int tileNum = mem.readByte(spriteAddress + 2);
+		int tileNum = mem.readByte(spriteAddress + 2) & 0xFF;
 		tile1 = tileset.getTile(tileNum);
 		if (BitOps.extract(flags, 5, 5) == 1) {
 			tile1 = tile1.flipTileOverXAxis();
@@ -34,7 +34,7 @@ public class ColorSmallSprite implements IColorSprite {
 			tile1 = tile1.flipTileOverYAxis();
 			//System.out.println("flip y");
 		}
-		paletteNumber = (int) BitOps.extract(flags, 2, 0);
+		paletteNumber = (int) BitOps.extract(flags, 2, 0) & 0xFF;
 		
 	}
 	

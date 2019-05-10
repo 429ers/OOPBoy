@@ -3,50 +3,53 @@ package org.gheith.gameboy;
 import java.awt.Color;
 
 public class ColorPalette {
-	private Color[] colors;
+	private ColorData[] colors;
 	
 	public ColorPalette() {
-		colors = new Color[4];
+		colors = new ColorData[4];
 		for (int i = 0; i < 4; i++) {
-			colors[i] = Color.white;
+			colors[i] = new ColorData();
 		}
 	}
 	
 	public Color getColor(int colorNum) {
-		return colors[colorNum];
+		return colors[colorNum].getColor();
 	}
 	
 	public void setRed(int colorNum, int data) {
-		int green = colors[colorNum].getGreen();
-		int blue = colors[colorNum].getBlue();
-		int red = (int) (BitOps.extract(data, 4, 0) * 8);
-		colors[colorNum] = new Color(red, green, blue);
+		ColorData color = colors[colorNum];
+		int red = (int) (BitOps.extract(data, 4, 0));
+		color.red = red;
 	}
 	
 	public void setLowGreen(int colorNum, int data) {
-		int green = colors[colorNum].getGreen() / 8;
+		ColorData color = colors[colorNum];
+		int green = color.green;
 		green = green & 0b11000;
 		green += BitOps.extract(data, 7, 5);
-		green *= 8;
-		int red = colors[colorNum].getRed();
-		int blue = colors[colorNum].getBlue();
-		colors[colorNum] = new Color(red, green, blue);
+		color.green = green;
 	}
 	
 	public void setHighGreen(int colorNum, int data) {
-		int green = colors[colorNum].getGreen() / 8;
+		ColorData color = colors[colorNum];
+		int green = color.green;
 		green = green & 0b00111;
 		green += (BitOps.extract(data, 1, 0) << 3);
-		green *= 8;
-		int red = colors[colorNum].getRed();
-		int blue = colors[colorNum].getBlue();
-		colors[colorNum] = new Color(red, green, blue);
+		color.green = green;
 	}
 	
 	public void setBlue(int colorNum, int data) {
-		int red = colors[colorNum].getRed();
-		int green = colors[colorNum].getGreen();
-		int blue = (int) (BitOps.extract(data, 6, 2) * 8);
-		colors[colorNum] = new Color(red, green, blue);
+		ColorData color = colors[colorNum];
+		color.blue = (int) (BitOps.extract(data, 6, 2));
+	}
+	
+	private static class ColorData {
+		private int red = 31;
+		private int green = 31;
+		private int blue = 31;
+		
+		private Color getColor() {
+			return new Color(red * 8, green * 8, blue * 8);
+		}
 	}
 }

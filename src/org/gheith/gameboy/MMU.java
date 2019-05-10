@@ -291,6 +291,10 @@ public class MMU implements Serializable {
         	spriteManager.writeColor(toWrite);
         }
         
+        if (location == 0xFF70) {
+        	//System.out.println("want to switch wram bank!");
+        }
+        
         if(location == IF_REGISTER) { // IF register
             boolean interrupted = cpu.interruptHandler.handleIF(toWrite);
             if (interrupted) return;

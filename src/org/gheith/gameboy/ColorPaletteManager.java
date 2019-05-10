@@ -21,11 +21,13 @@ public class ColorPaletteManager {
 	}
 	
 	public void setIndex(int index) {
+		index &= 0xFF;
 		currentIndex = (int) BitOps.extract(index, 5, 0);
 		autoIncrement = BitOps.extract(index, 7, 7) == 1;
 	}
 	
 	public void writeColor(int data) {
+		data &= 0xFF;
 		int index = currentIndex / 8;
 		int colorNum = (currentIndex % 8) / 2;
 		if (index % 2 == 0) {
