@@ -42,7 +42,7 @@ public class MMU implements Serializable {
     boolean DEBUG = false;
     private boolean bootRomEnabled = true;
     private CPU cpu;
-    private PPU ppu;
+    private IPPU ppu;
     private Joypad joypad;
     private int currentVRAMBank = 0;
     private ColorPaletteManager backgroundManager;
@@ -71,11 +71,11 @@ public class MMU implements Serializable {
         return joypad;
     }
 
-    public void setPPU(PPU ppu) {
+    public void setPPU(IPPU ppu) {
         this.ppu = ppu;
     }
     
-    public PPU getPPU() {
+    public IPPU getPPU() {
     	return this.ppu;
     }
     

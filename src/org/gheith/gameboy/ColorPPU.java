@@ -84,6 +84,7 @@ public class ColorPPU implements IPPU {
 			windowY = mem.readByte(0xff4a);
 			currentX = 0;
 			scrollX = mem.readByte(0xFF43);
+			loadWindow();
 		}
 		if (cycleCount == PIXEL_TRANSFER_START) {
 			int status = mem.readByte(0xFF41) & 0x3F;

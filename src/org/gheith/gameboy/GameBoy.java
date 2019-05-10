@@ -227,6 +227,7 @@ public class GameBoy extends JFrame{
         else {
         	ppu = new PPU(mmu, gbs);
         }
+        mmu.setPPU(ppu);
         cable = new LinkCable(mmu, cpu.interruptHandler);
         joypad = new Joypad(mmu, cpu.interruptHandler);
         gbs.addKeyListener(joypad);
@@ -283,6 +284,7 @@ public class GameBoy extends JFrame{
         else {
         	ppu = new PPU(mmu, gbs);
         }
+        mmu.setPPU(ppu);
         this.joypad = new Joypad(mmu, cpu.interruptHandler);
         gbs.addKeyListener(joypad);
         ppu.loadMap(true, true);
