@@ -155,7 +155,7 @@ class MainMenuBar extends MenuBar {
 
 public class GameBoy extends JFrame{
     
-    public static final String DEFAULT_ROM = "roms/Pokemon Red.gb";
+    public static final String DEFAULT_ROM = "roms/Pokemon Gold.gbc";
 
     HashSet<Integer> breakPoints = new HashSet<>();
     LinkedList<Integer> history = new LinkedList<>();
