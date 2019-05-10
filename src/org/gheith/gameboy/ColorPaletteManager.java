@@ -1,10 +1,11 @@
 package org.gheith.gameboy;
 
 import java.awt.Color;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ColorPaletteManager {
+public class ColorPaletteManager implements Serializable {
 	private ColorPalette[] palettes;
 	private int currentIndex;
 	private boolean autoIncrement;
