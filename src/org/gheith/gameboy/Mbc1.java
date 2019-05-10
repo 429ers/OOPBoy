@@ -131,7 +131,7 @@ class Mbc1 implements Cartridge {
         		FileOutputStream cartridgeRam = new FileOutputStream(this.fileName);
 				cartridgeRam.write(ram);
 				cartridgeRam.close();
-				System.out.println("wrote to save file");
+				//System.out.println("wrote to save file");
 				
 			} catch (FileNotFoundException e) {
 				// TODO Auto-generated catch block

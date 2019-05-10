@@ -46,7 +46,7 @@ public class Mbc3 implements Cartridge{
 	        File ramData = new File(this.fileName);
 	        if (ramData.exists()) {
 	        	try {
-	        		System.out.println("found data");
+	        		//System.out.println("found data");
 					FileInputStream ramInput = new FileInputStream(ramData);
 					ramInput.read(ram);
 					ramInput.close();
