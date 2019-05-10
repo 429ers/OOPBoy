@@ -8,6 +8,8 @@ GheithBoy is a working, fast, and cross-platform Nintendo Game Boy emulator writ
 ## Features
 - Full CPU emulation (passes cpu_instrs, instr_timing)
 - Full Timer emulation
+- Full DMG PPU support, GBC work-in-progress
+- Object Oriented Design
 - MBC1 and MBC3 support with battery-backed RAM
 - Audio unit with stereo support
 - Save states at the emulator level
