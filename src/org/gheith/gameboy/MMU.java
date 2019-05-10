@@ -1,11 +1,14 @@
 package org.gheith.gameboy;
 
 import java.io.Serializable;
+import java.util.Base64;
 
 public class MMU implements Serializable {
     private byte[] mem = new byte[0xFFFF+1];
     private Cartridge rom;
     private int[] bootRom = new int[] { 0x31, 0xFE, 0xFF, 0xAF, 0x21, 0xFF, 0x9F, 0x32, 0xCB, 0x7C, 0x20, 0xFB, 0x21, 0x26, 0xFF, 0x0E, 0x11, 0x3E, 0x80, 0x32, 0xE2, 0x0C, 0x3E, 0xF3, 0xE2, 0x32, 0x3E, 0x77, 0x77, 0x3E, 0xFC, 0xE0, 0x47, 0x11, 0x04, 0x01, 0x21, 0x10, 0x80, 0x1A, 0xCD, 0x95, 0x00, 0xCD, 0x96, 0x00, 0x13, 0x7B, 0xFE, 0x34, 0x20, 0xF3, 0x11, 0xD8, 0x00, 0x06, 0x08, 0x1A, 0x13, 0x22, 0x23, 0x05, 0x20, 0xF9, 0x3E, 0x19, 0xEA, 0x10, 0x99, 0x21, 0x2F, 0x99, 0x0E, 0x0C, 0x3D, 0x28, 0x08, 0x32, 0x0D, 0x20, 0xF9, 0x2E, 0x0F, 0x18, 0xF3, 0x67, 0x3E, 0x64, 0x57, 0xE0, 0x42, 0x3E, 0x91, 0xE0, 0x40, 0x04, 0x1E, 0x02, 0x0E, 0x0C, 0xF0, 0x44, 0xFE, 0x90, 0x20, 0xFA, 0x0D, 0x20, 0xF7, 0x1D, 0x20, 0xF2, 0x0E, 0x13, 0x24, 0x7C, 0x1E, 0x83, 0xFE, 0x62, 0x28, 0x06, 0x1E, 0xC1, 0xFE, 0x64, 0x20, 0x06, 0x7B, 0xE2, 0x0C, 0x3E, 0x87, 0xE2, 0xF0, 0x42, 0x90, 0xE0, 0x42, 0x15, 0x20, 0xD2, 0x05, 0x20, 0x4F, 0x16, 0x20, 0x18, 0xCB, 0x4F, 0x06, 0x04, 0xC5, 0xCB, 0x11, 0x17, 0xC1, 0xCB, 0x11, 0x17, 0x05, 0x20, 0xF5, 0x22, 0x23, 0x22, 0x23, 0xC9, 0xCE, 0xED, 0x66, 0x66, 0xCC, 0x0D, 0x00, 0x0B, 0x03, 0x73, 0x00, 0x83, 0x00, 0x0C, 0x00, 0x0D, 0x00, 0x08, 0x11, 0x1F, 0x88, 0x89, 0x00, 0x0E, 0xDC, 0xCC, 0x6E, 0xE6, 0xDD, 0xDD, 0xD9, 0x99, 0xBB, 0xBB, 0x67, 0x63, 0x6E, 0x0E, 0xEC, 0xCC, 0xDD, 0xDC, 0x99, 0x9F, 0xBB, 0xB9, 0x33, 0x3E, 0x3C, 0x42, 0xB9, 0xA5, 0xB9, 0xA5, 0x42, 0x3C, 0x21, 0x04, 0x01, 0x11, 0xA8, 0x00, 0x1A, 0x13, 0xBE, 0x00, 0x00, 0x23, 0x7D, 0xFE, 0x34, 0x20, 0xF5, 0x06, 0x19, 0x78, 0x86, 0x23, 0x05, 0x20, 0xFB, 0x86, 0x00, 0x00, 0x3E, 0x01, 0xE0, 0x50 };
+    private byte[] cgbBootRom = Base64.getDecoder().decode("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");
+    
     private int[] vramBank0 = new int[0x2000];
     private int[] vramBank1 = new int[0x2000];
     private boolean isCGB;
@@ -125,8 +128,12 @@ public class MMU implements Serializable {
     }
     
     public int readByte(int location) {
-        if(bootRomEnabled && location < bootRom.length){
-            return bootRom[location];
+        if(bootRomEnabled){
+            if(isCGB && location < cgbBootRom.length){
+                return cgbBootRom[location] & 0xff;
+            }else if(location < bootRom.length) {
+                return bootRom[location];
+            }
         }
         
         if(location < 0x8000){
@@ -207,11 +214,8 @@ public class MMU implements Serializable {
     }
     
     public void writeByte(int location, int toWrite){
-        if(location == 0xff50 && toWrite == 0x01){
+        if(location == 0xff50){
             bootRomEnabled = false;
-            if (isCGB) {
-            	cpu.regs.A.write(0x11);
-            }
         }
         
         if(location < 0x7fff){
