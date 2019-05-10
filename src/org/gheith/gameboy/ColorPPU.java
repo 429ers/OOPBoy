@@ -24,6 +24,8 @@ public class ColorPPU implements IPPU {
 	private ColorTileMap background;
 	private ColorTileMap window;
 	private transient BufferedImage frame;
+	private boolean hBlank;
+	private boolean vBlank;
 	
 	public ColorPPU(MMU mem) {
 		this.mem = mem;
@@ -32,6 +34,10 @@ public class ColorPPU implements IPPU {
 		gbs = new GameBoyScreen();
 		frame = new BufferedImage(160, 144, BufferedImage.TYPE_3BYTE_BGR);
 		sprites = new HashMap<>();
+	}
+	
+	public void toggleHBlankIndicator() {
+		hBlank = false;
 	}
 	
 	
@@ -56,6 +62,7 @@ public class ColorPPU implements IPPU {
 	
 		scrollX = mem.readByte(0xFF43);
 		if (cycleCount == OAM_SEARCH_START) {
+			hBlank = false;
 			scrollY = mem.readByte(0xFF42);
 			if (currentY < ACTUAL_LINES) {
 				int status = mem.readByte(0xFF41) & 0x3F;
@@ -63,6 +70,7 @@ public class ColorPPU implements IPPU {
 			}
 			mem.writeByte(0xFF44, currentY);
 			if (currentY == 0) {
+				vBlank = false;
 				//this.tileSetManager.updateTileSets();
 				this.loadMap();
 			}
@@ -140,6 +148,7 @@ public class ColorPPU implements IPPU {
 		}
 		// H-Blank Interrupt
 		if (cycleCount == H_BLANK_START && currentY < ACTUAL_LINES) {
+			hBlank = true;
 			int status = mem.readByte(0xFF41) & 0x3F;
 			mem.writeByte(0xFF41, status | 0xC0);
 		}
@@ -156,6 +165,7 @@ public class ColorPPU implements IPPU {
 		drewFrame = false;
 		// Send V-Blank interrupt
 		if (currentY == 145 && cycleCount == 0) {
+			vBlank = true;
 			drewFrame = true;
 			drawFrame();
 		}
@@ -215,6 +225,76 @@ public class ColorPPU implements IPPU {
 			spriteCount++;
 			memAddress += 4;
 		}
+	}
+
+
+	@Override
+	public boolean drewFrame() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+
+	@Override
+	public boolean isHBlank() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+
+	@Override
+	public void loadTileSets() {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void loadMap(boolean useTileSet0, boolean useMap1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void setTileSetManager(TileSetManager manager) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void loadWindow(boolean useTileSet0, boolean useMap1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void loadPallettes() {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void setLYCompare(int lyCompare) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void setMMU(MMU mmu) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void setGBS(GameBoyScreen gbs) {
+		// TODO Auto-generated method stub
+		
 	}
 	
 	

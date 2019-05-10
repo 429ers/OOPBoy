@@ -19,6 +19,21 @@ public class MMU implements Serializable {
     public static final int LY_COMPARE_REGISTER = 0xFF45;
     public static final int STEREO_SOUND_REGISTER = 0xFF25;
     public static final int VRAM_BANK_SELECT_REGISTER = 0xFF4F;
+    public static final int CGB_DMA_SOURCE_HIGH = 0xFF51;
+    public static final int CGB_DMA_SOURCE_LOW = 0xFF52;
+    public static final int CGB_DMA_DESTINATION_HIGH = 0xFF53;
+    public static final int CGB_DMA_DESTINATION_LOW = 0xFF54;
+    public static final int CGB_DMA_START = 0xFF55;
+    
+    private int dmaSourceHigh;
+    private int dmaSourceLow;
+    private int dmaDestHigh;
+    private int dmaDestLow;
+    private int dmaSource;
+    private int dmaDest;
+    private int bytesToTransfer;
+    private boolean hBlankDMA;
+
     
     boolean DEBUG = false;
     private boolean bootRomEnabled = true;
@@ -210,6 +225,39 @@ public class MMU implements Serializable {
         	currentVRAMBank = toWrite;
         }
         
+        if (location == CGB_DMA_SOURCE_HIGH) {
+        	dmaSourceHigh = toWrite & 0x1F;
+        }
+        
+        if (location == CGB_DMA_SOURCE_LOW) {
+        	dmaSourceLow = toWrite & 0xF0;
+        }
+        
+        if (location == CGB_DMA_DESTINATION_HIGH) {
+        	dmaDestHigh = toWrite & 0x1F;
+        }
+        
+        if (location == CGB_DMA_DESTINATION_LOW) {
+        	dmaDestHigh = toWrite & 0xF0;
+        }
+        
+        if (location == CGB_DMA_START) {
+        	dmaSource = (dmaSourceHigh << 8) + dmaSourceLow;
+        	dmaDest = (dmaDestHigh << 8) + dmaDestLow;
+        	hBlankDMA = BitOps.extract(toWrite, 7, 7) == 1;
+        	bytesToTransfer = (int) BitOps.extract(toWrite, 6, 0);
+        	bytesToTransfer++;
+        	bytesToTransfer *= 0x10;
+        	// Do general purpose DMA
+        	if (!hBlankDMA) {
+        		for (int i = 0; i < bytesToTransfer; i++) {
+        			this.writeByte(dmaDest, this.readByte(dmaSource + i));
+        			dmaDest++;
+        		}
+        		bytesToTransfer = 0;
+        	}
+        }
+        
         if (location == 0xFF68) {
         	backgroundManager.setIndex(toWrite);
         }
@@ -297,6 +345,20 @@ public class MMU implements Serializable {
         toWrite &= 0xffff;
         writeByte(location, toWrite & 0xff);
         writeByte(location + 1, toWrite >> 8);
+    }
+    
+    public void hBlankDMA() {
+    	if (hBlankDMA) {
+	    	for (int i = 0; i < 16; i++) {
+	    		this.writeByte(dmaDest, this.readByte(dmaSource + i));
+				dmaDest++;
+	    	}
+	    	dmaSource += 16;
+	    	bytesToTransfer -= 16;
+	    	if (bytesToTransfer == 0) {
+	    		hBlankDMA = false;
+	    	}
+    	}
     }
 
     //basically an abstraction of the various addressing modes

@@ -161,7 +161,7 @@ public class GameBoy extends JFrame{
     LinkedList<Integer> history = new LinkedList<>();
     MMU mmu;
     CPU cpu;
-    PPU ppu;
+    IPPU ppu;
     TileSetManager tileSetManager;
     GameBoyScreen gbs;
     String romFileName;
@@ -358,6 +358,10 @@ public class GameBoy extends JFrame{
         int cycles = cpu.getClockCycleDelta();
         for (int i = 0; i < cycles; i++) {
             ppu.tick();
+            if (ppu.isHBlank()) {
+            	mmu.hBlankDMA();
+            	ppu.toggleHBlankIndicator();
+            }
             if(ppu.drewFrame()){
                 long currentTime = System.currentTimeMillis();
                 long deltaTime = currentTime - timeOfLastFrame;
