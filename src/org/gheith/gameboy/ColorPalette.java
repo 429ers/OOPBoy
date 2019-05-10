@@ -49,12 +49,12 @@ public class ColorPalette {
 		private int blue = 0;
 		
 		private Color getColor() {
-			return new Color(transform(red), transform(blue), transform(green));
+			return new Color(transform(red), transform(green), transform(blue));
 		}
 	}
 	
 	private static int transform(int color) {
 		if (color == 31) return 255;
-		return (int) (8.2258064516129 * (double) color);
+		return (int) ((255/31) * (double) color);
 	}
 }
