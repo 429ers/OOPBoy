@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.HashMap;
 
 
-public class PPU implements Serializable {
+public class PPU implements Serializable, IPPU {
 	/**
 	 * 
 	 */
@@ -37,6 +37,8 @@ public class PPU implements Serializable {
 	private int LYCompare = -1;
 	private boolean largeSpriteMode;
 	private TileSetManager tileSetManager;
+	private boolean vBlank;
+	private boolean hBlank;
 	
 	/*
 	public static final int OAM_SEARCH_LENGTH = 20;
@@ -130,6 +132,10 @@ public class PPU implements Serializable {
 		this.gbs = gbs;
 	}
 	
+	public void toggleHBlankIndicator() {
+		hBlank = false;
+	}
+	
 	public void tick() {
 		// Lie to the CPU and pretend we're transfering pixels to the LCD
 		if (cycleCount >= PIXEL_TRANSFER_START && cycleCount <= PIXEL_TRANSFER_END) {
@@ -149,6 +155,7 @@ public class PPU implements Serializable {
 		
 		//spritesEnabled = true;
 		if (cycleCount == OAM_SEARCH_START) {
+			hBlank = false;
 			scrollY = mem.readByte(0xFF42);
 			if (currentY < ACTUAL_LINES) {
 				int status = mem.readByte(0xFF41) & 0x3F;
@@ -169,6 +176,7 @@ public class PPU implements Serializable {
 			this.loadMap(useTileSet0, useBackgroundMap0);
 			this.loadTileSets();
 			if (currentY == 0) {
+				vBlank = false;
 				this.loadPallettes();
 			}
 			//spritesEnabled = BitOps.extract(lcdc, 1, 1) == 1;
@@ -247,6 +255,9 @@ public class PPU implements Serializable {
 		}
 		// H-Blank Interrupt
 		if (cycleCount == H_BLANK_START && currentY < ACTUAL_LINES) {
+			if (!vBlank) {
+				hBlank = true;
+			}
 			int status = mem.readByte(0xFF41) & 0x3F;
 			mem.writeByte(0xFF41, status | 0xC0);
 		}
@@ -263,6 +274,7 @@ public class PPU implements Serializable {
 		drewFrame = false;
 		// Send V-Blank interrupt
 		if (currentY == 145 && cycleCount == 0) {
+			vBlank = true;
 			drawFrame();
 		}
 		
@@ -322,6 +334,11 @@ public class PPU implements Serializable {
 			spriteCount++;
 			memAddress += 4;
 		}
+	}
+	
+	@Override
+	public boolean isHBlank() {
+		return hBlank;
 	}
 	
 }
