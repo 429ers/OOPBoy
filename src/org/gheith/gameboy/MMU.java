@@ -127,9 +127,14 @@ public class MMU implements Serializable {
     	}
     }
     
+    private boolean withinCgbBootRom(int location){
+        return  (location >= 0x000 && location <= 0x0ff) ||
+                (location >= 0x200 && location <= 0x8ff);
+    }
+    
     public int readByte(int location) {
         if(bootRomEnabled){
-            if(isCGB && location < cgbBootRom.length){
+            if(isCGB && withinCgbBootRom(location)){
                 return cgbBootRom[location] & 0xff;
             }else if(location < bootRom.length) {
                 return bootRom[location];
