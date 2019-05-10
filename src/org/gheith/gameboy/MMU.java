@@ -129,7 +129,7 @@ public class MMU implements Serializable {
     
     public int readByte(int location) {
         if(bootRomEnabled){
-            if(isCGB && location < cgbBootRom.length){
+            if(isCGB && location < cgbBootRom.length && false){
                 return cgbBootRom[location] & 0xff;
             }else if(location < bootRom.length) {
                 return bootRom[location];
@@ -216,6 +216,7 @@ public class MMU implements Serializable {
     public void writeByte(int location, int toWrite){
         if(location == 0xff50){
             bootRomEnabled = false;
+            cpu.regs.A.write(0x11);
         }
         
         if(location < 0x7fff){
