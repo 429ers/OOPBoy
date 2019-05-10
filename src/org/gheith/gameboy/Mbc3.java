@@ -46,7 +46,7 @@ public class Mbc3 implements Cartridge{
 	        File ramData = new File(this.fileName);
 	        if (ramData.exists()) {
 	        	try {
-	        		System.out.println("found data");
+	        		//System.out.println("found data");
 					FileInputStream ramInput = new FileInputStream(ramData);
 					ramInput.read(ram);
 					ramInput.close();
@@ -78,10 +78,10 @@ public class Mbc3 implements Cartridge{
 		else if (location >= 0xA000 && location <= 0xBFFF) {
 			if (ramEnabled) {
 	        	if (ramBank >= 8) {
-	        		System.out.println("read rtc");
+	        		//System.out.println("read rtc");
 	        		return 5;
 	        	}
-	        	System.out.println("read ram");
+	        	//System.out.println("read ram");
 	        	int ramLocation = (ramBank * RAM_BANK_SIZE) + location % 0xA000;
 	        	return ram[ramLocation] & 0xFF;
 			}
@@ -105,22 +105,22 @@ public class Mbc3 implements Cartridge{
 		if (location >= 0x0000 && location <= 0x1FFF) {
         	if ((toWrite & 0x0A) == 0x0A) {
             	ramEnabled = true;
-        		System.out.println("enabled ram");
+        		//System.out.println("enabled ram");
         	}
         	else if (toWrite == 0) {
         		ramEnabled = false;
-        		System.out.println("disabled ram");
+        		//System.out.println("disabled ram");
         	}
 		}
 		
 		else if (location >= 0xA000 && location <= 0xBFFF && ramEnabled) {
 			if (ramBank < 0x8) {
-				System.out.println("wrote to ram");
+				//System.out.println("wrote to ram");
 				int ramLocation = (ramBank * RAM_BANK_SIZE) + (location % 0xA000);
 				ram[ramLocation] = (byte) toWrite;
 			}
 			else {
-				System.out.println("wrote rtc");
+				//System.out.println("wrote rtc");
 			}
 		}
 		
@@ -135,14 +135,14 @@ public class Mbc3 implements Cartridge{
 		// RAM bank / RTC selection
 		else if (location >= 0x4000 && location <= 0x5FFF) {
 			ramBank = toWrite;
-			System.out.printf("selected ram bank %x\n", ramBank);
+			//System.out.printf("selected ram bank %x\n", ramBank);
 		}
 		
 		// Latch clock
 		else if (location >= 0x6000 && location <= 0x7FFF)  {
 			// Store clock data in RTC regs
 			if (!isLatched && toWrite == 1) {
-				System.out.println("latched rtc");
+				//System.out.println("latched rtc");
 				isLatched = true;
 			}
 			else if (isLatched && toWrite == 0) {
@@ -161,7 +161,7 @@ public class Mbc3 implements Cartridge{
         		FileOutputStream cartridgeRam = new FileOutputStream(this.fileName);
 				cartridgeRam.write(ram);
 				cartridgeRam.close();
-				System.out.println("wrote to save file");
+				//System.out.println("wrote to save file");
 				
 			} catch (FileNotFoundException e) {
 				// TODO Auto-generated catch block
