@@ -1,6 +1,8 @@
 package org.gheith.gameboy;
 
-public class TileSetManager {
+import java.io.Serializable;
+
+public class TileSetManager implements Serializable {
 	private TileSet[][] tileSets;
 	private boolean isGBCMode;
 	
