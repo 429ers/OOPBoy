@@ -59,8 +59,10 @@ public class ColorPPU implements IPPU {
 	}
 
 	public void tick() {
+		
 	
 		scrollX = mem.readByte(0xFF43);
+		lcdControl.update();
 		if (cycleCount == OAM_SEARCH_START) {
 			hBlank = false;
 			scrollY = mem.readByte(0xFF42);
@@ -128,6 +130,7 @@ public class ColorPPU implements IPPU {
 					//currentTile = currentSprite.getTile();
 					currentPalette = spriteColorPaletteManager.getPalette(currentSprite.getPaletteNumber());
 					pixel = spritePixel;
+
 				}
 				else {
 					currentTile = backgroundTile;

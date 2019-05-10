@@ -18,9 +18,9 @@ public class ColorSmallSprite implements IColorSprite {
 	
 	public ColorSmallSprite(MMU mem, int spriteAddress, TileSetManager tileSetManager) {
 		this.spriteAddress = spriteAddress;
-		spriteY = mem.readByte(spriteAddress);
-		spriteX = mem.readByte(spriteAddress + 1);
-		flags = mem.readByte(spriteAddress + 3);
+		spriteY = mem.readByte(spriteAddress) & 0xFF;
+		spriteX = mem.readByte(spriteAddress + 1) & 0xFF;
+		flags = mem.readByte(spriteAddress + 3) & 0xFF;
 		this.priority = (int) BitOps.extract(flags, 7, 7);
 		int bank = (int) BitOps.extract(flags, 3, 3);
 		TileSet tileset = tileSetManager.getTileSet(bank, 0);

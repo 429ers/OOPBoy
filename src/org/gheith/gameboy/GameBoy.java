@@ -278,6 +278,7 @@ public class GameBoy extends JFrame{
         	spritePaletteManager = new ColorPaletteManager();
         	mmu.setColorPaletteManagers(backgroundPaletteManager, spritePaletteManager);
         	ppu.setPaletteManagers(backgroundPaletteManager, spritePaletteManager);
+        	
         }
         else {
         	ppu = new PPU(mmu, gbs);
