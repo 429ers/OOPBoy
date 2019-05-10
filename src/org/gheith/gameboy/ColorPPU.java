@@ -59,10 +59,13 @@ public class ColorPPU implements IPPU {
 	}
 
 	public void tick() {
+		lcdControl.update();
+		if (!lcdControl.isDisplayEnabled()) {
+			return;
+		}
 		
 	
 		scrollX = mem.readByte(0xFF43);
-		lcdControl.update();
 		if (cycleCount == OAM_SEARCH_START) {
 			hBlank = false;
 			scrollY = mem.readByte(0xFF42);

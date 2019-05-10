@@ -16,6 +16,7 @@ public class LCDControl {
 	
 	public LCDControl(MMU mem) {
 		this.mem = mem;
+		this.isDisplayEnabled = true;
 	}
 	
 	public void update() {

@@ -44,9 +44,9 @@ public class ColorPalette {
 	}
 	
 	private static class ColorData {
-		private int red = 0;
-		private int green = 0;
-		private int blue = 0;
+		private int red = 31;
+		private int green = 31;
+		private int blue = 31;
 		
 		private Color getColor() {
 			return new Color(transform(red), transform(green), transform(blue));
