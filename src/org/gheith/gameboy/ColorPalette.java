@@ -44,12 +44,17 @@ public class ColorPalette {
 	}
 	
 	private static class ColorData {
-		private int red = 31;
-		private int green = 31;
-		private int blue = 31;
+		private int red = 0;
+		private int green = 0;
+		private int blue = 0;
 		
 		private Color getColor() {
-			return new Color(red * 8, green * 8, blue * 8);
+			return new Color(transform(red), transform(blue), transform(green));
 		}
+	}
+	
+	private static int transform(int color) {
+		if (color == 31) return 255;
+		return (int) (8.2258064516129 * (double) color);
 	}
 }

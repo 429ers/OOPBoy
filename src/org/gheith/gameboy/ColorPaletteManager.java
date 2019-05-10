@@ -30,7 +30,7 @@ public class ColorPaletteManager {
 		data &= 0xFF;
 		int index = currentIndex / 8;
 		int colorNum = (currentIndex % 8) / 2;
-		if (index % 2 == 0) {
+		if (currentIndex % 2 == 0) {
 			palettes[index].setRed(colorNum, data);
 			palettes[index].setLowGreen(colorNum, data);
 		}

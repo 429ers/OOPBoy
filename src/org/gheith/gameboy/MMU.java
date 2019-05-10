@@ -141,6 +141,22 @@ public class MMU implements Serializable {
             }
         }
         
+        if (location == 0xFF68) {
+        	System.out.println("requested read of index bg");
+        }
+        
+        if (location == 0xFF69) {
+        	System.out.println("requested read of data bg");
+        }
+        
+        if (location == 0xFF6A) {
+        	System.out.println("requested read of index sprite");
+        }
+        
+        if (location == 0xFF6B) {
+        	System.out.println("requested read of data sprite");
+        }
+        
         if(location < 0x8000){
             return rom.readByte(location);
         }
