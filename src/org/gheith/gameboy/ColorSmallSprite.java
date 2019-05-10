@@ -1,3 +1,4 @@
+
 package org.gheith.gameboy;
 
 public class ColorSmallSprite implements IColorSprite {

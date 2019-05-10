@@ -34,6 +34,7 @@ public interface Cartridge extends Serializable {
     int readByte(int location);
     void writeByte(int location, int toWrite);
     void cleanUp();
+    public boolean isGBC();
 }
 
 

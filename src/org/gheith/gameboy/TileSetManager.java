@@ -1,6 +1,12 @@
 package org.gheith.gameboy;
 
-public class TileSetManager {
+import java.io.Serializable;
+
+public class TileSetManager implements Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -8958150457625059639L;
 	private TileSet[][] tileSets;
 	private boolean isGBCMode;
 	

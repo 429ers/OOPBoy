@@ -27,11 +27,11 @@ public class ColorPPU implements IPPU {
 	private boolean hBlank;
 	private boolean vBlank;
 	
-	public ColorPPU(MMU mem) {
+	public ColorPPU(MMU mem, GameBoyScreen gbs) {
 		this.mem = mem;
 		lcdControl = new LCDControl(mem);
 		tileSetManager = new TileSetManager(true);
-		gbs = new GameBoyScreen();
+		this.gbs = gbs;
 		frame = new BufferedImage(160, 144, BufferedImage.TYPE_3BYTE_BGR);
 		sprites = new HashMap<>();
 	}
@@ -231,14 +231,14 @@ public class ColorPPU implements IPPU {
 	@Override
 	public boolean drewFrame() {
 		// TODO Auto-generated method stub
-		return false;
+		return drewFrame;
 	}
 
 
 	@Override
 	public boolean isHBlank() {
 		// TODO Auto-generated method stub
-		return false;
+		return hBlank;
 	}
 
 
@@ -259,7 +259,7 @@ public class ColorPPU implements IPPU {
 	@Override
 	public void setTileSetManager(TileSetManager manager) {
 		// TODO Auto-generated method stub
-		
+		this.tileSetManager = manager;
 	}
 
 
@@ -280,21 +280,21 @@ public class ColorPPU implements IPPU {
 	@Override
 	public void setLYCompare(int lyCompare) {
 		// TODO Auto-generated method stub
-		
+		this.LYCompare = lyCompare;
 	}
 
 
 	@Override
 	public void setMMU(MMU mmu) {
 		// TODO Auto-generated method stub
-		
+		this.mem = mmu;
 	}
 
 
 	@Override
 	public void setGBS(GameBoyScreen gbs) {
 		// TODO Auto-generated method stub
-		
+		this.gbs = gbs;
 	}
 	
 	

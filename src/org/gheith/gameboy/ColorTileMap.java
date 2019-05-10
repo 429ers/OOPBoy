@@ -4,6 +4,12 @@ public class ColorTileMap {
 private TileWithAttributes[][] map;
 	
 	public ColorTileMap(MMU mem, int startAddress, TileSetManager tileSetManager, int tileSetNum) {
+		if (startAddress != 0x9800 && startAddress != 0x9C00) {
+			System.out.printf("Invalid Start Address: %x\n", startAddress);
+			throw new IllegalArgumentException("invalid startAddress");
+		}
+		
+		
 		map = new TileWithAttributes[32][32];
 		
 		for (int i = 0; i < 32; i++) {

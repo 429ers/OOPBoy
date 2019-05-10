@@ -23,12 +23,13 @@ class Mbc1 implements Cartridge {
 	private int ramBank;
 	private int upperBits;
 	private String fileName;
-    
+    private boolean isGBC;
     private byte[][] banks;
     private byte[] ram;
     int currentBank = 1;
     
     public Mbc1(byte[] rom, String fileName){
+    	isGBC = rom[0x143] == 0x80 || rom[0x143] == 0xC0;
     	this.fileName = fileName + ".sav";
         int numBanks = rom.length / BANK_SIZE;
         banks = new byte[numBanks][BANK_SIZE];
@@ -140,5 +141,11 @@ class Mbc1 implements Cartridge {
 				e.printStackTrace();
 			}
     	}
+	}
+
+	@Override
+	public boolean isGBC() {
+		// TODO Auto-generated method stub
+		return false;
 	}
 }

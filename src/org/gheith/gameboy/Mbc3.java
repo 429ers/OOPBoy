@@ -21,6 +21,7 @@ public class Mbc3 implements Cartridge{
 	private boolean hasBattery;
 	private boolean hasRam;
 	private boolean isLatched;
+	private boolean isGBC;
 	private int ramBank;
 	private String fileName;
     
@@ -29,6 +30,8 @@ public class Mbc3 implements Cartridge{
     int currentBank = 1;
     
     public Mbc3(byte[] rom, String fileName) {
+    	int gbcByte = rom[0x143] & 0xFF;
+    	this.isGBC = gbcByte == 0x80;
     	this.fileName = fileName + ".sav";
         int numBanks = rom.length / BANK_SIZE;
         banks = new byte[numBanks][BANK_SIZE];
@@ -168,6 +171,12 @@ public class Mbc3 implements Cartridge{
 				e.printStackTrace();
 			}
     	}
+	}
+
+	@Override
+	public boolean isGBC() {
+		// TODO Auto-generated method stub
+		return isGBC;
 	}
 
 }

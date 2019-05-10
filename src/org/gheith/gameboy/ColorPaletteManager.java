@@ -11,6 +11,9 @@ public class ColorPaletteManager {
 	
 	public ColorPaletteManager() {
 		palettes = new ColorPalette[8];
+		for (int i = 0; i < 8; i++) {
+			palettes[i] = new ColorPalette();
+		}
 	}
 	
 	public ColorPalette getPalette(int paletteNum) {
