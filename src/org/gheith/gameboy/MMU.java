@@ -99,13 +99,13 @@ public class MMU implements Serializable {
     	this.joypad = joypad;
     }
     
-    public int readByteFromVRAM(int location, boolean isBankZero) {
+    public int readByteFromVRAM(int location, int bank) {
     	if (location < 0x8000 || location > 0x9FFF) {
     		System.out.printf("Invalid VRAM address: %x\n", location);
     	}
     	
     	int index = location % 0x8000;
-    	if (isBankZero) {
+    	if (bank == 0) {
     		return vramBank0[index];
     	}
     	else {
@@ -113,12 +113,15 @@ public class MMU implements Serializable {
     	}
     }
     
-    public void writeByteToVRAM(int location, int data, boolean isBankZero) {
+    public void writeByteToVRAM(int location, int data, int bank) {
+    	if (bank != 0 && bank != 1) {
+    		throw new IllegalArgumentException("invalid vram bank");
+    	}
     	if (location >= 0x8000 && location <= 0x97FF) {
     		tileSetManager.updateTileSets(location, data, 0);
     	}
     	int index = location % 0x8000;
-    	if (isBankZero) {
+    	if (bank == 0) {
     		// Write to bank one
     		vramBank0[index] = data;
     	}
@@ -165,8 +168,8 @@ public class MMU implements Serializable {
         	return rom.readByte(location);
         }
         
-        if (location >= 0x8000 && location <= 0x97FF) {
-        	return readByteFromVRAM(location, currentVRAMBank == 0);
+        if (location >= 0x8000 && location <= 0x9FFF) {
+        	return readByteFromVRAM(location, currentVRAMBank);
         }
         
         if(location == DIV_REGISTER){
@@ -249,13 +252,13 @@ public class MMU implements Serializable {
         	return;
         }
         
-        if (location >= 0x8000 && location <= 0x97FF) {
-        	writeByteToVRAM(location, toWrite, currentVRAMBank == 0);
+        if (location >= 0x8000 && location <= 0x9FFF) {
+        	writeByteToVRAM(location, toWrite, currentVRAMBank);
         	return;
         }
         
         if (location == VRAM_BANK_SELECT_REGISTER) {
-        	currentVRAMBank = toWrite;
+        	currentVRAMBank = toWrite & 0x01;
         }
         
         if (location == CGB_DMA_SOURCE_HIGH) {

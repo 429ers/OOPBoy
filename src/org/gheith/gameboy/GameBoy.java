@@ -231,7 +231,12 @@ public class GameBoy extends JFrame{
         cable = new LinkCable(mmu, cpu.interruptHandler);
         joypad = new Joypad(mmu, cpu.interruptHandler);
         gbs.addKeyListener(joypad);
-        tileSetManager = new TileSetManager(false);
+        if (isCGB) {
+        	tileSetManager = new TileSetManager(true);
+        }
+        else {
+        	tileSetManager = new TileSetManager(false);
+        }
         mmu.setTileSetManager(tileSetManager);
         ppu.setTileSetManager(tileSetManager);
     }
@@ -288,7 +293,12 @@ public class GameBoy extends JFrame{
         this.joypad = new Joypad(mmu, cpu.interruptHandler);
         gbs.addKeyListener(joypad);
         ppu.loadMap(true, true);
-        tileSetManager = new TileSetManager(false);
+        if (isCGB) {
+        	tileSetManager = new TileSetManager(true);
+        }
+        else {
+        	tileSetManager = new TileSetManager(false);
+        }
         mmu.setTileSetManager(tileSetManager);
         ppu.setTileSetManager(tileSetManager);
         quickSave = false;

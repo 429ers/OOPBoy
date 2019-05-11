@@ -15,7 +15,7 @@ private TileWithAttributes[][] map;
 		for (int i = 0; i < 32; i++) {
 			for (int j = 0; j < 32; j++) {
 				int tileNumberAddress = startAddress + (i * 32) + j;
-				int attributes = mem.readByteFromVRAM(tileNumberAddress, false);
+				int attributes = mem.readByteFromVRAM(tileNumberAddress, 1);
 				int tileVRAMBankNumber = (int) BitOps.extract(attributes, 3, 3);
 				TileSet tileSet = tileSetManager.getTileSet(tileVRAMBankNumber, tileSetNum);
 				int tileNumber;

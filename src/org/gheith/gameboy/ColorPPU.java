@@ -26,11 +26,11 @@ public class ColorPPU implements IPPU {
 	private transient BufferedImage frame;
 	private boolean hBlank;
 	private boolean vBlank;
+	private boolean disabledLastTick;
 	
 	public ColorPPU(MMU mem, GameBoyScreen gbs) {
 		this.mem = mem;
 		lcdControl = new LCDControl(mem);
-		tileSetManager = new TileSetManager(true);
 		this.gbs = gbs;
 		frame = new BufferedImage(160, 144, BufferedImage.TYPE_3BYTE_BGR);
 		sprites = new HashMap<>();
@@ -61,7 +61,12 @@ public class ColorPPU implements IPPU {
 	public void tick() {
 		lcdControl.update();
 		if (!lcdControl.isDisplayEnabled()) {
+			disabledLastTick = true;
 			return;
+		}
+		if (disabledLastTick) {
+			loadMap();
+			disabledLastTick = false;
 		}
 		
 	
