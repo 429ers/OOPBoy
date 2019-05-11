@@ -1,7 +1,7 @@
 # GBEmul8tor
 by Garrett Gu and Ryan Jacobs
 
-![A screenshot of GheithBoy playing The Legend of Zelda: Link's Awakening](https://raw.githubusercontent.com/garrettgu10/gheithboy/screenshot.png)
+![A screenshot of GBEmul8tor playing The Legend of Zelda: Link's Awakening](https://raw.githubusercontent.com/garrettgu10/gheithboy/screenshot.png)
 
 GBEmul8tor is a working, fast, and cross-platform Nintendo Game Boy emulator written in Java. 
 
