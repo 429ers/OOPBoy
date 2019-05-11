@@ -44,6 +44,7 @@ Go into the source folder and run ```javac *.java```. There are no external depe
 The ```main()``` function is located in ```GameBoy.java```.
 ```
 cd src
+javac org/the429ers/gameboy/*.java
 java org.the429ers.Gameboy
 ```
 
