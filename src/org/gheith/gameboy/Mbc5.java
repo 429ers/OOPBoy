@@ -15,12 +15,10 @@ public class Mbc5 implements Cartridge {
 	 */
 	private static final long serialVersionUID = -206354286731307487L;
 	public static final int BANK_SIZE = 0x4000;
-	private static final int RAM_BANK_SIZE = 0x2000;
 	
 	private boolean ramEnabled;
 	private boolean hasBattery;
 	private int ramBank;
-	private int upperBits;
 	private String fileName;
     private boolean isGBC;
     private byte[][] banks;
@@ -91,7 +89,7 @@ public class Mbc5 implements Cartridge {
         //Low 8 bits of rom bank
     	if(location >= 0x2000 && location <= 0x2fff) {
             //bank switching
-            int newBank = toWrite & 0x1f;
+            int newBank = toWrite & 0xff;
             this.currentBank &= 0x100;
             this.currentBank += newBank;
         }
