@@ -35,7 +35,7 @@ public class Mbc5 implements Cartridge {
             banks[i / BANK_SIZE][i % BANK_SIZE] = rom[i];
         }
         ram = new byte [16][2 << 20];
-        hasBattery = rom[0x0147] == 0x03;
+        hasBattery = rom[0x0147] == 0x1B || rom[0x147] == 0x1E;
         if (hasBattery) {
 	        File ramData = new File(this.fileName);
 	        if (ramData.exists()) {
