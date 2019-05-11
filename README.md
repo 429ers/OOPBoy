@@ -45,8 +45,8 @@ The ```main()``` function is located in ```GameBoy.java```.
 ```
 cd src
 javac org/the429ers/gameboy/*.java
-java org.the429ers.Gameboy
+java org.the429ers.gameboy.Gameboy
 ```
 
 ## Running the emulator in debug mode
-```java org.the429ers.GameBoy -d```
+```java org.the429ers.gameboy.GameBoy -d```
