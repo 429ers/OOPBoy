@@ -19,12 +19,14 @@ public class ColorPalette implements Serializable {
 	
 	public void setRed(int colorNum, int data) {
 		ColorData color = colors[colorNum];
+		color.colorChanged = true;
 		int red = (int) (BitOps.extract(data, 4, 0));
 		color.red = red;
 	}
 	
 	public void setLowGreen(int colorNum, int data) {
 		ColorData color = colors[colorNum];
+		color.colorChanged = true;
 		int green = color.green;
 		green = green & 0b11000;
 		green += BitOps.extract(data, 7, 5);
@@ -33,6 +35,7 @@ public class ColorPalette implements Serializable {
 	
 	public void setHighGreen(int colorNum, int data) {
 		ColorData color = colors[colorNum];
+		color.colorChanged = true;
 		int green = color.green;
 		green = green & 0b00111;
 		green += (BitOps.extract(data, 1, 0) << 3);
@@ -41,6 +44,7 @@ public class ColorPalette implements Serializable {
 	
 	public void setBlue(int colorNum, int data) {
 		ColorData color = colors[colorNum];
+		color.colorChanged = true;
 		color.blue = (int) (BitOps.extract(data, 6, 2));
 	}
 	
@@ -48,9 +52,15 @@ public class ColorPalette implements Serializable {
 		private int red = 31;
 		private int green = 31;
 		private int blue = 31;
+		private Color color;
+		private boolean colorChanged = true;
 		
 		private Color getColor() {
-			return new Color(transform(red), transform(green), transform(blue));
+			if (colorChanged) {
+				colorChanged = false;
+				color = new Color(transform(red), transform(green), transform(blue));
+			}
+			return color;
 		}
 	}
 	
