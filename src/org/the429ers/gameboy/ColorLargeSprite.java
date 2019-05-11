@@ -19,6 +19,7 @@ public class ColorLargeSprite implements IColorSprite {
 		this.priority = (int) BitOps.extract(flags, 7, 7);
 		int tileNum = mem.readByte(spriteAddress + 2) & 0xFE;
 		int bank = (int) BitOps.extract(flags, 3, 3);
+		this.paletteNumber = (int) BitOps.extract(flags, 2, 0) & 0xFF;
 		TileSet tileset = tileSetManager.getTileSet(bank, 0);
 		tile1 = tileset.getTile(tileNum);
 		tile2 = tileset.getTile(tileNum + 1);
