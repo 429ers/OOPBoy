@@ -1,10 +1,11 @@
 package org.the429ers.gameboy;
 
 import java.awt.image.BufferedImage;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ColorPPU implements IPPU {
+public class ColorPPU implements IPPU, Serializable {
 	private MMU mem;
 	private LCDControl lcdControl;
 	private ColorPaletteManager backgroundColorPaletteManager;
@@ -26,12 +27,12 @@ public class ColorPPU implements IPPU {
 	private transient BufferedImage frame;
 	private boolean hBlank;
 	private boolean vBlank;
+	private boolean disabledLastTick;
 	
-	public ColorPPU(MMU mem) {
+	public ColorPPU(MMU mem, GameBoyScreen gbs) {
 		this.mem = mem;
 		lcdControl = new LCDControl(mem);
-		tileSetManager = new TileSetManager(true);
-		gbs = new GameBoyScreen();
+		this.gbs = gbs;
 		frame = new BufferedImage(160, 144, BufferedImage.TYPE_3BYTE_BGR);
 		sprites = new HashMap<>();
 	}
@@ -59,6 +60,16 @@ public class ColorPPU implements IPPU {
 	}
 
 	public void tick() {
+		lcdControl.update();
+		if (!lcdControl.isDisplayEnabled()) {
+			disabledLastTick = true;
+			return;
+		}
+		if (disabledLastTick) {
+			loadMap();
+			disabledLastTick = false;
+		}
+		
 	
 		scrollX = mem.readByte(0xFF43);
 		if (cycleCount == OAM_SEARCH_START) {
@@ -70,9 +81,9 @@ public class ColorPPU implements IPPU {
 			}
 			mem.writeByte(0xFF44, currentY);
 			if (currentY == 0) {
+				this.loadMap();
 				vBlank = false;
 				//this.tileSetManager.updateTileSets();
-				this.loadMap();
 			}
 			if (lcdControl.isSpritesEnabled()) {
 				loadSprites();
@@ -82,6 +93,7 @@ public class ColorPPU implements IPPU {
 			windowY = mem.readByte(0xff4a);
 			currentX = 0;
 			scrollX = mem.readByte(0xFF43);
+			loadWindow();
 		}
 		if (cycleCount == PIXEL_TRANSFER_START) {
 			int status = mem.readByte(0xFF41) & 0x3F;
@@ -128,6 +140,7 @@ public class ColorPPU implements IPPU {
 					//currentTile = currentSprite.getTile();
 					currentPalette = spriteColorPaletteManager.getPalette(currentSprite.getPaletteNumber());
 					pixel = spritePixel;
+
 				}
 				else {
 					currentTile = backgroundTile;
@@ -231,14 +244,14 @@ public class ColorPPU implements IPPU {
 	@Override
 	public boolean drewFrame() {
 		// TODO Auto-generated method stub
-		return false;
+		return drewFrame;
 	}
 
 
 	@Override
 	public boolean isHBlank() {
 		// TODO Auto-generated method stub
-		return false;
+		return hBlank;
 	}
 
 
@@ -259,7 +272,7 @@ public class ColorPPU implements IPPU {
 	@Override
 	public void setTileSetManager(TileSetManager manager) {
 		// TODO Auto-generated method stub
-		
+		this.tileSetManager = manager;
 	}
 
 
@@ -280,21 +293,21 @@ public class ColorPPU implements IPPU {
 	@Override
 	public void setLYCompare(int lyCompare) {
 		// TODO Auto-generated method stub
-		
+		this.LYCompare = lyCompare;
 	}
 
 
 	@Override
 	public void setMMU(MMU mmu) {
 		// TODO Auto-generated method stub
-		
+		this.mem = mmu;
 	}
 
 
 	@Override
 	public void setGBS(GameBoyScreen gbs) {
 		// TODO Auto-generated method stub
-		
+		this.gbs = gbs;
 	}
 	
 	

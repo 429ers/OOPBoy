@@ -21,6 +21,9 @@ public interface IPPU {
 	public void toggleHBlankIndicator();
 	
 	public void loadTileSets();
+	public default void setPaletteManagers(ColorPaletteManager background, ColorPaletteManager sprites) {
+		throw new UnsupportedOperationException();
+	}
 	
 	
 	public void loadMap(boolean useTileSet0, boolean useMap1);

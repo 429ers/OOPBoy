@@ -14,7 +14,7 @@ public class TileSet implements Serializable {
 	private boolean isBankZero;
 	
 	
-	public TileSet(MMU memory, int startAddress, int numTiles, boolean isSetOne, boolean isBankOne) {
+	public TileSet(MMU memory, int startAddress, int numTiles, boolean isSetOne, boolean isBankZero) {
 		this.isSetZero = isSetOne;
 		tiles = new HashMap<Integer, Tile>();
 		int tileNum = isSetOne ? 0 : -128;
@@ -22,12 +22,13 @@ public class TileSet implements Serializable {
 			int[] tileBytes = new int[16];
 			int tileAddress = startAddress + i * 16;
 			for (int j = 0; j < 16; j++) {
-				tileBytes[j] = memory.readByteFromVRAM(tileAddress + j, isBankOne);
+				int bank = isBankZero ? 0 : 1;
+				tileBytes[j] = memory.readByteFromVRAM(tileAddress + j, bank);
 			}
 			tiles.put(tileNum, new Tile(tileBytes));
 			tileNum++;
 		}
-		this.isBankZero = isBankOne;
+		this.isBankZero = isBankZero;
 	}
 	
 	

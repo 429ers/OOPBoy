@@ -24,6 +24,9 @@ public interface Cartridge extends Serializable {
         else if (cartridgeType >= 0x0F && cartridgeType <= 0x13) {
         	return new Mbc3(rom, fileName);
         }
+        else if (cartridgeType >= 0x19 && cartridgeType <= 0x1E) {
+        	return new Mbc3(rom, fileName);
+        }
         else {
         	System.out.printf("Cartridge type %x is not supported\n", cartridgeType);
         }
@@ -34,6 +37,7 @@ public interface Cartridge extends Serializable {
     int readByte(int location);
     void writeByte(int location, int toWrite);
     void cleanUp();
+    public boolean isGBC();
 }
 
 

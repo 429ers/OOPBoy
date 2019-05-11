@@ -155,7 +155,7 @@ class MainMenuBar extends MenuBar {
 
 public class GameBoy extends JFrame{
     
-    public static final String DEFAULT_ROM = "roms/Zelda.gb";
+    public static final String DEFAULT_ROM = "roms/Pokemon Gold.gbc";
 
     HashSet<Integer> breakPoints = new HashSet<>();
     LinkedList<Integer> history = new LinkedList<>();
@@ -169,6 +169,9 @@ public class GameBoy extends JFrame{
     boolean haltEnabled = true;
     private boolean quickSave;
     private boolean quickLoad;
+    private boolean isCGB;
+    private ColorPaletteManager backgroundPaletteManager;
+    private ColorPaletteManager spritePaletteManager;
     Joypad joypad;
     
     boolean audioOn = true;
@@ -212,12 +215,28 @@ public class GameBoy extends JFrame{
         this.romFileName = newRom;
         if(mmu != null) mmu.cleanUp();
         mmu = new MMU(newRom);
+        this.isCGB = mmu.isCGB();
         cpu = new CPU(mmu);
-        ppu = new PPU(mmu, gbs);
+        if (isCGB) {
+        	ppu = new ColorPPU(mmu, gbs);
+        	backgroundPaletteManager = new ColorPaletteManager();
+        	spritePaletteManager = new ColorPaletteManager();
+        	mmu.setColorPaletteManagers(backgroundPaletteManager, spritePaletteManager);
+        	ppu.setPaletteManagers(backgroundPaletteManager, spritePaletteManager);
+        }
+        else {
+        	ppu = new PPU(mmu, gbs);
+        }
+        mmu.setPPU(ppu);
         cable = new LinkCable(mmu, cpu.interruptHandler);
         joypad = new Joypad(mmu, cpu.interruptHandler);
         gbs.addKeyListener(joypad);
-        tileSetManager = new TileSetManager(false);
+        if (isCGB) {
+        	tileSetManager = new TileSetManager(true);
+        }
+        else {
+        	tileSetManager = new TileSetManager(false);
+        }
         mmu.setTileSetManager(tileSetManager);
         ppu.setTileSetManager(tileSetManager);
     }
@@ -258,11 +277,28 @@ public class GameBoy extends JFrame{
         this.addWindowListener(listener);
         mmu = new MMU(fileName);
         cpu = new CPU(mmu);
-        ppu = new PPU(mmu, gbs);
+        this.isCGB = mmu.isCGB();
+        if (isCGB) {
+        	ppu = new ColorPPU(mmu, gbs);
+        	backgroundPaletteManager = new ColorPaletteManager();
+        	spritePaletteManager = new ColorPaletteManager();
+        	mmu.setColorPaletteManagers(backgroundPaletteManager, spritePaletteManager);
+        	ppu.setPaletteManagers(backgroundPaletteManager, spritePaletteManager);
+        	
+        }
+        else {
+        	ppu = new PPU(mmu, gbs);
+        }
+        mmu.setPPU(ppu);
         this.joypad = new Joypad(mmu, cpu.interruptHandler);
         gbs.addKeyListener(joypad);
         ppu.loadMap(true, true);
-        tileSetManager = new TileSetManager(false);
+        if (isCGB) {
+        	tileSetManager = new TileSetManager(true);
+        }
+        else {
+        	tileSetManager = new TileSetManager(false);
+        }
         mmu.setTileSetManager(tileSetManager);
         ppu.setTileSetManager(tileSetManager);
         quickSave = false;
@@ -359,8 +395,8 @@ public class GameBoy extends JFrame{
         for (int i = 0; i < cycles; i++) {
             ppu.tick();
             if (ppu.isHBlank()) {
-            	mmu.hBlankDMA();
-            	ppu.toggleHBlankIndicator();
+            	//mmu.hBlankDMA();
+            	//ppu.toggleHBlankIndicator();
             }
             if(ppu.drewFrame()){
                 long currentTime = System.currentTimeMillis();

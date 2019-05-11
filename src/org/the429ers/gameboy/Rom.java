@@ -27,4 +27,10 @@ class Rom implements Cartridge {
 		// TODO Auto-generated method stub
 		return;
 	}
+
+	@Override
+	public boolean isGBC() {
+		// TODO Auto-generated method stub
+		return false;
+	}
 }

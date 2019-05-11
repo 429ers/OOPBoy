@@ -1,6 +1,8 @@
 package org.the429ers.gameboy;
 
-public class LCDControl {
+import java.io.Serializable;
+
+public class LCDControl implements Serializable {
 	
 	private static final int LCDControlAddress = 0xFF40;
 	
@@ -16,6 +18,7 @@ public class LCDControl {
 	
 	public LCDControl(MMU mem) {
 		this.mem = mem;
+		this.isDisplayEnabled = true;
 	}
 	
 	public void update() {
