@@ -79,8 +79,8 @@ public class ColorPPU implements IPPU {
 				mem.writeByte(0xFF41, status | 0x80);
 			}
 			mem.writeByte(0xFF44, currentY);
-			this.loadMap();
 			if (currentY == 0) {
+				this.loadMap();
 				vBlank = false;
 				//this.tileSetManager.updateTileSets();
 			}

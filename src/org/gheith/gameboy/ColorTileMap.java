@@ -31,7 +31,9 @@ private TileWithAttributes[][] map;
 				Tile tile = tileSet.getTile(tileNumber);
 				int paletteNumber = (int) BitOps.extract(attributes, 2, 0);
 				boolean hasPriority = BitOps.extract(attributes, 7, 7) == 1;
-				map[i][j] = new TileWithAttributes(tile, paletteNumber, hasPriority);
+				boolean xFlip = BitOps.extract(attributes, 5, 5) == 1;
+				boolean yFlip = BitOps.extract(attributes, 6, 6) == 1;
+				map[i][j] = new TileWithAttributes(tile, paletteNumber, hasPriority, xFlip, yFlip);
 			}
 		}
 		
@@ -55,8 +57,15 @@ private TileWithAttributes[][] map;
 		private Tile tile;
 		private int paletteNumber;
 		private boolean hasPriority;
+
 		
-		public TileWithAttributes(Tile tile, int paletteNumber, boolean hasPriority) {
+		public TileWithAttributes(Tile tile, int paletteNumber, boolean hasPriority, boolean xFlip, boolean yFlip) {
+			if (xFlip) {
+				tile = tile.flipTileOverXAxis();
+			}
+			if (yFlip) {
+				tile = tile.flipTileOverYAxis();
+			}
 			this.tile = tile;
 			this.paletteNumber = paletteNumber;
 			this.hasPriority = hasPriority;
