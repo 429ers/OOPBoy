@@ -21,6 +21,7 @@ The following games are perfectly playable as far as we can tell:
 - The Legend of Zelda: Link's Awakening
 - Super Mario Land
 - Tetris
+- Tetris DX
 - Pokemon - Red Version
 - Pokemon - Blue Version
 - Dr. Mario
@@ -41,6 +42,10 @@ Go into the source folder and run ```javac *.java```. There are no external depe
 
 ## Running the emulator
 The ```main()``` function is located in ```GameBoy.java```.
+```
+cd src
+java org.the429ers.Gameboy
+```
 
 ## Running the emulator in debug mode
-```java GameBoy -d```
+```java org.the429ers.GameBoy -d```
