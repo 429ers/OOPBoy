@@ -1,6 +1,8 @@
 package org.the429ers.gameboy;
 
-public class LCDControl {
+import java.io.Serializable;
+
+public class LCDControl implements Serializable {
 	
 	private static final int LCDControlAddress = 0xFF40;
 	

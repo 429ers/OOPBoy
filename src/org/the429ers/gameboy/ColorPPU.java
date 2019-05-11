@@ -1,10 +1,11 @@
 package org.the429ers.gameboy;
 
 import java.awt.image.BufferedImage;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ColorPPU implements IPPU {
+public class ColorPPU implements IPPU, Serializable {
 	private MMU mem;
 	private LCDControl lcdControl;
 	private ColorPaletteManager backgroundColorPaletteManager;

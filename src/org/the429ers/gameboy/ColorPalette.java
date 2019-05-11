@@ -1,8 +1,9 @@
 package org.the429ers.gameboy;
 
 import java.awt.Color;
+import java.io.Serializable;
 
-public class ColorPalette {
+public class ColorPalette implements Serializable {
 	private ColorData[] colors;
 	
 	public ColorPalette() {
@@ -43,7 +44,7 @@ public class ColorPalette {
 		color.blue = (int) (BitOps.extract(data, 6, 2));
 	}
 	
-	private static class ColorData {
+	private static class ColorData implements Serializable{
 		private int red = 31;
 		private int green = 31;
 		private int blue = 31;

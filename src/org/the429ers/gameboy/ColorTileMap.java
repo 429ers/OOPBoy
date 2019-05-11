@@ -1,6 +1,8 @@
 package org.the429ers.gameboy;
 
-public class ColorTileMap {
+import java.io.Serializable;
+
+public class ColorTileMap implements Serializable {
 private TileWithAttributes[][] map;
 	
 	public ColorTileMap(MMU mem, int startAddress, TileSetManager tileSetManager, int tileSetNum) {
@@ -53,7 +55,7 @@ private TileWithAttributes[][] map;
 		return map[y % 32][x % 32].hasPriority;
 	}
 	
-	public static class TileWithAttributes {
+	public static class TileWithAttributes implements Serializable{
 		private Tile tile;
 		private int paletteNumber;
 		private boolean hasPriority;
