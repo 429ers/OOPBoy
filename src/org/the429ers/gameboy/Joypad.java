@@ -40,33 +40,56 @@ public class Joypad implements KeyListener, Serializable {
 		int code = e.getKeyCode();
 		switch (code) {
 		case KeyEvent.VK_LEFT:
+			if (left == 1) {
+				interruptHandler.issueInterruptIfEnabled(InterruptHandler.JOYPAD);
+			}
 			left = 0;
 			break;
 		case KeyEvent.VK_RIGHT:
+			if (right == 1) {
+				interruptHandler.issueInterruptIfEnabled(InterruptHandler.JOYPAD);
+			}
 			right = 0;
 			break;
 		case KeyEvent.VK_UP:
+			if (up == 1) {
+				interruptHandler.issueInterruptIfEnabled(InterruptHandler.JOYPAD);
+			}
 			up = 0;
 			break;
 		case KeyEvent.VK_DOWN:
+			if (down == 1) {
+				interruptHandler.issueInterruptIfEnabled(InterruptHandler.JOYPAD);
+			}
 			down = 0;
 			break;
 		case KeyEvent.VK_Z:
+			if (a == 1) {
+				interruptHandler.issueInterruptIfEnabled(InterruptHandler.JOYPAD);
+			}
 			a = 0;
 			break;
 		case KeyEvent.VK_X:
+			if (b == 1) {
+				interruptHandler.issueInterruptIfEnabled(InterruptHandler.JOYPAD);
+			}
 			b = 0;
 			break;
 		case KeyEvent.VK_ENTER:
+			if (start == 1) {
+				interruptHandler.issueInterruptIfEnabled(InterruptHandler.JOYPAD);
+			}
 			start = 0;
 			break;
         case KeyEvent.VK_SHIFT:
 		case KeyEvent.VK_BACK_SPACE:
+			if (select == 1) {
+				interruptHandler.issueInterruptIfEnabled(InterruptHandler.JOYPAD);
+			}
 			select = 0;
 			break;
 		}
 		
-		interruptHandler.issueInterruptIfEnabled(InterruptHandler.JOYPAD);
 	}
 
 	@Override
