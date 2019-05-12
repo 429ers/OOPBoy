@@ -79,6 +79,9 @@ public class ColorPPU implements IPPU, Serializable {
 	
 		scrollX = mem.readByte(0xFF43);
 		if (cycleCount == OAM_SEARCH_START) {
+			if (!lcdControl.isBackgroundDisplay()) {
+				System.out.println("turn off the bg");
+			}
 			hBlank = false;
 			scrollY = mem.readByte(0xFF42);
 			if (currentY < ACTUAL_LINES) {
@@ -119,7 +122,7 @@ public class ColorPPU implements IPPU, Serializable {
 			if (lcdControl.isWindowEnabled() && currentX >= windowX && currentY >= windowY) {
 				Tile windowTile = window.getTile((currentY - windowY) / 8, (currentX - windowX) / 8);
 				int windowPixel = windowTile.getPixel((currentY - windowY)  % 8, (currentX - windowX) % 8);
-				if (lcdControl.isSpritesEnabled() && sprites.containsKey(currentX + 8)) {
+				if (lcdControl.isSpritesEnabled() && sprites.containsKey(currentX + 8) && !window.hasPriority((currentY - windowY) / 8, (currentX - windowX) / 8)) {
 					IColorSprite currentSprite = sprites.get(currentX + 8);
 					int spritePixel = currentSprite.getPixel(currentY - (currentSprite.getSpriteY() - 16), currentX - (currentSprite.getSpriteX() - 8));
 					if ((currentSprite.getPriority() == 0 || windowPixel == 0) && spritePixel != 0) {
@@ -135,7 +138,7 @@ public class ColorPPU implements IPPU, Serializable {
 				}
 				else {
 					currentTile = windowTile;
-					currentPalette = backgroundColorPaletteManager.getPalette(background.getPaletteNumber(yPos / 8, xPos / 8));
+					currentPalette = backgroundColorPaletteManager.getPalette(window.getPaletteNumber((currentY - windowY)  % 8, (currentX - windowX) % 8));
 					pixel = windowPixel;
 				}
 			}
@@ -162,6 +165,7 @@ public class ColorPPU implements IPPU, Serializable {
 			if (frame == null) {
 				frame = new BufferedImage(160, 144, BufferedImage.TYPE_3BYTE_BGR);
 			}
+
 			frame.setRGB(currentX, currentY, currentPalette.getColor(pixel).getRGB());
 			currentX++;
 		}
