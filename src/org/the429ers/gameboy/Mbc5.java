@@ -26,7 +26,8 @@ public class Mbc5 implements Cartridge {
     int currentBank = 1;
     
     public Mbc5(byte[] rom, String fileName){
-    	isGBC = rom[0x143] == 0x80 || rom[0x143] == 0xC0;
+    	int gbcByte = rom[0x143] & 0xFF;
+    	this.isGBC = gbcByte == 0x80 || gbcByte == 0xC0;
     	this.fileName = fileName + ".sav";
         int numBanks = rom.length / BANK_SIZE;
         banks = new byte[numBanks][BANK_SIZE];
@@ -35,7 +36,7 @@ public class Mbc5 implements Cartridge {
             banks[i / BANK_SIZE][i % BANK_SIZE] = rom[i];
         }
         ram = new byte [16][2 << 20];
-        hasBattery = rom[0x0147] == 0x1B || rom[0x147] == 0x1E;
+        hasBattery = rom[0x0147] == 0x1B || rom[0x147] == 0x1E || true;
         if (hasBattery) {
 	        File ramData = new File(this.fileName);
 	        if (ramData.exists()) {
@@ -128,7 +129,7 @@ public class Mbc5 implements Cartridge {
         		ObjectOutputStream objectOut = new ObjectOutputStream(cartridgeRam);
 				objectOut.writeObject(ram);
 				cartridgeRam.close();
-				//System.out.println("wrote to save file");
+				System.out.println("wrote to save file");
 				
 			} catch (FileNotFoundException e) {
 				// TODO Auto-generated catch block
