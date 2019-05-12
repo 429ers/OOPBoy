@@ -1,9 +1,9 @@
-# GBEmul8tor
+# OOPBoy
 by Garrett Gu and Ryan Jacobs
 
-![A screenshot of GBEmul8tor playing The Legend of Zelda: Link's Awakening](https://raw.githubusercontent.com/garrettgu10/gheithboy/screenshot.png)
+![A screenshot of OOPBoy playing The Legend of Zelda: Link's Awakening](https://raw.githubusercontent.com/429ers/OOPBoy/master/screenshot.png)
 
-GBEmul8tor is a working, fast, and cross-platform Nintendo Game Boy emulator written in Java. 
+OOPBoy is a working, fast, and cross-platform Nintendo Game Boy emulator written in Java. 
 
 ## Features
 - Full CPU emulation (passes cpu_instrs, instr_timing)

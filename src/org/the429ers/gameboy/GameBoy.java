@@ -244,7 +244,7 @@ public class GameBoy extends JFrame{
         this.add(gbs);
         this.setMenuBar(new MainMenuBar(this));
         this.pack();
-        this.setTitle("GheithBoy");
+        this.setTitle("OOPBoy");
         this.setVisible(true);
         this.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         this.addWindowListener(listener);
@@ -264,7 +264,7 @@ public class GameBoy extends JFrame{
         this.add(gbs);
         this.setMenuBar(new MainMenuBar(this));
         this.pack();
-        this.setTitle("GheithBoy");
+        this.setTitle("OOPBoy");
         this.setVisible(true);	
         this.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         this.addWindowListener(listener);
