@@ -80,6 +80,8 @@ public class PPU implements Serializable, IPPU {
 		currentY = 0;
 		this.gbs = gbs;
 		sprites = new HashMap<Integer, ISprite>();
+		tileSetManager = new TileSetManager(false);
+		mem.setTileSetManager(tileSetManager);
 	}
 	
 	public PPU() {

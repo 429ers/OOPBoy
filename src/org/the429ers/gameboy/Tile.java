@@ -60,6 +60,18 @@ public class Tile implements Serializable {
 		this.tileData = tileData;
 	}
 	
+	public int getPixelXFlip(int y, int x) {
+		return tileData[y][7 - x];
+	}
+	
+	public int getPixelYFlip(int y, int x) {
+		return tileData[7 - y][x];
+	}
+	
+	public int getPixelXandYFlip(int y, int x) {
+		return tileData[x][y];
+	}
+	
 	public Tile flipTileOverXAxis() {
 		int[][] tileFlip = new int[8][8];
 		for (int i = 0; i < 8; i++) {

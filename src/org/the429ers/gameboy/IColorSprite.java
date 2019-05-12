@@ -4,6 +4,14 @@ import java.io.Serializable;
 
 public interface IColorSprite extends Serializable{
 	
+	public void setYPos(int yPos);
+	
+	public void setXPos(int xPos);
+	
+	public void setTileNumber(int tileNumber);
+	
+	public void setAttributes(int attributes);
+	
 	public int getSpriteY();
 	
 	public int getSpriteX();

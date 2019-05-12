@@ -10,6 +10,11 @@ public class ColorLargeSprite implements IColorSprite {
 	private int paletteNumber;
 	private int priority;
 	private int spriteAddress;
+	private int tileNum0;
+	private int tileNum1;
+	private int vramBank;
+	private boolean xFlip;
+	private boolean yFlip;
 	
 	public ColorLargeSprite(MMU mem, int spriteAddress, TileSetManager tileSetManager) {
 		this.spriteAddress = spriteAddress;
@@ -77,5 +82,31 @@ public class ColorLargeSprite implements IColorSprite {
 	@Override
 	public int getPriority() {
 		return priority;
+	}
+
+	@Override
+	public void setYPos(int yPos) {
+		this.spriteY = yPos;
+	}
+	
+	@Override
+	public void setXPos(int xPos) {
+		this.spriteX = xPos;
+	}
+	
+	@Override
+	public void setTileNumber(int tileNumber) {
+		this.tileNum0 = tileNumber & 0xFE;
+		this.tileNum1 = tileNum0 + 1;
+	}
+
+	@Override
+	public void setAttributes(int attributes) {
+		// TODO Auto-generated method stub
+		this.priority = (int) BitOps.extract(attributes, 7, 7);
+		this.yFlip = (int) BitOps.extract(attributes, 6, 6) == 1;
+		this.xFlip = (int) BitOps.extract(attributes, 5, 5) == 1;
+		this.vramBank = (int) BitOps.extract(attributes, 3, 3);
+		this.paletteNumber = (int) BitOps.extract(attributes, 2, 0);
 	}
 }

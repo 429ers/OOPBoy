@@ -11,6 +11,7 @@ public class ColorPPU implements IPPU, Serializable {
 	private ColorPaletteManager backgroundColorPaletteManager;
 	private ColorPaletteManager spriteColorPaletteManager;
 	private TileSetManager tileSetManager;
+	private SpriteManager spriteManager;
 	private int currentX;
 	private int currentY;
 	private int scrollX;
@@ -35,6 +36,11 @@ public class ColorPPU implements IPPU, Serializable {
 		this.gbs = gbs;
 		frame = new BufferedImage(160, 144, BufferedImage.TYPE_3BYTE_BGR);
 		sprites = new HashMap<>();
+		tileSetManager = new TileSetManager(true);
+		mem.setTileSetManager(tileSetManager);
+		spriteManager = new SpriteManager(mem, tileSetManager, lcdControl);
+		spriteManager.initializeSprites();
+		mem.setSpriteManager(spriteManager);
 	}
 	
 	public void toggleHBlankIndicator() {
@@ -218,6 +224,7 @@ public class ColorPPU implements IPPU, Serializable {
 			else {
 				s = new ColorSmallSprite(mem, memAddress, tileSetManager);
 			}
+			//IColorSprite s = spriteManager.getSprite(spriteCount);
 			if (s.inRange(currentY + 16)) {
 				spritesFound++;
 				for (int i = 0; i < 8; i++) {

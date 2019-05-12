@@ -47,17 +47,21 @@ public class MMU implements Serializable {
     private Joypad joypad;
     private int currentVRAMBank = 0;
     private ColorPaletteManager backgroundManager;
-    private ColorPaletteManager spriteManager;
+    private ColorPaletteManager spritePaletteManager;
     private TileSetManager tileSetManager;
+    private SpriteManager spriteManager;
     SoundChip soundChip = new SoundChip();
     
+    public void setSpriteManager(SpriteManager manager) {
+    	this.spriteManager = manager;
+    }
     public void setTileSetManager(TileSetManager manager) {
     	this.tileSetManager = manager;
     }
     
     public void setColorPaletteManagers(ColorPaletteManager background, ColorPaletteManager sprite) {
     	this.backgroundManager = background;
-    	this.spriteManager = sprite;
+    	this.spritePaletteManager = sprite;
     }
     
     public void setCPU(CPU cpu){
@@ -274,6 +278,11 @@ public class MMU implements Serializable {
         	return;
         }
         
+        if (location >= 0xFE00 && location <= 0xFE9F && isCGB) {
+        	toWrite &= 0xFF;
+        	spriteManager.writeData(location, toWrite);
+        }
+        
         if (location == VRAM_BANK_SELECT_REGISTER) {
         	currentVRAMBank = toWrite & 0x01;
         }
@@ -320,11 +329,11 @@ public class MMU implements Serializable {
         }
         
         if (location == 0xFF6A) {
-        	spriteManager.setIndex(toWrite);
+        	spritePaletteManager.setIndex(toWrite);
         }
         
         if (location == 0xFF6B) {
-        	spriteManager.writeColor(toWrite);
+        	spritePaletteManager.writeColor(toWrite);
         }
         
         

@@ -162,7 +162,6 @@ public class GameBoy extends JFrame{
     MMU mmu;
     CPU cpu;
     IPPU ppu;
-    TileSetManager tileSetManager;
     GameBoyScreen gbs;
     String romFileName;
     boolean paused;
@@ -231,14 +230,8 @@ public class GameBoy extends JFrame{
         cable = new LinkCable(mmu, cpu.interruptHandler);
         joypad = new Joypad(mmu, cpu.interruptHandler);
         gbs.addKeyListener(joypad);
-        if (isCGB) {
-        	tileSetManager = new TileSetManager(true);
-        }
-        else {
-        	tileSetManager = new TileSetManager(false);
-        }
-        mmu.setTileSetManager(tileSetManager);
-        ppu.setTileSetManager(tileSetManager);
+
+
     }
     
     public GameBoy() {
@@ -293,14 +286,6 @@ public class GameBoy extends JFrame{
         this.joypad = new Joypad(mmu, cpu.interruptHandler);
         gbs.addKeyListener(joypad);
         ppu.loadMap(true, true);
-        if (isCGB) {
-        	tileSetManager = new TileSetManager(true);
-        }
-        else {
-        	tileSetManager = new TileSetManager(false);
-        }
-        mmu.setTileSetManager(tileSetManager);
-        ppu.setTileSetManager(tileSetManager);
         quickSave = false;
         quickLoad = false;
         cable = new LinkCable(mmu, cpu.interruptHandler);
