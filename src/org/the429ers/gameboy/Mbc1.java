@@ -33,7 +33,7 @@ class Mbc1 implements Cartridge {
         int numBanks = rom.length / BANK_SIZE;
         banks = new byte[numBanks][BANK_SIZE];
         ramEnabled = false;
-        isRomBankingMode = false;
+        isRomBankingMode = true;
         for(int i = 0; i < rom.length; i++){
             banks[i / BANK_SIZE][i % BANK_SIZE] = rom[i];
         }
@@ -80,7 +80,7 @@ class Mbc1 implements Cartridge {
             return banks[0][location] & 0xff;
         }
         
-        return banks[currentBank][location - BANK_SIZE] & 0xff;
+        return banks[currentBank % banks.length][location - BANK_SIZE] & 0xff;
     }
 
     public void writeByte(int location, int toWrite) {
@@ -103,7 +103,6 @@ class Mbc1 implements Cartridge {
         if (location >= 0xA000 && location <= 0xBFFF && ramEnabled) {
         	int ramLocation = (ramBank * RAM_BANK_SIZE) + location % 0xA000;
         	ram[ramLocation] = (byte) toWrite;
-        	
         }
         
         // Either ram bank number or upper 2 bits of rom bank number
