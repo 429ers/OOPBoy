@@ -11,6 +11,7 @@ public class PPU implements Serializable, IPPU {
 	 * 
 	 */
 	private static final long serialVersionUID = 2887802651514454071L;
+	private boolean enabled = true;
 	private TileSet tileset1;
 	private TileSet tileset2;
 	private TileMap map;
@@ -152,6 +153,8 @@ public class PPU implements Serializable, IPPU {
 		scrollX = mem.readByte(0xFF43);
 		int lcdc = mem.readByte(0xff40);
 		spritesEnabled = BitOps.extract(lcdc, 1, 1) == 1;
+		enabled = BitOps.extract(lcdc, 7, 7) == 1;
+		if(!enabled) return;
 		
 		//spritesEnabled = true;
 		if (cycleCount == OAM_SEARCH_START) {

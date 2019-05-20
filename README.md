@@ -20,6 +20,7 @@ OOPBoy is a working, fast, and cross-platform Nintendo Game Boy emulator written
 The following games are perfectly playable as far as we can tell:
 - The Legend of Zelda: Link's Awakening
 - Super Mario Land
+- Super Mario Land 2
 - Tetris
 - Tetris DX
 - Pokemon - Red Version
@@ -30,10 +31,9 @@ The following games are perfectly playable as far as we can tell:
 
 The following games play with major graphical glitches:
 - Kirby's Dream Land
+- Donkey Kong
 
 The following games do not play at all:
-- Donkey Kong
-- Super Mario Land 2
 - Super Mario Land 3: Wario Land
 - Tennis
 
