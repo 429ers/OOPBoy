@@ -15,20 +15,20 @@ public interface Cartridge extends Serializable {
         }
 
         int cartridgeType = rom[0x0147] & 0xff;
-    	System.out.printf("Game is using cartridge type %x\n", cartridgeType);
+        System.out.printf("Game is using cartridge type %x\n", cartridgeType);
         if(cartridgeType == 0x00){
             return new Rom(rom);
         }else if(cartridgeType < 0x04){
             return new Mbc1(rom, fileName);
         }
         else if (cartridgeType >= 0x0F && cartridgeType <= 0x13) {
-        	return new Mbc3(rom, fileName);
+            return new Mbc3(rom, fileName);
         }
         else if (cartridgeType >= 0x19 && cartridgeType <= 0x1E) {
-        	return new Mbc5(rom, fileName);
+            return new Mbc5(rom, fileName);
         }
         else {
-        	System.out.printf("Cartridge type %x is not supported\n", cartridgeType);
+            System.out.printf("Cartridge type %x is not supported\n", cartridgeType);
         }
         
         throw new InvalidParameterException("Cartridge type not supported yet");

@@ -5,11 +5,11 @@ import java.util.HashMap;
 
 public class InterruptHandler implements Serializable {
     /**
-	 * 
-	 */
-	private static final long serialVersionUID = -2641142498470471980L;
+     * 
+     */
+    private static final long serialVersionUID = -2641142498470471980L;
 
-	private CPU cpu;
+    private CPU cpu;
     
     public static final int VBLANK = 0x0040;
     public static final int LCDC = 0x0048;

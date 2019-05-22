@@ -16,9 +16,9 @@ class MainMenuBar extends MenuBar {
 
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
    
-	GameBoy gameBoy;
+    GameBoy gameBoy;
 
-	public MainMenuBar(GameBoy gb) {
+    public MainMenuBar(GameBoy gb) {
     
         this.gameBoy = gb;
         Menu fileMenu = new Menu("File");
@@ -51,14 +51,14 @@ class MainMenuBar extends MenuBar {
             gameBoy.queueSave("quicksave.gbsave");
         });
         quickLoad.addActionListener((ActionEvent e) -> {
-        	gameBoy.mmu.cleanUp();
+            gameBoy.mmu.cleanUp();
             gameBoy.queueLoad("quicksave.gbsave");
         });
         snapshot.addActionListener((ActionEvent e) -> {
             gameBoy.queueSave("snapshot-" + DATE_FORMAT.format(new Date()) + ".gbsave");
         });
         loadFile.addActionListener((ActionEvent e) -> {
-        	gameBoy.mmu.cleanUp();
+            gameBoy.mmu.cleanUp();
             gameBoy.pause();
             JFileChooser fc = new JFileChooser(new File(System.getProperty("user.dir")));
             int returnVal = fc.showOpenDialog(gameBoy);
@@ -155,7 +155,7 @@ class MainMenuBar extends MenuBar {
 
 public class GameBoy extends JFrame{
     
-    public static final String DEFAULT_ROM = "roms/Pokemon Gold.gbc";
+    public static final String DEFAULT_ROM = "roms/Zelda.gb";
 
     HashSet<Integer> breakPoints = new HashSet<>();
     LinkedList<Integer> history = new LinkedList<>();
@@ -217,14 +217,14 @@ public class GameBoy extends JFrame{
         this.isCGB = mmu.isCGB();
         cpu = new CPU(mmu);
         if (isCGB) {
-        	ppu = new ColorPPU(mmu, gbs);
-        	backgroundPaletteManager = new ColorPaletteManager();
-        	spritePaletteManager = new ColorPaletteManager();
-        	mmu.setColorPaletteManagers(backgroundPaletteManager, spritePaletteManager);
-        	ppu.setPaletteManagers(backgroundPaletteManager, spritePaletteManager);
+            ppu = new ColorPPU(mmu, gbs);
+            backgroundPaletteManager = new ColorPaletteManager();
+            spritePaletteManager = new ColorPaletteManager();
+            mmu.setColorPaletteManagers(backgroundPaletteManager, spritePaletteManager);
+            ppu.setPaletteManagers(backgroundPaletteManager, spritePaletteManager);
         }
         else {
-        	ppu = new PPU(mmu, gbs);
+            ppu = new PPU(mmu, gbs);
         }
         mmu.setPPU(ppu);
         cable = new LinkCable(mmu, cpu.interruptHandler);
@@ -265,22 +265,22 @@ public class GameBoy extends JFrame{
         this.setMenuBar(new MainMenuBar(this));
         this.pack();
         this.setTitle("OOPBoy");
-        this.setVisible(true);	
+        this.setVisible(true);    
         this.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         this.addWindowListener(listener);
         mmu = new MMU(fileName);
         cpu = new CPU(mmu);
         this.isCGB = mmu.isCGB();
         if (isCGB) {
-        	ppu = new ColorPPU(mmu, gbs);
-        	backgroundPaletteManager = new ColorPaletteManager();
-        	spritePaletteManager = new ColorPaletteManager();
-        	mmu.setColorPaletteManagers(backgroundPaletteManager, spritePaletteManager);
-        	ppu.setPaletteManagers(backgroundPaletteManager, spritePaletteManager);
-        	
+            ppu = new ColorPPU(mmu, gbs);
+            backgroundPaletteManager = new ColorPaletteManager();
+            spritePaletteManager = new ColorPaletteManager();
+            mmu.setColorPaletteManagers(backgroundPaletteManager, spritePaletteManager);
+            ppu.setPaletteManagers(backgroundPaletteManager, spritePaletteManager);
+            
         }
         else {
-        	ppu = new PPU(mmu, gbs);
+            ppu = new PPU(mmu, gbs);
         }
         mmu.setPPU(ppu);
         this.joypad = new Joypad(mmu, cpu.interruptHandler);
@@ -292,41 +292,41 @@ public class GameBoy extends JFrame{
     }
     
     public void saveState() {
-    	try {
-			FileOutputStream saveFile = new FileOutputStream(this.saveFileName);
-			ObjectOutputStream saveState = new ObjectOutputStream(saveFile);
-			saveState.writeObject(mmu);
-			saveState.close();
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+        try {
+            FileOutputStream saveFile = new FileOutputStream(this.saveFileName);
+            ObjectOutputStream saveState = new ObjectOutputStream(saveFile);
+            saveState.writeObject(mmu);
+            saveState.close();
+        } catch (FileNotFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
     
     public void loadState() {
         gbs.removeKeyListener(this.mmu.getJoypad());
-    	try {
-			FileInputStream saveFile = new FileInputStream(this.saveFileName);
-			ObjectInputStream saveState = new ObjectInputStream(saveFile);
-			this.mmu = (MMU) saveState.readObject();
-			this.cpu = mmu.getCPU();
-			this.ppu = mmu.getPPU();
-			saveState.close();
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-    	gbs.addKeyListener(this.mmu.getJoypad());
-    	ppu.setGBS(gbs);
+        try {
+            FileInputStream saveFile = new FileInputStream(this.saveFileName);
+            ObjectInputStream saveState = new ObjectInputStream(saveFile);
+            this.mmu = (MMU) saveState.readObject();
+            this.cpu = mmu.getCPU();
+            this.ppu = mmu.getPPU();
+            saveState.close();
+        } catch (FileNotFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        gbs.addKeyListener(this.mmu.getJoypad());
+        ppu.setGBS(gbs);
     }
     
     public void tick() {
@@ -380,8 +380,8 @@ public class GameBoy extends JFrame{
         for (int i = 0; i < cycles; i++) {
             ppu.tick();
             if (ppu.isHBlank()) {
-            	//mmu.hBlankDMA();
-            	//ppu.toggleHBlankIndicator();
+                //mmu.hBlankDMA();
+                //ppu.toggleHBlankIndicator();
             }
             if(ppu.drewFrame()){
                 long currentTime = System.currentTimeMillis();
@@ -402,17 +402,17 @@ public class GameBoy extends JFrame{
             cable.tick();
         }
         if (quickSave) {
-        	System.out.println("quicksaving...");
-        	saveState();
-        	quickSave = false;
-        	System.out.println("done");
-        	//throw new IllegalStateException("asdf");
+            System.out.println("quicksaving...");
+            saveState();
+            quickSave = false;
+            System.out.println("done");
+            //throw new IllegalStateException("asdf");
         }
         if (quickLoad) {
-        	System.out.println("quickloading...");
-        	loadState();
-        	quickLoad = false;
-        	System.out.println("done");
+            System.out.println("quickloading...");
+            loadState();
+            quickLoad = false;
+            System.out.println("done");
         }
 
         if(numInstructonsUntilBreak >= 0){
@@ -444,7 +444,7 @@ public class GameBoy extends JFrame{
         super.dispose();
     }
 
-	public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) throws InterruptedException {
 
         GameBoy gb = new GameBoy(DEFAULT_ROM);
 
@@ -455,9 +455,9 @@ public class GameBoy extends JFrame{
         }
         
         gb.start();
-	}
-	
-	public void queueSave(String fileName){
+    }
+    
+    public void queueSave(String fileName){
         this.saveFileName = fileName;
         quickSave = true;
     }

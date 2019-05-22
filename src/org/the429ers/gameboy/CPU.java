@@ -11,36 +11,36 @@ interface Lambda{
 public class CPU implements Serializable {
     
     /**
-	 * 
-	 */
-	private static final long serialVersionUID = 3042928203064585497L;
-	MMU mem;
+     * 
+     */
+    private static final long serialVersionUID = 3042928203064585497L;
+    MMU mem;
     RegisterFile regs = new RegisterFile();
     InterruptHandler interruptHandler = new InterruptHandler(this);
     private int clockCycleDelta;
     Timer timer;
     
     public CPU(MMU mem) {
-    	this.mem = mem;
+        this.mem = mem;
         mem.setCPU(this);
         timer = new Timer(mem);
     }
 
     public CPU() {
-    	mem = new MMU();
-    	mem.setCPU(this);
-    	timer = new Timer(mem);
+        mem = new MMU();
+        mem.setCPU(this);
+        timer = new Timer(mem);
     }
     
     public void setMMU(MMU mmu) {
-    	this.mem = mmu;
+        this.mem = mmu;
     }
     public int getClockCycles() {
         return clockCycles;
     }
     
     public int getClockCycleDelta() {
-    	return clockCycleDelta;
+        return clockCycleDelta;
     }
 
     public boolean interrupted = false;
@@ -88,10 +88,10 @@ public class CPU implements Serializable {
         
         clockCycleDelta = 0;
         
-    	if(halted && haltEnabled) {
-        	clockCycleDelta = 4;
-        	serviceInterrupts();
-        	return;
+        if(halted && haltEnabled) {
+            clockCycleDelta = 4;
+            serviceInterrupts();
+            return;
         }
 
         int opcode = mem.readByte(regs.PC.read());
@@ -731,7 +731,7 @@ public class CPU implements Serializable {
         Thread.sleep(2000);
         }
         catch (Exception e) {
-        	e.printStackTrace();
+            e.printStackTrace();
         }
         return 0;
     }

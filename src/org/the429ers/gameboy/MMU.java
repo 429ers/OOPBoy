@@ -53,15 +53,15 @@ public class MMU implements Serializable {
     SoundChip soundChip = new SoundChip();
     
     public void setSpriteManager(SpriteManager manager) {
-    	this.spriteManager = manager;
+        this.spriteManager = manager;
     }
     public void setTileSetManager(TileSetManager manager) {
-    	this.tileSetManager = manager;
+        this.tileSetManager = manager;
     }
     
     public void setColorPaletteManagers(ColorPaletteManager background, ColorPaletteManager sprite) {
-    	this.backgroundManager = background;
-    	this.spritePaletteManager = sprite;
+        this.backgroundManager = background;
+        this.spritePaletteManager = sprite;
     }
     
     public void setCPU(CPU cpu){
@@ -69,7 +69,7 @@ public class MMU implements Serializable {
     }
     
     public CPU getCPU() {
-    	return this.cpu;
+        return this.cpu;
     }
 
     public Joypad getJoypad() {
@@ -81,7 +81,7 @@ public class MMU implements Serializable {
     }
     
     public IPPU getPPU() {
-    	return this.ppu;
+        return this.ppu;
     }
     
     public MMU() {
@@ -95,44 +95,44 @@ public class MMU implements Serializable {
     }
     
     public void cleanUp() {
-    	if (rom != null) {
-    		rom.cleanUp();
-    	}
+        if (rom != null) {
+            rom.cleanUp();
+        }
     }
     
     public void setJoypad(Joypad joypad) {
-    	this.joypad = joypad;
+        this.joypad = joypad;
     }
     
     public int readByteFromVRAM(int location, int bank) {
-    	if (location < 0x8000 || location > 0x9FFF) {
-    		System.out.printf("Invalid VRAM address: %x\n", location);
-    	}
-    	
-    	int index = location % 0x8000;
-    	if (bank == 0) {
-    		return vramBank0[index];
-    	}
-    	else {
-    		return vramBank1[index];
-    	}
+        if (location < 0x8000 || location > 0x9FFF) {
+            System.out.printf("Invalid VRAM address: %x\n", location);
+        }
+        
+        int index = location % 0x8000;
+        if (bank == 0) {
+            return vramBank0[index];
+        }
+        else {
+            return vramBank1[index];
+        }
     }
     
     public void writeByteToVRAM(int location, int data, int bank) {
-    	if (bank != 0 && bank != 1) {
-    		throw new IllegalArgumentException("invalid vram bank");
-    	}
-    	if (location >= 0x8000 && location <= 0x97FF) {
-    		tileSetManager.updateTileSets(location, data, 0);
-    	}
-    	int index = location % 0x8000;
-    	if (bank == 0) {
-    		// Write to bank one
-    		vramBank0[index] = data;
-    	}
-    	else {
-    		vramBank1[index] = data;
-    	}
+        if (bank != 0 && bank != 1) {
+            throw new IllegalArgumentException("invalid vram bank");
+        }
+        if (location >= 0x8000 && location <= 0x97FF) {
+            tileSetManager.updateTileSets(location, data, 0);
+        }
+        int index = location % 0x8000;
+        if (bank == 0) {
+            // Write to bank one
+            vramBank0[index] = data;
+        }
+        else {
+            vramBank1[index] = data;
+        }
     }
     
     private boolean withinCgbBootRom(int location){
@@ -150,35 +150,35 @@ public class MMU implements Serializable {
         }
         
         if (location == 0xFF68) {
-        	System.out.println("requested read of index bg");
+            System.out.println("requested read of index bg");
         }
         
         if (location == 0xFF69) {
-        	System.out.println("requested read of data bg");
+            System.out.println("requested read of data bg");
         }
         
         if (location == 0xFF6A) {
-        	System.out.println("requested read of index sprite");
+            System.out.println("requested read of index sprite");
         }
         
         if (location == 0xFF6B) {
-        	System.out.println("requested read of data sprite");
+            System.out.println("requested read of data sprite");
         }
         
         
         if (location >= 0xC000 && location <= 0xCFFF) {
-        	int wramLocation = location % 0xC000;
-        	return wram[0][wramLocation] & 0xFF;
+            int wramLocation = location % 0xC000;
+            return wram[0][wramLocation] & 0xFF;
         }
         
         if (location >= 0xD000 && location <= 0xDFFF) {
-        	int wramLocation = location % 0xD000;
-        	if (isCGB) {
-        		return wram[wramBank][wramLocation] & 0xFF;
-        	}
-        	else {
-        		return wram[1][wramLocation] & 0xFF;
-        	}
+            int wramLocation = location % 0xD000;
+            if (isCGB) {
+                return wram[wramBank][wramLocation] & 0xFF;
+            }
+            else {
+                return wram[1][wramLocation] & 0xFF;
+            }
         }
         
         if(location < 0x8000){
@@ -186,11 +186,11 @@ public class MMU implements Serializable {
         }
         
         if (location >= 0xA000 && location <= 0xBFFF) {
-        	return rom.readByte(location);
+            return rom.readByte(location);
         }
         
         if (location >= 0x8000 && location <= 0x9FFF) {
-        	return readByteFromVRAM(location, currentVRAMBank);
+            return readByteFromVRAM(location, currentVRAMBank);
         }
         
         if(location == DIV_REGISTER){
@@ -202,16 +202,16 @@ public class MMU implements Serializable {
         }
         
         if(location == 0xFF00){ //joypad input
-        	
+            
             if (BitOps.extract(mem[0xFF00] & 0xff, 5, 5) == 0) {
-            	return joypad.readButtons();
+                return joypad.readButtons();
             }
             
             if(BitOps.extract(mem[0xFF00] & 0xff, 4, 4) == 0) {
-            	return joypad.readDirections();
+                return joypad.readDirections();
             }
             else {
-            	return 0xFF;
+                return 0xFF;
             }
         }
         
@@ -251,11 +251,11 @@ public class MMU implements Serializable {
     }
     
     public int readDoubleWord(int location) {
-    	return (readWord(location + 2) << 16) + readWord(location);
+        return (readWord(location + 2) << 16) + readWord(location);
     }
     
     public long readQuadWord(int location) {
-    	return (((long)readDoubleWord(location + 4)) << 32) + readDoubleWord(location);
+        return (((long)readDoubleWord(location + 4)) << 32) + readDoubleWord(location);
     }
     
     public void writeByte(int location, int toWrite){
@@ -269,97 +269,98 @@ public class MMU implements Serializable {
         }
         
         if (location >= 0xA000 && location <= 0xBFFF) {
-        	rom.writeByte(location, toWrite);
-        	return;
+            rom.writeByte(location, toWrite);
+            return;
         }
         
         if (location >= 0x8000 && location <= 0x9FFF) {
-        	writeByteToVRAM(location, toWrite, currentVRAMBank);
-        	return;
+            writeByteToVRAM(location, toWrite, currentVRAMBank);
+            return;
         }
         
-        if (location >= 0xFE00 && location <= 0xFE9F && isCGB) {
-        	toWrite &= 0xFF;
-        	spriteManager.writeData(location, toWrite);
+        if(isCGB) {
+            if (location >= 0xFE00 && location <= 0xFE9F) {
+                toWrite &= 0xFF;
+                spriteManager.writeData(location, toWrite);
+            }
+
+            if (location == VRAM_BANK_SELECT_REGISTER) {
+                currentVRAMBank = toWrite & 0x01;
+            }
+
+            if (location == CGB_DMA_SOURCE_HIGH) {
+                dmaSourceHigh = toWrite & 0x1F;
+            }
+
+            if (location == CGB_DMA_SOURCE_LOW) {
+                dmaSourceLow = toWrite & 0xF0;
+            }
+
+            if (location == CGB_DMA_DESTINATION_HIGH) {
+                dmaDestHigh = toWrite & 0x1F;
+            }
+
+            if (location == CGB_DMA_DESTINATION_LOW) {
+                dmaDestHigh = toWrite & 0xF0;
+            }
+
+            if (location == CGB_DMA_START) {
+                dmaSource = (dmaSourceHigh << 8) + dmaSourceLow;
+                dmaDest = (dmaDestHigh << 8) + dmaDestLow;
+                hBlankDMA = BitOps.extract(toWrite, 7, 7) == 1;
+                bytesToTransfer = (int) BitOps.extract(toWrite, 6, 0);
+                bytesToTransfer++;
+                bytesToTransfer *= 0x10;
+                // Do general purpose DMA
+                if (!hBlankDMA) {
+                    for (int i = 0; i < bytesToTransfer; i++) {
+                        this.writeByte(dmaDest, this.readByte(dmaSource + i));
+                        dmaDest++;
+                    }
+                    bytesToTransfer = 0;
+                }
+            }
+
+            if (location == 0xFF68) {
+                backgroundManager.setIndex(toWrite);
+            }
+
+            if (location == 0xFF69) {
+                backgroundManager.writeColor(toWrite);
+            }
+
+            if (location == 0xFF6A) {
+                spritePaletteManager.setIndex(toWrite);
+            }
+
+            if (location == 0xFF6B) {
+                spritePaletteManager.writeColor(toWrite);
+            }
+            
         }
-        
-        if (location == VRAM_BANK_SELECT_REGISTER) {
-        	currentVRAMBank = toWrite & 0x01;
-        }
-        
-        if (location == CGB_DMA_SOURCE_HIGH) {
-        	dmaSourceHigh = toWrite & 0x1F;
-        }
-        
-        if (location == CGB_DMA_SOURCE_LOW) {
-        	dmaSourceLow = toWrite & 0xF0;
-        }
-        
-        if (location == CGB_DMA_DESTINATION_HIGH) {
-        	dmaDestHigh = toWrite & 0x1F;
-        }
-        
-        if (location == CGB_DMA_DESTINATION_LOW) {
-        	dmaDestHigh = toWrite & 0xF0;
-        }
-        
-        if (location == CGB_DMA_START) {
-        	dmaSource = (dmaSourceHigh << 8) + dmaSourceLow;
-        	dmaDest = (dmaDestHigh << 8) + dmaDestLow;
-        	hBlankDMA = BitOps.extract(toWrite, 7, 7) == 1;
-        	bytesToTransfer = (int) BitOps.extract(toWrite, 6, 0);
-        	bytesToTransfer++;
-        	bytesToTransfer *= 0x10;
-        	// Do general purpose DMA
-        	if (!hBlankDMA) {
-        		for (int i = 0; i < bytesToTransfer; i++) {
-        			this.writeByte(dmaDest, this.readByte(dmaSource + i));
-        			dmaDest++;
-        		}
-        		bytesToTransfer = 0;
-        	}
-        }
-        
-        if (location == 0xFF68) {
-        	backgroundManager.setIndex(toWrite);
-        }
-        
-        if (location == 0xFF69) {
-        	backgroundManager.writeColor(toWrite);
-        }
-        
-        if (location == 0xFF6A) {
-        	spritePaletteManager.setIndex(toWrite);
-        }
-        
-        if (location == 0xFF6B) {
-        	spritePaletteManager.writeColor(toWrite);
-        }
-        
-        
+
         if (location == 0xFF70) {
-        	wramBank = toWrite;
-        	if (wramBank == 0) {
-        		wramBank = 1;
-        	}
-        	//System.out.println("want to switch wram bank!");
+            wramBank = toWrite;
+            if (wramBank == 0) {
+                wramBank = 1;
+            }
+            //System.out.println("want to switch wram bank!");
         }
-        
+
         if (location >= 0xC000 && location <= 0xCFFF) {
-        	int wramLocation = location % 0xC000;
-        	wram[0][wramLocation] = (byte) (toWrite & 0xFF);
-        	return;
+            int wramLocation = location % 0xC000;
+            wram[0][wramLocation] = (byte) (toWrite & 0xFF);
+            return;
         }
-        
+
         if (location >= 0xD000 && location <= 0xDFFF) {
-        	int wramLocation = location % 0xD000;
-        	if (isCGB) {
-        		wram[wramBank][wramLocation] = (byte) (toWrite & 0xFF);
-        	}
-        	else {
-        		wram[1][wramLocation] = (byte) (toWrite & 0xFF);
-        	}
-        	return;
+            int wramLocation = location % 0xD000;
+            if (isCGB) {
+                wram[wramBank][wramLocation] = (byte) (toWrite & 0xFF);
+            } else {
+                wram[1][wramLocation] = (byte) (toWrite & 0xFF);
+            }
+            return;
         }
         
         if(location == IF_REGISTER) { // IF register
@@ -376,7 +377,7 @@ public class MMU implements Serializable {
             int destBegin = 0xfe00;
             for(int i = 0; i < 256; i++){
                 //mem[destBegin + i] = mem[sourceBegin+i];
-            	this.writeByte(destBegin + i, this.readByte(sourceBegin + i));
+                this.writeByte(destBegin + i, this.readByte(sourceBegin + i));
             }
             
             //System.out.printf("DMA transfer requested from %x complete from %x\n", cpu.regs.PC.read(), toWrite);
@@ -426,7 +427,7 @@ public class MMU implements Serializable {
             System.out.printf("Wrote to LY: %x\n", mem[location] & 0xff);
         }
         if(DEBUG && location == 0xFF42) {
-        	System.out.printf("Wrote to Scroll Y: %x\n", mem[location] & 0xff);
+            System.out.printf("Wrote to Scroll Y: %x\n", mem[location] & 0xff);
         }
     }
     
@@ -437,21 +438,21 @@ public class MMU implements Serializable {
     }
     
     public void hBlankDMA() {
-    	if (hBlankDMA) {
-	    	for (int i = 0; i < 16; i++) {
-	    		this.writeByte(dmaDest, this.readByte(dmaSource + i));
-				dmaDest++;
-	    	}
-	    	dmaSource += 16;
-	    	bytesToTransfer -= 16;
-	    	if (bytesToTransfer == 0) {
-	    		hBlankDMA = false;
-	    	}
-    	}
+        if (hBlankDMA) {
+            for (int i = 0; i < 16; i++) {
+                this.writeByte(dmaDest, this.readByte(dmaSource + i));
+                dmaDest++;
+            }
+            dmaSource += 16;
+            bytesToTransfer -= 16;
+            if (bytesToTransfer == 0) {
+                hBlankDMA = false;
+            }
+        }
     }
     
     public boolean isCGB() {
-    	return isCGB;
+        return isCGB;
     }
 
     //basically an abstraction of the various addressing modes

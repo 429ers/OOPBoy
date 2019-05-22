@@ -11,10 +11,10 @@ import java.util.Random;
 
 class SoundChip implements Serializable {
     /**
-	 * 
-	 */
-	private static final long serialVersionUID = -3888000280667367472L;
-	public SquareWave square1 = new SquareWave();
+     * 
+     */
+    private static final long serialVersionUID = -3888000280667367472L;
+    public SquareWave square1 = new SquareWave();
     public SquareWave square2 = new SquareWave();
     public WaveChannel waveChannel = new WaveChannel();
     public Noise noiseChannel = new Noise();
@@ -73,15 +73,15 @@ class SoundChip implements Serializable {
     }
 
     public void tick() {
-    	if (sourceDL == null) {
-    		try {
+        if (sourceDL == null) {
+            try {
                 sourceDL = AudioSystem.getSourceDataLine(AUDIO_FORMAT);
                 sourceDL.open(AUDIO_FORMAT);
                 sourceDL.start();
             } catch (LineUnavailableException e) {
                 e.printStackTrace();
             }
-    	}
+        }
         int samplesToWrite = Math.min(sourceDL.available() / 2, SAMPLES_PER_FRAME);
         
         Arrays.fill(masterBuffer, (byte) 0);
@@ -157,10 +157,10 @@ public interface SoundChannel {
 
 class SquareWave implements SoundChannel, Serializable {
     /**
-	 * 
-	 */
-	private static final long serialVersionUID = 7107235725378560961L;
-	protected int duty = 0;
+     * 
+     */
+    private static final long serialVersionUID = 7107235725378560961L;
+    protected int duty = 0;
     protected int lengthLoad = 0;
     protected int startingVolume = 0;
     protected boolean envelopeAdd = false;
@@ -283,10 +283,10 @@ class SquareWave implements SoundChannel, Serializable {
 
 class WaveChannel implements SoundChannel, Serializable {
     /**
-	 * 
-	 */
-	private static final long serialVersionUID = 7638828751434539339L;
-	protected boolean dacPower = false;
+     * 
+     */
+    private static final long serialVersionUID = 7638828751434539339L;
+    protected boolean dacPower = false;
     protected int lengthLoad = 0;
     protected int volumeCode = 0;
     protected int frequency = 0;
@@ -397,10 +397,10 @@ class WaveChannel implements SoundChannel, Serializable {
 
 class Noise implements SoundChannel, Serializable {
     /**
-	 * 
-	 */
-	private static final long serialVersionUID = 4853112434355414007L;
-	protected int lengthLoad = 0;
+     * 
+     */
+    private static final long serialVersionUID = 4853112434355414007L;
+    protected int lengthLoad = 0;
     protected int startingVolume = 0;
     protected boolean envelopeAdd = false;
     protected int envelopePeriod = 0;
