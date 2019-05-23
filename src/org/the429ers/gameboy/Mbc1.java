@@ -107,12 +107,8 @@ class Mbc1 implements Cartridge {
         
         // Either ram bank number or upper 2 bits of rom bank number
         if (location >= 0x4000 && location <= 0x5FFF) {
-            if (!isRomBankingMode) {
-                ramBank = toWrite & 3;
-            }
-            else {
-                upperBits = toWrite & 3;
-            }
+            ramBank = toWrite & 3;
+            upperBits = toWrite & 3;
         }
         
         // RAM or ROM bits
