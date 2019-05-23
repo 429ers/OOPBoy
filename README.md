@@ -6,7 +6,7 @@ by Garrett Gu and Ryan Jacobs
 OOPBoy is a working, fast, and cross-platform Nintendo Game Boy emulator written in Java. 
 
 ## Features
-- Full CPU emulation (passes cpu_instrs, instr_timing)
+- Full CPU emulation (passes cpu_instrs, instr_timing, mem_timing)
 - Full Timer emulation
 - Full DMG PPU support, GBC work-in-progress
 - Object Oriented Design
