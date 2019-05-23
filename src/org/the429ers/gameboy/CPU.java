@@ -91,16 +91,27 @@ public class CPU implements Serializable {
         if(halted && haltEnabled) {
             clockCycleDelta = 4;
             serviceInterrupts();
+            GameBoy.getInstance().clockTick(clockCycleDelta);
             return;
         }
-
-        int opcode = mem.readByte(regs.PC.read());
+        
+        GameBoy.getInstance().resetClocks();
+        
+        int opcode = mem.slowReadByte(regs.PC.read());
         
         Operation op = operations[opcode];
         
         int currentPC = regs.PC.read();
         
         int result = op.execute(this);
+        
+        if(GameBoy.getInstance().getClocks() < this.clockCycleDelta) {
+            GameBoy.getInstance().clockTick(this.clockCycleDelta - GameBoy.getInstance().getClocks());
+        }else if(GameBoy.getInstance().getClocks() > this.clockCycleDelta){
+            System.out.println("Invalid clock ticks: " + op.description);
+            System.out.println("Expected: " + this.clockCycleDelta);
+            System.out.println("Received: " + GameBoy.getInstance().getClocks());
+        }
         
         if(printOutput) {
             System.out.println(Integer.toString(currentPC, 16) + ": " + op.description);
@@ -233,7 +244,7 @@ public class CPU implements Serializable {
         }
 
         public int execute(CPU cpu) {
-            int cbOpcode = cpu.mem.readByte(cpu.regs.PC.read() + 1); //the cb opcode follows directly after cb
+            int cbOpcode = cpu.mem.slowReadByte(cpu.regs.PC.read() + 1); //the cb opcode follows directly after cb
 
             Operation cbOperation = cbOperations[cbOpcode];
             
@@ -264,7 +275,7 @@ public class CPU implements Serializable {
     
     //represents an 8-bit immediate value. assumes it's placed right after PC
     Readable d8() {
-        int value = mem.readByte(regs.PC.read()+1);
+        int value = mem.slowReadByte(regs.PC.read()+1);
 
         return new Readable() {
             @Override
@@ -275,7 +286,7 @@ public class CPU implements Serializable {
     }
     
     Readable r8() {
-        int value = (byte)mem.readByte(regs.PC.read() + 1);
+        int value = (byte)mem.slowReadByte(regs.PC.read() + 1);
         
         return new Readable() {
             @Override
@@ -287,7 +298,7 @@ public class CPU implements Serializable {
 
     //represents an 8-bit signed immediate value, which is added to 0xff00
     Readable a8() {
-        int value = 0xff00 + mem.readByte(regs.PC.read()+1);
+        int value = 0xff00 + mem.slowReadByte(regs.PC.read()+1);
 
         return new Readable() {
             @Override
@@ -299,7 +310,7 @@ public class CPU implements Serializable {
 
     //represents a 16-bit immediate value right after PC
     Readable d16() {
-        int value = mem.readWord(regs.PC.read()+1);
+        int value = mem.slowReadWord(regs.PC.read()+1);
 
         return new Readable() {
             @Override
@@ -310,7 +321,7 @@ public class CPU implements Serializable {
     }
     
     Readable SPr8() {
-        byte r8 = (byte)mem.readByte(regs.PC.read()+1); //r8 is a signed byte value
+        byte r8 = (byte)mem.slowReadByte(regs.PC.read()+1); //r8 is a signed byte value
         int spVal = regs.SP.read();
         int address = spVal + r8;
 
@@ -426,10 +437,10 @@ public class CPU implements Serializable {
         int sp = regs.SP.read();
         
         sp--;
-        mem.writeByte(sp, reg.upperByte.read());
+        mem.slowWriteByte(sp, reg.upperByte.read());
         
         sp--;
-        mem.writeByte(sp, reg.lowerByte.read());
+        mem.slowWriteByte(sp, reg.lowerByte.read());
 
         regs.SP.write(sp);
         
@@ -441,13 +452,13 @@ public class CPU implements Serializable {
         
         if(reg.lowerByte == regs.F) {
             //the lower nibble of F should always be 0
-            reg.lowerByte.write(mem.readByte(sp) & (~0xf));
+            reg.lowerByte.write(mem.slowReadByte(sp) & (~0xf));
         }else{
-            reg.lowerByte.write(mem.readByte(sp));
+            reg.lowerByte.write(mem.slowReadByte(sp));
         }
         sp++;
         
-        reg.upperByte.write(mem.readByte(sp));
+        reg.upperByte.write(mem.slowReadByte(sp));
         sp++;
         
         regs.SP.write(sp);
@@ -726,13 +737,6 @@ public class CPU implements Serializable {
     int STOP() {
         halted = true;
         
-        System.out.println("turn off the display lmao");
-        try {
-        Thread.sleep(2000);
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
         return 0;
     }
     

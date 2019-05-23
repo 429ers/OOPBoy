@@ -183,7 +183,15 @@ public class GameBoy extends JFrame{
     boolean breaked = false;
     LinkCable cable;
     
+    private int numClocks = 0;
+    
     String saveFileName = "quicksave.gb";
+    
+    private static GameBoy gb;
+    
+    public static GameBoy getInstance() {
+        return gb;
+    }
 
     WindowListener listener = new WindowListener() {
         @Override
@@ -376,31 +384,6 @@ public class GameBoy extends JFrame{
         }
         history.addLast(cpu.regs.PC.read());
         cpu.executeOneInstruction(breaked, haltEnabled);
-        int cycles = cpu.getClockCycleDelta();
-        for (int i = 0; i < cycles; i++) {
-            ppu.tick();
-            if (ppu.isHBlank()) {
-                //mmu.hBlankDMA();
-                //ppu.toggleHBlankIndicator();
-            }
-            if(ppu.drewFrame()){
-                long currentTime = System.currentTimeMillis();
-                long deltaTime = currentTime - timeOfLastFrame;
-                if (deltaTime < 15 && !fastMode) {
-                    //System.out.println("sleep");
-                    try {
-                        Thread.sleep(16 - deltaTime);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-                timeOfLastFrame = System.currentTimeMillis();
-                framesDrawn++;
-                if(audioOn) mmu.soundChip.tick();
-            }
-            cpu.timer.tick();
-            cable.tick();
-        }
         if (quickSave) {
             System.out.println("quicksaving...");
             saveState();
@@ -421,6 +404,43 @@ public class GameBoy extends JFrame{
             }
             numInstructonsUntilBreak --;
             System.out.println(numInstructonsUntilBreak);
+        }
+    }
+    
+    public void resetClocks() {
+        numClocks = 0;
+    }
+    
+    public int getClocks() {
+        return numClocks;
+    }
+    
+    //ticks everything except for the CPU
+    public void clockTick(int ticks) {
+        numClocks += ticks;
+        for(int i = 0; i < ticks; i++) {
+            ppu.tick();
+            if (ppu.isHBlank()) {
+                //mmu.hBlankDMA();
+                //ppu.toggleHBlankIndicator();
+            }
+            if (ppu.drewFrame()) {
+                long currentTime = System.currentTimeMillis();
+                long deltaTime = currentTime - timeOfLastFrame;
+                if (deltaTime < 15 && !fastMode) {
+                    //System.out.println("sleep");
+                    try {
+                        Thread.sleep(16 - deltaTime);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+                timeOfLastFrame = System.currentTimeMillis();
+                framesDrawn++;
+                if (audioOn) mmu.soundChip.tick();
+            }
+            cpu.timer.tick();
+            cable.tick();
         }
     }
     
@@ -446,7 +466,7 @@ public class GameBoy extends JFrame{
 
     public static void main(String[] args) throws InterruptedException {
 
-        GameBoy gb = new GameBoy(DEFAULT_ROM);
+        gb = new GameBoy(DEFAULT_ROM);
 
         Scanner fin = new Scanner(System.in);
         if(args.length > 0 && args[0].equals("-d")) {

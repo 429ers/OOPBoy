@@ -140,6 +140,11 @@ public class MMU implements Serializable {
                 (location >= 0x200 && location <= 0x8ff);
     }
     
+    public int slowReadByte(int location) {
+        GameBoy.getInstance().clockTick(4);
+        return readByte(location);
+    }
+    
     public int readByte(int location) {
         if(bootRomEnabled){
             if(isCGB && withinCgbBootRom(location)){
@@ -246,16 +251,17 @@ public class MMU implements Serializable {
         System.out.print("\033[0m");
     }
     
+    public int slowReadWord(int location) {
+        return (slowReadByte(location+1) << 8) + slowReadByte(location);
+    }
+    
     public int readWord(int location) {
         return (readByte(location+1) << 8) + readByte(location);
     }
-    
-    public int readDoubleWord(int location) {
-        return (readWord(location + 2) << 16) + readWord(location);
-    }
-    
-    public long readQuadWord(int location) {
-        return (((long)readDoubleWord(location + 4)) << 32) + readDoubleWord(location);
+
+    public void slowWriteByte(int location, int toWrite) {
+        GameBoy.getInstance().clockTick(4);
+        writeByte(location, toWrite);
     }
     
     public void writeByte(int location, int toWrite){
@@ -465,17 +471,17 @@ public class MMU implements Serializable {
 
         @Override
         public int read() {
-            return MMU.this.readByte(address);
+            return MMU.this.slowReadByte(address);
         }
 
         @Override
         public void write(int val) {
-            MMU.this.writeByte(address, val);
+            MMU.this.slowWriteByte(address, val);
         }
         
         public void writeLong(int val) {
-            MMU.this.writeByte(address, val & 0xff);
-            MMU.this.writeByte(address + 1, (val >> 8) & 0xff);
+            MMU.this.slowWriteByte(address, val & 0xff);
+            MMU.this.slowWriteByte(address + 1, (val >> 8) & 0xff);
         }
     }
 
@@ -489,13 +495,13 @@ public class MMU implements Serializable {
 
     public ReadWritable a8Location(Register pc){
         int address = 0xff00;
-        address += readByte(pc.read()+1);
+        address += slowReadByte(pc.read()+1);
         
         return new Location(address);
     }
 
     public ReadWritable a16Location(Register pc) {
-        int address = readWord(pc.read()+1);
+        int address = slowReadWord(pc.read()+1);
         
         return new Location(address);
     }
