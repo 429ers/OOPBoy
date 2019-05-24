@@ -28,9 +28,9 @@ The following games are perfectly playable as far as we can tell:
 - Dr. Mario
 - Pac-Man
 - Serpent
+- Kirby's Dream Land
 
 The following games play with major graphical glitches:
-- Kirby's Dream Land
 - Donkey Kong
 
 The following games do not play at all:
