@@ -287,6 +287,15 @@ public class PPU implements Serializable, IPPU {
             mem.writeByte(0xFF0F, interruptRegister | 0x02);
         }
         
+        //TODO: STAT register hack
+        if(vBlank) {
+            mem.writeByte(0xFF41, mem.readByte(0xFF41) & (~3) | 1);
+        }else if(hBlank) {
+            mem.writeByte(0xFF41, mem.readByte(0xFF41) & (~3));
+        }else{
+            mem.writeByte(0xFF41, mem.readByte(0xFF41) & (~3) | 3);
+        }
+        
         cycleCount++;
         cycleCount %= LINE_LENGTH;
     }

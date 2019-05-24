@@ -21,6 +21,7 @@ The following games are perfectly playable as far as we can tell:
 - The Legend of Zelda: Link's Awakening
 - Super Mario Land
 - Super Mario Land 2
+- Super Mario Land 3: Wario Land
 - Tetris
 - Tetris DX
 - Pokemon - Red Version
@@ -29,13 +30,13 @@ The following games are perfectly playable as far as we can tell:
 - Pac-Man
 - Serpent
 - Kirby's Dream Land
+- Tennis
 
 The following games play with major graphical glitches:
 - Donkey Kong
 
 The following games do not play at all:
-- Super Mario Land 3: Wario Land
-- Tennis
+- Please wait for me to test more games
 
 ## Compiling the emulator
 Go into the source folder and run ```javac *.java```. There are no external dependencies.
@@ -47,6 +48,8 @@ cd src
 javac org/the429ers/gameboy/*.java
 java org.the429ers.gameboy.Gameboy
 ```
+
+There is also an executable jar file available for each release.
 
 ## Running the emulator in debug mode
 ```java org.the429ers.gameboy.GameBoy -d```
