@@ -85,6 +85,10 @@ public class MMU implements Serializable {
         return this.ppu;
     }
     
+    public Cartridge getROM() {
+        return this.rom;
+    }
+    
     public MMU() {
         //no need to copy boot rom since that is intercepted by readByte
     }
@@ -92,7 +96,7 @@ public class MMU implements Serializable {
     // Load rom from disk
     public MMU(String fileName) {
         this.rom = Cartridge.fromFile(fileName);
-        this.isCGB = rom.isGBC();
+        this.isCGB = rom != null && rom.isGBC();
     }
     
     public void cleanUp() {
@@ -188,11 +192,11 @@ public class MMU implements Serializable {
         }
         
         if(location < 0x8000){
-            return rom.readByte(location);
+            return rom == null? 0 : rom.readByte(location);
         }
         
         if (location >= 0xA000 && location <= 0xBFFF) {
-            return rom.readByte(location);
+            return rom == null? 0 : rom.readByte(location);
         }
         
         if (location >= 0x8000 && location <= 0x9FFF) {
@@ -271,12 +275,12 @@ public class MMU implements Serializable {
         }
         
         if(location < 0x7fff){
-            rom.writeByte(location, toWrite);
+            if(rom != null) rom.writeByte(location, toWrite);
             return;
         }
         
         if (location >= 0xA000 && location <= 0xBFFF) {
-            rom.writeByte(location, toWrite);
+            if(rom != null) rom.writeByte(location, toWrite);
             return;
         }
         

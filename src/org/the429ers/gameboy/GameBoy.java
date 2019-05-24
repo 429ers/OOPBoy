@@ -242,25 +242,6 @@ public class GameBoy extends JFrame{
 
     }
     
-    public GameBoy() {
-        super();
-        BufferedImage img = new BufferedImage(160, 144, BufferedImage.TYPE_3BYTE_BGR);
-        gbs = new GameBoyScreen(img);
-        gbs.setDoubleBuffered(true);
-        gbs.setPreferredSize(new Dimension(500, 500));
-        gbs.setFocusable(true);
-        this.add(gbs);
-        this.setMenuBar(new MainMenuBar(this));
-        this.pack();
-        this.setTitle("OOPBoy");
-        this.setVisible(true);
-        this.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-        this.addWindowListener(listener);
-
-        quickSave = false;
-        quickLoad = false;
-    }
-    
     public GameBoy(String fileName) {
         super();
         this.romFileName = fileName;
@@ -449,6 +430,11 @@ public class GameBoy extends JFrame{
     }
     
     public void start() {
+        if(mmu.getROM() == null){
+            System.out.println("Invalid cartridge");
+            return;
+        }
+        
         new Thread(() -> {
             paused = false;
 
@@ -466,12 +452,20 @@ public class GameBoy extends JFrame{
 
     public static void main(String[] args) throws InterruptedException {
 
-        gb = new GameBoy(DEFAULT_ROM);
-
-        Scanner fin = new Scanner(System.in);
-        if(args.length > 0 && args[0].equals("-d")) {
-            System.out.print("First breakpoint (hex): ");
-            gb.breakPoints.add(fin.nextInt(16));
+        if(args.length > 0) {
+            if(!args[0].equals("-d")) {
+                gb = new GameBoy(args[0]);
+            }else{
+                gb = new GameBoy(DEFAULT_ROM);
+            }
+            
+            if(args[args.length-1].equals("-d")) {
+                Scanner fin = new Scanner(System.in);
+                System.out.print("First breakpoint (hex): ");
+                gb.breakPoints.add(fin.nextInt(16));
+            }
+        }else{
+            gb = new GameBoy(DEFAULT_ROM);
         }
         
         gb.start();

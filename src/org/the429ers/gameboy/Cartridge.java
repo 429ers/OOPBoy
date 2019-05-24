@@ -11,7 +11,8 @@ public interface Cartridge extends Serializable {
         try {
             new FileInputStream(file).read(rom);
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("File not found: " + fileName);
+            return null;
         }
 
         int cartridgeType = rom[0x0147] & 0xff;
