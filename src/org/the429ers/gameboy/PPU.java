@@ -38,6 +38,7 @@ public class PPU implements Serializable, IPPU {
     private TileSetManager tileSetManager;
     private boolean vBlank;
     private boolean hBlank;
+    private int currentMode = 0;
     
     /*
     public static final int OAM_SEARCH_LENGTH = 20;
@@ -70,8 +71,12 @@ public class PPU implements Serializable, IPPU {
     public static final int V_BLANK_LINES = 10;
     public static final int LINE_LENGTH = 456;
     
-    int framesDrawn = 0;
+    public static final int H_BLANK_MODE = 0;
+    public static final int V_BLANK_MODE = 1;
+    public static final int OAM_SEARCH_MODE = 2;
+    public static final int PIXEL_TRANSFER_MODE = 3;
     
+    int framesDrawn = 0;
     
     public PPU(MMU mem, GameBoyScreen gbs) {
         mem.setPPU(this);
@@ -154,10 +159,10 @@ public class PPU implements Serializable, IPPU {
         int lcdc = mem.readByte(0xff40);
         spritesEnabled = BitOps.extract(lcdc, 1, 1) == 1;
         enabled = BitOps.extract(lcdc, 7, 7) == 1;
-        if(!enabled) return;
         
         //spritesEnabled = true;
         if (cycleCount == OAM_SEARCH_START) {
+            currentMode = OAM_SEARCH_MODE;
             hBlank = false;
             scrollY = mem.readByte(0xFF42);
             if (currentY < ACTUAL_LINES) {
@@ -195,6 +200,7 @@ public class PPU implements Serializable, IPPU {
         }
         if (cycleCount == PIXEL_TRANSFER_START) {
             int status = mem.readByte(0xFF41) & 0x3F;
+            currentMode = PIXEL_TRANSFER_MODE;
             mem.writeByte(0xFF41, status | 0xC0);
         }
         
@@ -262,12 +268,13 @@ public class PPU implements Serializable, IPPU {
                 hBlank = true;
             }
             int status = mem.readByte(0xFF41) & 0x3F;
+            currentMode = H_BLANK_MODE;
             mem.writeByte(0xFF41, status | 0xC0);
         }
         
-        
         // Increment currentY
         if (cycleCount == H_BLANK_END) {
+            hBlank = false;
             currentY++;
             if (currentY == 154) {
                 currentY = 0;
@@ -278,23 +285,18 @@ public class PPU implements Serializable, IPPU {
         // Send V-Blank interrupt
         if (currentY == 145 && cycleCount == 0) {
             vBlank = true;
+            currentMode = V_BLANK_MODE;
             drawFrame();
         }
         
         //send LCDC interrupt
         if (currentY == LYCompare){
             int interruptRegister = mem.readByte(0xFF0F) & 0xFE;
-            mem.writeByte(0xFF0F, interruptRegister | 0x02);
+            if(enabled) mem.writeByte(0xFF0F, interruptRegister | 0x02);
         }
-        
-        //TODO: STAT register hack
-        if(vBlank) {
-            mem.writeByte(0xFF41, mem.readByte(0xFF41) & (~3) | 1);
-        }else if(hBlank) {
-            mem.writeByte(0xFF41, mem.readByte(0xFF41) & (~3));
-        }else{
-            mem.writeByte(0xFF41, mem.readByte(0xFF41) & (~3) | 3);
-        }
+
+        mem.writeByte(0xFF41, mem.readByte(0xFF41) & (~3) | currentMode);
+        //System.out.printf("%x\n", mem.readByte(0xFF41));
         
         cycleCount++;
         cycleCount %= LINE_LENGTH;
@@ -307,7 +309,7 @@ public class PPU implements Serializable, IPPU {
         gbs.drawFrame(frame);
         drewFrame = true;
         int interruptRegister = mem.readByte(0xFF0F) & 0xFE;
-        mem.writeByte(0xFF0F, interruptRegister | 0x01);
+        if(enabled) mem.writeByte(0xFF0F, interruptRegister | 0x01);
         //mem.writeByte(0xFF85, 0xFF);
         //mem.writeByte(0xFF44, 0x90);
     }
