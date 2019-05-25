@@ -25,6 +25,7 @@ class MainMenuBar extends MenuBar {
         Menu controlMenu = new Menu("Control");
         Menu saveMenu = new Menu("Save");
         Menu loadMenu = new Menu("Load");
+        Menu graphicsMenu = new Menu("Graphics");
         Menu debugMenu = new Menu("Debug");
         
         MenuItem reset = new MenuItem("Reset", new MenuShortcut(KeyEvent.VK_R));
@@ -131,6 +132,26 @@ class MainMenuBar extends MenuBar {
             gameBoy.haltEnabled = haltToggle.getState();
         });
         haltToggle.setState(gameBoy.haltEnabled);
+        
+        String[] graphicsModeNames = Pallette.modeNames;
+        CheckboxMenuItem[] modeToggles = new CheckboxMenuItem[graphicsModeNames.length];
+        for(int i = 0; i < graphicsModeNames.length; i++){
+            modeToggles[i] = new CheckboxMenuItem(graphicsModeNames[i]);
+            
+            int finalI = i;
+            //when a mode is selected, deselect everything else, then set the pallette's color mode
+            modeToggles[i].addItemListener((ItemEvent e) -> {
+                for(CheckboxMenuItem modeToggle : modeToggles){
+                    modeToggle.setState(false);
+                }
+                modeToggles[finalI].setState(true);
+                
+                Pallette.colorMode = finalI;
+            });
+            
+            graphicsMenu.add(modeToggles[i]);
+        }
+        modeToggles[Pallette.colorMode].setState(true);
 
         fileMenu.add(openRom);
         fileMenu.add(exit);
@@ -149,6 +170,7 @@ class MainMenuBar extends MenuBar {
         this.add(controlMenu);
         this.add(saveMenu);
         this.add(loadMenu);
+        this.add(graphicsMenu);
         this.add(debugMenu);
     }
 }

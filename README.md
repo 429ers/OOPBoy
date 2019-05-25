@@ -14,6 +14,7 @@ OOPBoy is a working, fast, and cross-platform Nintendo Game Boy emulator written
 - Audio unit with stereo support
 - Save states at the emulator level
 - Turbo mode
+- Graphics modes including gray-scale, classic green, and psychedelic mode
 - Debugger with break points, core dumps, memory access, instruction stepping, and instruction history
 
 ## Tested Games
