@@ -60,6 +60,10 @@ public class Pallette implements Serializable {
     }
     
     public Color getColor(int colorNum) {
+        return this.getColor(colorNum, 0, 0);
+    }
+    
+    public Color getColor(int colorNum, int currentX, int currentY) {
         if(colorMode == RAINBOW_MODE) {
             ticks++;
             if (ticks > 10000) {
@@ -69,7 +73,7 @@ public class Pallette implements Serializable {
                 }
                 ticks = 0;
             }
-            return rainbowColors[time][colorMap[colorNum]];
+            return rainbowColors[(time + currentX + currentY) % 1024][colorMap[colorNum]];
         }else if(colorMode == GRAY_MODE){
             return grayscaleColors[colorMap[colorNum]];
         }else {
