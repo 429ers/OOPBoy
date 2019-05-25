@@ -259,6 +259,9 @@ public class PPU implements Serializable, IPPU {
             if (frame == null) {
                 frame = new BufferedImage(160, 144, BufferedImage.TYPE_3BYTE_BGR);
             }
+            if(!enabled){
+                pixel = 0;
+            }
             frame.setRGB(currentX, currentY, currentPallette.getColor(pixel, currentX, currentY).getRGB());
             currentX++;
         }
