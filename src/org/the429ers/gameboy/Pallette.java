@@ -34,8 +34,8 @@ public class Pallette implements Serializable {
                 double theta = 2 * Math.PI * i / 1024 + Math.PI/2 * j;
 
                 int red = (int)(128 + 127*Math.sin(theta));
-                int blue = (int)(128 + 127*Math.sin(theta + Math.PI / 3));
-                int green = (int)(128 + 127*Math.sin(theta + 2 * Math.PI / 3));
+                int blue = (int)(128 + 127*Math.sin(theta + 2 * Math.PI / 3));
+                int green = (int)(128 + 127*Math.sin(theta + 4 * Math.PI / 3));
 
                 rainbowColors[i][j] = new Color(red, green, blue);
             }
