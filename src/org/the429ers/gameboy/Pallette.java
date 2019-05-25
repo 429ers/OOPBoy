@@ -43,8 +43,8 @@ public class Pallette implements Serializable {
     }
     
     public static final Color[] greenscaleColors = new Color[] {
-            new Color(0x8bac0f),
             new Color(0x9bbc0f),
+            new Color(0x8bac0f),
             new Color(0x306230),
             new Color(0x0f380f),
     };
