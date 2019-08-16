@@ -264,10 +264,11 @@ public class CPU implements Serializable {
         if(interrupted) {
             interrupted = false;
             this.halted = false;
-            if(pendingInterrupt != -1) {
+            int interruptVector = pendingInterrupt;
+            if(interruptVector != -1) {
                 clockCycleDelta += 16;
                 PUSH(regs.PC);
-                regs.PC.write(pendingInterrupt);
+                regs.PC.write(interruptVector);
                 interruptHandler.setInterruptsEnabled(false);
             }
         }
