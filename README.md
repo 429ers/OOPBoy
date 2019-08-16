@@ -5,6 +5,15 @@ by Garrett Gu and Ryan Jacobs
 
 OOPBoy is a working, fast, and cross-platform Nintendo Game Boy emulator written in Java. 
 
+## Table of Contents
+1. [Features](#features)
+2. [Using the debugger](#using-the-debugger)
+	1. [Some Debugger Commands](#some-debugger-commands)
+3. [Autosaves](#autosaves)
+4. [Tested Games](#tested-games)
+5. [Compiling the emulator](#compiling-the-emulator)
+6. [Running the emulator](#running-the-emulator)
+
 ## Features
 - Full CPU emulation (passes cpu_instrs, instr_timing, mem_timing)
 - Full Timer emulation
@@ -26,7 +35,7 @@ When this flag is supplied, the program will prompt for an initial breakpoint on
 
 When debugging the emulator itself, I often found it helpful to run the debugger within another Java debugger such as jdb.
 
-## Some Debugger Commands
+### Some Debugger Commands
 - `b nn`
 	- Adds a breakpoint to the specified hex location
 	- Ex: `b 2f`
