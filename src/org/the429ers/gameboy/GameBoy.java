@@ -325,6 +325,7 @@ public class GameBoy extends JFrame{
             this.mmu = (MMU) saveState.readObject();
             this.cpu = mmu.getCPU();
             this.ppu = mmu.getPPU();
+            this.mmu.setJoypad(new Joypad(this.mmu, this.cpu.interruptHandler));
             saveState.close();
         } catch (FileNotFoundException e) {
             // TODO Auto-generated catch block

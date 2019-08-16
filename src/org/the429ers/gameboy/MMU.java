@@ -45,7 +45,7 @@ public class MMU implements Serializable {
     private boolean bootRomEnabled = true;
     private CPU cpu;
     private IPPU ppu;
-    private Joypad joypad;
+    private transient Joypad joypad;
     private int currentVRAMBank = 0;
     private ColorPaletteManager backgroundManager;
     private ColorPaletteManager spritePaletteManager;
