@@ -187,6 +187,7 @@ public class GameBoy extends JFrame{
     public static final int NUM_FRAMES_PER_AUTOSAVE = 120;
     public static final int MAX_AUTOSAVES = 30;
     public static final int MAX_HISTORY = 100;
+    public static final int NUM_FRAMES_PER_SPEEDCHECK = 30;
 
     HashSet<Integer> breakPoints = new HashSet<>();
     LinkedList<Integer> history = new LinkedList<>();
@@ -207,7 +208,8 @@ public class GameBoy extends JFrame{
     
     boolean audioOn = true;
     boolean fastMode = false;
-    long timeOfLastFrame = -1;
+    long timeSinceSpeedCheck = -1;
+    int framesSinceSpeedCheck = 0;
     
     Scanner fin = new Scanner(System.in);
     int numInstructonsUntilBreak = -1;
@@ -434,18 +436,22 @@ public class GameBoy extends JFrame{
                 //ppu.toggleHBlankIndicator();
             }
             if (ppu.drewFrame()) {
+                framesSinceSpeedCheck++;
+                framesDrawn++;
+                if (framesSinceSpeedCheck >= NUM_FRAMES_PER_SPEEDCHECK) {
+                    this.framesSinceSpeedCheck = 1;
+                    this.timeSinceSpeedCheck = System.currentTimeMillis();
+                }
                 long currentTime = System.currentTimeMillis();
-                long deltaTime = currentTime - timeOfLastFrame;
-                if (deltaTime < 15 && !fastMode) {
+                long deltaTime = currentTime - timeSinceSpeedCheck;
+                if (!fastMode && deltaTime < 16 * framesSinceSpeedCheck) {
                     //System.out.println("sleep");
                     try {
-                        Thread.sleep(16 - deltaTime);
+                        Thread.sleep(16 * framesSinceSpeedCheck - deltaTime);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
                 }
-                timeOfLastFrame = System.currentTimeMillis();
-                framesDrawn++;
                 if (framesDrawn % NUM_FRAMES_PER_AUTOSAVE == 0) {
                     this.queueAutoSaveIfEnabled();
                 }
@@ -468,6 +474,7 @@ public class GameBoy extends JFrame{
         
         new Thread(() -> {
             paused = false;
+            framesSinceSpeedCheck = NUM_FRAMES_PER_SPEEDCHECK;
 
             while (!paused) {
                 this.tick();
