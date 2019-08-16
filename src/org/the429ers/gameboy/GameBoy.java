@@ -399,17 +399,12 @@ public class GameBoy extends JFrame{
         history.addLast(cpu.regs.PC.read());
         cpu.executeOneInstruction(breaked, haltEnabled);
         if (quickSave) {
-            System.out.println("quicksaving...");
             saveState();
             quickSave = false;
-            System.out.println("done");
-            //throw new IllegalStateException("asdf");
         }
         if (quickLoad) {
-            System.out.println("quickloading...");
             loadState();
             quickLoad = false;
-            System.out.println("done");
         }
 
         if(numInstructonsUntilBreak >= 0){
