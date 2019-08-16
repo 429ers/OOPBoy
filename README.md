@@ -13,9 +13,52 @@ OOPBoy is a working, fast, and cross-platform Nintendo Game Boy emulator written
 - MBC1 and MBC3 support with battery-backed RAM
 - Audio unit with stereo support
 - Save states at the emulator level
+- RAM-based auto-save support ("Rewind")
 - Turbo mode
 - Graphics modes including gray-scale, classic green, and psychedelic mode
 - Debugger with break points, core dumps, memory access, instruction stepping, and instruction history
+
+## Using the debugger
+The debugger is enabled by using the -d flag:  
+```java org.the429ers.gameboy.GameBoy -d```  
+
+When this flag is supplied, the program will prompt for an initial breakpoint on the command line.  
+
+When debugging the emulator itself, I often found it helpful to run the debugger within another Java debugger such as jdb.
+
+## Some Debugger Commands
+- `b nn`
+	- Adds a breakpoint to the specified hex location
+	- Ex: `b 2f`
+- `d 00`
+	- Deletes a breakpoint at the specified hex location
+	- Ex: `d 2f`
+- `c`
+	- Continues execution
+- `xc`
+	- Prints a core dump, along with other pertinent information
+- `xm nn n`
+	- Prints `n` bytes starting at memory location `nn`
+	- `n` is base-10, `nn` is base-16
+	- Ex: `xm 48 4`
+- `sm nn mm`
+	- Sets the byte at memory location `nn` to the value `mm`
+	- Both values are in base-16
+	- Ex: `sm 48 ff`
+- `n`
+	- Executes one instruction and prints a core dump
+- `nm m`
+	- Executes `m` more instructions and breaks
+	- Ex: `nm 20`
+- `xh`
+	- Prints the locations of the previous 100 instructions in base-16 format
+	
+## Autosaves
+The autosave system is meant to mimic the "Rewind" feature on Nintendo Switch Online NES.  
+
+If autosaves are enabled under the debug menu, a save file is generated in RAM every two seconds (120 frames), and is kept for a minute. It can be restored by using the option under the Load menu or by using the corresponding keyboard shortcut.  
+
+Pressing the button multiple times in a row will roll back the corresponding number of autosaves. For example, pressing the load button once will cause the game to "rewind" two seconds, pressing it twice will make the game "rewind" four seconds, and so on.
 
 ## Tested Games
 The following games are perfectly playable as far as we can tell:
@@ -52,6 +95,3 @@ java org.the429ers.gameboy.Gameboy
 ```
 
 There is also an executable jar file available for each release.
-
-## Running the emulator in debug mode
-```java org.the429ers.gameboy.GameBoy -d```

@@ -186,6 +186,7 @@ public class GameBoy extends JFrame{
     public static final String DEFAULT_ROM = "roms/Zelda.gb";
     public static final int NUM_FRAMES_PER_AUTOSAVE = 120;
     public static final int MAX_AUTOSAVES = 30;
+    public static final int MAX_HISTORY = 100;
 
     HashSet<Integer> breakPoints = new HashSet<>();
     LinkedList<Integer> history = new LinkedList<>();
@@ -392,7 +393,7 @@ public class GameBoy extends JFrame{
             }
         }
 
-        if(history.size() >= 20) {
+        if(history.size() >= MAX_HISTORY) {
             history.removeFirst();
         }
         history.addLast(cpu.regs.PC.read());
