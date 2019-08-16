@@ -5,10 +5,7 @@ import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Scanner;
+import java.util.*;
 
 import javax.swing.*;
 
@@ -48,6 +45,7 @@ class MainMenuBar extends MenuBar {
         MenuItem quickLoad = new MenuItem("Quickload", new MenuShortcut(KeyEvent.VK_L));
         MenuItem loadFile = new MenuItem("Load save file", new MenuShortcut(KeyEvent.VK_L, true));
         MenuItem snapshot = new MenuItem("Snapshot", new MenuShortcut(KeyEvent.VK_S, true));
+        MenuItem loadAutosave = new MenuItem("Load previous auto-save", new MenuShortcut(KeyEvent.VK_Z));
         quickSave.addActionListener((ActionEvent e) -> {
             gameBoy.queueSave("quicksave.gbsave");
         });
@@ -70,6 +68,9 @@ class MainMenuBar extends MenuBar {
             }
 
             gameBoy.start();
+        });
+        loadAutosave.addActionListener((ActionEvent e) -> {
+            gameBoy.queueLoadPreviousAutoSave();
         });
         
         MenuItem openRom = new MenuItem("Open ROM", new MenuShortcut(KeyEvent.VK_N));
@@ -119,19 +120,22 @@ class MainMenuBar extends MenuBar {
         breakPoint.addActionListener((ActionEvent e) -> {
             gameBoy.breaked = true;
         });
-        CheckboxMenuItem fastMode = new CheckboxMenuItem("Fast mode");
+        CheckboxMenuItem fastMode = new CheckboxMenuItem("Fast mode", gameBoy.fastMode);
         fastMode.addItemListener((ItemEvent e) -> {
             gameBoy.fastMode = fastMode.getState();
         });
-        CheckboxMenuItem audioToggle = new CheckboxMenuItem("Mute");
+        CheckboxMenuItem audioToggle = new CheckboxMenuItem("Mute", !gameBoy.audioOn);
         audioToggle.addItemListener((ItemEvent e) -> {
             gameBoy.audioOn = !audioToggle.getState();
         });
-        CheckboxMenuItem haltToggle = new CheckboxMenuItem("Service Halts");
+        CheckboxMenuItem haltToggle = new CheckboxMenuItem("Service Halts", gameBoy.haltEnabled);
         haltToggle.addItemListener((ItemEvent e) -> {
             gameBoy.haltEnabled = haltToggle.getState();
         });
-        haltToggle.setState(gameBoy.haltEnabled);
+        CheckboxMenuItem autoSaveToggle = new CheckboxMenuItem("Autosave", gameBoy.autoSaveEnabled);
+        autoSaveToggle.addItemListener((ItemEvent e) -> {
+            gameBoy.autoSaveEnabled = autoSaveToggle.getState();
+        });
         
         String[] graphicsModeNames = Pallette.modeNames;
         CheckboxMenuItem[] modeToggles = new CheckboxMenuItem[graphicsModeNames.length];
@@ -161,10 +165,12 @@ class MainMenuBar extends MenuBar {
         loadMenu.add(quickLoad);
         saveMenu.add(snapshot);
         loadMenu.add(loadFile);
+        loadMenu.add(loadAutosave);
         debugMenu.add(breakPoint);
         debugMenu.add(fastMode);
         debugMenu.add(audioToggle);
         debugMenu.add(haltToggle);
+        debugMenu.add(autoSaveToggle);
         
         this.add(fileMenu);
         this.add(controlMenu);
@@ -178,6 +184,8 @@ class MainMenuBar extends MenuBar {
 public class GameBoy extends JFrame{
     
     public static final String DEFAULT_ROM = "roms/Zelda.gb";
+    public static final int NUM_FRAMES_PER_AUTOSAVE = 120;
+    public static final int MAX_AUTOSAVES = 30;
 
     HashSet<Integer> breakPoints = new HashSet<>();
     LinkedList<Integer> history = new LinkedList<>();
@@ -187,6 +195,7 @@ public class GameBoy extends JFrame{
     GameBoyScreen gbs;
     String romFileName;
     boolean paused;
+    boolean autoSaveEnabled = true;
     boolean haltEnabled = true;
     private boolean quickSave;
     private boolean quickLoad;
@@ -207,7 +216,9 @@ public class GameBoy extends JFrame{
     
     private int numClocks = 0;
     
-    String saveFileName = "quicksave.gb";
+    OutputStream saveFile = null;
+    InputStream loadFile = null;
+    LinkedList<ByteArrayOutputStream> autoSaves = new LinkedList<>();
     
     private static GameBoy gb;
     
@@ -304,8 +315,7 @@ public class GameBoy extends JFrame{
     
     public void saveState() {
         try {
-            FileOutputStream saveFile = new FileOutputStream(this.saveFileName);
-            ObjectOutputStream saveState = new ObjectOutputStream(saveFile);
+            ObjectOutputStream saveState = new ObjectOutputStream(this.saveFile);
             saveState.writeObject(mmu);
             saveState.close();
         } catch (FileNotFoundException e) {
@@ -320,8 +330,7 @@ public class GameBoy extends JFrame{
     public void loadState() {
         gbs.removeKeyListener(this.mmu.getJoypad());
         try {
-            FileInputStream saveFile = new FileInputStream(this.saveFileName);
-            ObjectInputStream saveState = new ObjectInputStream(saveFile);
+            ObjectInputStream saveState = new ObjectInputStream(this.loadFile);
             this.mmu = (MMU) saveState.readObject();
             this.cpu = mmu.getCPU();
             this.ppu = mmu.getPPU();
@@ -441,6 +450,9 @@ public class GameBoy extends JFrame{
                 }
                 timeOfLastFrame = System.currentTimeMillis();
                 framesDrawn++;
+                if (framesDrawn % NUM_FRAMES_PER_AUTOSAVE == 0) {
+                    this.queueAutoSaveIfEnabled();
+                }
                 if (audioOn) mmu.soundChip.tick();
             }
             cpu.timer.tick();
@@ -494,14 +506,45 @@ public class GameBoy extends JFrame{
         gb.start();
     }
     
-    public void queueSave(String fileName){
-        this.saveFileName = fileName;
+    public void queueAutoSaveIfEnabled() {
+        if (!this.autoSaveEnabled) {
+            return;
+        }
+        ByteArrayOutputStream autoSave = new ByteArrayOutputStream();
+        this.saveFile = autoSave;
+        autoSaves.addLast(autoSave);
+        if (autoSaves.size() > MAX_AUTOSAVES) {
+            autoSaves.removeFirst();
+        }
         quickSave = true;
     }
     
+    public void queueLoadPreviousAutoSave() {
+        try {
+            ByteArrayOutputStream autoSave = autoSaves.removeLast();
+            this.loadFile = new ByteArrayInputStream(autoSave.toByteArray());
+            quickLoad = true;
+        } catch (NoSuchElementException e) {
+            System.out.println("No auto-saves available!");
+        }
+    }
+    
+    public void queueSave(String fileName){
+        try {
+            this.saveFile = new FileOutputStream(fileName);
+            quickSave = true;
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+    
     public void queueLoad(String fileName) {
-        this.saveFileName = fileName;
-        quickLoad = true;
+        try {
+            this.loadFile = new FileInputStream(fileName);
+            quickLoad = true;
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 
 }
