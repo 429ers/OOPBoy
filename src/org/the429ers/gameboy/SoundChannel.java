@@ -20,7 +20,7 @@ class SoundChip implements Serializable {
     public Noise noiseChannel = new Noise();
     
     public static final int SAMPLE_RATE = 131072 / 3;
-    public static final int SAMPLES_PER_FRAME = SAMPLE_RATE/57;
+    public static final int SAMPLES_PER_FRAME = SAMPLE_RATE/60;
     public static final AudioFormat AUDIO_FORMAT = new AudioFormat(SAMPLE_RATE,  8, 2, false, false);
     
     public static final int SQUARE1 = 0;
@@ -82,7 +82,7 @@ class SoundChip implements Serializable {
                 e.printStackTrace();
             }
         }
-        int samplesToWrite = Math.min(sourceDL.available() / 2, SAMPLES_PER_FRAME);
+        int samplesToWrite = Math.min(sourceDL.available() / 3, SAMPLES_PER_FRAME);
         
         Arrays.fill(masterBuffer, (byte) 0);
         

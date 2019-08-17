@@ -46,6 +46,7 @@ class MainMenuBar extends MenuBar {
         MenuItem loadFile = new MenuItem("Load save file", new MenuShortcut(KeyEvent.VK_L, true));
         MenuItem snapshot = new MenuItem("Snapshot", new MenuShortcut(KeyEvent.VK_S, true));
         MenuItem loadAutosave = new MenuItem("Load previous auto-save", new MenuShortcut(KeyEvent.VK_Z));
+        CheckboxMenuItem autoSaveToggle = new CheckboxMenuItem("Create auto-saves", gameBoy.autoSaveEnabled);
         quickSave.addActionListener((ActionEvent e) -> {
             gameBoy.queueSave("quicksave.gbsave");
         });
@@ -71,6 +72,9 @@ class MainMenuBar extends MenuBar {
         });
         loadAutosave.addActionListener((ActionEvent e) -> {
             gameBoy.queueLoadPreviousAutoSave();
+        });
+        autoSaveToggle.addItemListener((ItemEvent e) -> {
+            gameBoy.autoSaveEnabled = autoSaveToggle.getState();
         });
         
         MenuItem openRom = new MenuItem("Open ROM", new MenuShortcut(KeyEvent.VK_N));
@@ -132,10 +136,6 @@ class MainMenuBar extends MenuBar {
         haltToggle.addItemListener((ItemEvent e) -> {
             gameBoy.haltEnabled = haltToggle.getState();
         });
-        CheckboxMenuItem autoSaveToggle = new CheckboxMenuItem("Autosave", gameBoy.autoSaveEnabled);
-        autoSaveToggle.addItemListener((ItemEvent e) -> {
-            gameBoy.autoSaveEnabled = autoSaveToggle.getState();
-        });
         
         String[] graphicsModeNames = Pallette.modeNames;
         CheckboxMenuItem[] modeToggles = new CheckboxMenuItem[graphicsModeNames.length];
@@ -165,12 +165,12 @@ class MainMenuBar extends MenuBar {
         loadMenu.add(quickLoad);
         saveMenu.add(snapshot);
         loadMenu.add(loadFile);
+        saveMenu.add(autoSaveToggle);
         loadMenu.add(loadAutosave);
         debugMenu.add(breakPoint);
         debugMenu.add(fastMode);
         debugMenu.add(audioToggle);
         debugMenu.add(haltToggle);
-        debugMenu.add(autoSaveToggle);
         
         this.add(fileMenu);
         this.add(controlMenu);
