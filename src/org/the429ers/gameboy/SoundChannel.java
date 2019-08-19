@@ -19,7 +19,7 @@ class SoundChip implements Serializable {
     public WaveChannel waveChannel = new WaveChannel();
     public Noise noiseChannel = new Noise();
     
-    public static final int SAMPLE_RATE = 131072 / 3;
+    public static final int SAMPLE_RATE = 131072;
     public static final int SAMPLES_PER_FRAME = SAMPLE_RATE/60;
     public static final AudioFormat AUDIO_FORMAT = new AudioFormat(SAMPLE_RATE,  8, 2, false, false);
     
@@ -215,7 +215,7 @@ class SquareWave implements SoundChannel, Serializable {
         }
 
         int waveForm = getWaveform(this.duty);
-        double chunkSize = (2048.0 - frequency) / 8 / 3;
+        double chunkSize = (2048.0 - frequency) / 8;
 
         int waveLength = (int)(8 * chunkSize);
 
@@ -264,9 +264,9 @@ class SquareWave implements SoundChannel, Serializable {
         
         if(newFrequency != frequency) {
             //if the frequency has changed, update the offset so it's (approximately) at the same spot in the wave
-            double oldChunkSize = (2048.0 - frequency) / 8 / 3;
+            double oldChunkSize = (2048.0 - frequency) / 8;
             double oldWaveLength = (8 * oldChunkSize);
-            double newChunkSize = (2048.0 - newFrequency) / 8 / 3;
+            double newChunkSize = (2048.0 - newFrequency) / 8;
             double newWaveLength = (8 * newChunkSize);
             
             offset = (int)(offset * newWaveLength / oldWaveLength);
@@ -334,9 +334,9 @@ class WaveChannel implements SoundChannel, Serializable {
 
         if(newFrequency != frequency) {
             //if the frequency has changed, update the offset so it's (approximately) at the same spot in the wave
-            double oldChunkSize = (2048.0 - frequency) / 16 / 3;
+            double oldChunkSize = (2048.0 - frequency) / 16;
             double oldWaveLength = (32 * oldChunkSize);
-            double newChunkSize = (2048.0 - newFrequency) / 16 / 3;
+            double newChunkSize = (2048.0 - newFrequency) / 16;
             double newWaveLength = (32 * newChunkSize);
 
             offset = (int)(offset * newWaveLength / oldWaveLength);
@@ -376,7 +376,7 @@ class WaveChannel implements SoundChannel, Serializable {
             }
         }
         
-        double chunkSize = (2048.0 - frequency) / 16 / 3;
+        double chunkSize = (2048.0 - frequency) / 16;
 
         int waveLength = (int)(32 * chunkSize);
 
@@ -408,6 +408,7 @@ class Noise implements SoundChannel, Serializable {
     protected boolean lengthEnabled = false;
     protected int lengthCounter = 0;
     protected int shiftClock = 0;
+    protected int widthMode = 0;
     protected int divisorCode = 0;
     
     protected int currentVolume = 0;
@@ -431,6 +432,7 @@ class Noise implements SoundChannel, Serializable {
                 break;
             case 3:
                 this.shiftClock = (toWrite >> 4) & 0xf;
+                this.widthMode = (toWrite >> 3) & 1;
                 this.divisorCode = toWrite & 0x7;
                 break;
             case 4:
@@ -469,24 +471,26 @@ class Noise implements SoundChannel, Serializable {
         }
 
         long chunkSize;
+        double frequency;
         if(divisorCode != 0) {
-            chunkSize = (long) (524288.0 / SoundChip.SAMPLE_RATE / divisorCode) >> (shiftClock + 1);
+            frequency = ((524288.0 / divisorCode) / (2 << shiftClock));
         }else{
-            chunkSize = (long) (524288.0 / SoundChip.SAMPLE_RATE * 2) >> (shiftClock + 1);
+            frequency = ((524288.0 * 2) / (2 << shiftClock));
         }
-
+        
+        chunkSize = (long)(SoundChip.SAMPLE_RATE / frequency);
         if (chunkSize == 0) chunkSize = 1;
 
         int i, j = 0;
         for(i = 0; i < samplesToWrite - chunkSize; i+= chunkSize){
-            byte chunkVal = (byte)rand.nextInt(currentVolume);
+            byte chunkVal = (byte)(rand.nextInt(2) * currentVolume);
             for(j = 0; j < chunkSize; j++){
                 soundBuffer[i + j] = chunkVal;
             }
         }
         
         //fill up remainder
-        byte remainderVal = (byte)rand.nextInt(currentVolume);
+        byte remainderVal = (byte)(rand.nextInt(2) * currentVolume);
         for(int k = i + j; k < samplesToWrite; k++){
             soundBuffer[k] = remainderVal;
         }
