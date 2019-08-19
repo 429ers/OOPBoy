@@ -7,6 +7,7 @@ import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import javax.sound.sampled.SourceDataLine;
 import javax.swing.*;
 
 class MainMenuBar extends MenuBar {
@@ -223,6 +224,8 @@ public class GameBoy extends JFrame{
     InputStream loadFile = null;
     LinkedList<ByteArrayOutputStream> autoSaves = new LinkedList<>();
     
+    SourceDataLine sourceDL;
+    
     private static GameBoy gb;
     
     public static GameBoy getInstance() {
@@ -255,6 +258,7 @@ public class GameBoy extends JFrame{
     };
     
     public void switchRom(String newRom) {
+        this.sourceDL = mmu.soundChip.getSourceDL();
         this.romFileName = newRom;
         if(mmu != null) mmu.cleanUp();
         mmu = new MMU(newRom);
@@ -271,11 +275,10 @@ public class GameBoy extends JFrame{
             ppu = new PPU(mmu, gbs);
         }
         mmu.setPPU(ppu);
+        mmu.soundChip.setSourceDL(this.sourceDL);
         cable = new LinkCable(mmu, cpu.interruptHandler);
         joypad = new Joypad(mmu, cpu.interruptHandler);
         gbs.addKeyListener(joypad);
-
-
     }
     
     public GameBoy(String fileName) {
@@ -317,6 +320,7 @@ public class GameBoy extends JFrame{
     }
     
     public void saveState() {
+        this.sourceDL = this.mmu.soundChip.getSourceDL();
         try {
             ObjectOutputStream saveState = new ObjectOutputStream(this.saveFile);
             saveState.writeObject(mmu);
@@ -351,6 +355,7 @@ public class GameBoy extends JFrame{
         }
         gbs.addKeyListener(this.mmu.getJoypad());
         ppu.setGBS(gbs);
+        this.mmu.soundChip.setSourceDL(this.sourceDL);
     }
     
     public void tick() {

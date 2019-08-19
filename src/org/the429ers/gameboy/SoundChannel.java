@@ -28,10 +28,12 @@ class SoundChip implements Serializable {
     public static final int WAVE = 2;
     public static final int NOISE = 3;
     
-    private transient SourceDataLine sourceDL;
+    transient SourceDataLine sourceDL;
     
-    byte[] masterBuffer = new byte[2 * SAMPLES_PER_FRAME];
-    byte[] tempBuffer = new byte[SAMPLES_PER_FRAME];
+    byte[] masterBuffer = new byte[6 * SAMPLES_PER_FRAME];
+    byte[] tempBuffer = new byte[3 * SAMPLES_PER_FRAME];
+    
+    long totalSamplesWritten = 0;
     
     boolean[] leftEnabled = new boolean[4];
     boolean[] rightEnabled = new boolean[4];
@@ -40,16 +42,13 @@ class SoundChip implements Serializable {
         Arrays.fill(rightEnabled, true);
     }
     
-    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-        in.defaultReadObject();
-
-        try {
-            sourceDL = AudioSystem.getSourceDataLine(AUDIO_FORMAT);
-            sourceDL.open(AUDIO_FORMAT);
-            sourceDL.start();
-        } catch (LineUnavailableException e) {
-            e.printStackTrace();
-        }
+    public void setSourceDL(SourceDataLine sourceDL){
+        this.sourceDL = sourceDL;
+        this.totalSamplesWritten = sourceDL.getLongFramePosition();
+    }
+    
+    public SourceDataLine getSourceDL(){
+        return this.sourceDL;
     }
 
     SoundChip() {
@@ -82,7 +81,10 @@ class SoundChip implements Serializable {
                 e.printStackTrace();
             }
         }
-        int samplesToWrite = Math.min(sourceDL.available() / 3, SAMPLES_PER_FRAME);
+        long residualSamples = totalSamplesWritten - sourceDL.getLongFramePosition();
+        int samplesToWrite = Math.max(0, (int)(3 * SAMPLES_PER_FRAME - residualSamples)); //try to keep 3 frames buffered at all times
+        samplesToWrite = Math.min(sourceDL.available() / 2, Math.min(3 * SAMPLES_PER_FRAME, samplesToWrite)); //never want to block here
+        totalSamplesWritten += samplesToWrite;
         
         Arrays.fill(masterBuffer, (byte) 0);
         
