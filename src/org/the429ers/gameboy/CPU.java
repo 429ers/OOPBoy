@@ -25,12 +25,6 @@ public class CPU implements Serializable {
         mem.setCPU(this);
         timer = new Timer(mem);
     }
-
-    public CPU() {
-        mem = new MMU();
-        mem.setCPU(this);
-        timer = new Timer(mem);
-    }
     
     public void setMMU(MMU mmu) {
         this.mem = mmu;
@@ -55,18 +49,6 @@ public class CPU implements Serializable {
     public static final int NOJUMP = -1;
     public static final int RELJUMP = 0;
     public static final int ABSJUMP = 1;
-
-    public static void main(String[] args) throws IOException {
-        //System.setOut(new PrintStream(new File("test.out")));
-        
-        new CPU().test();
-    }
-    
-    public void test() {
-        while(regs.PC.read() < 256){
-            executeOneInstruction(true, false);
-        }
-    }
     
     public void coreDump() {
         int opcode = mem.readByte(regs.PC.read());

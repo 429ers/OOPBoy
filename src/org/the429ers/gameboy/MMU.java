@@ -1,5 +1,6 @@
 package org.the429ers.gameboy;
 
+import javax.sound.sampled.SourceDataLine;
 import java.io.Serializable;
 import java.util.Base64;
 
@@ -51,7 +52,7 @@ public class MMU implements Serializable {
     private ColorPaletteManager spritePaletteManager;
     private TileSetManager tileSetManager;
     private SpriteManager spriteManager;
-    SoundChip soundChip = new SoundChip();
+    SoundChip soundChip;
     
     public void setSpriteManager(SpriteManager manager) {
         this.spriteManager = manager;
@@ -89,14 +90,17 @@ public class MMU implements Serializable {
         return this.rom;
     }
     
-    public MMU() {
-        //no need to copy boot rom since that is intercepted by readByte
-    }
-    
     // Load rom from disk
     public MMU(String fileName) {
         this.rom = Cartridge.fromFile(fileName);
         this.isCGB = rom != null && rom.isGBC();
+        this.soundChip = new SoundChip();
+    }
+    
+    public MMU(String fileName, SourceDataLine sourceDL){
+        this.rom = Cartridge.fromFile(fileName);
+        this.isCGB = rom != null && rom.isGBC();
+        this.soundChip = new SoundChip(sourceDL);
     }
     
     public void cleanUp() {

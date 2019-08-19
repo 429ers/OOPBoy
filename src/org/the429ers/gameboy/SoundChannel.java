@@ -28,7 +28,7 @@ class SoundChip implements Serializable {
     public static final int WAVE = 2;
     public static final int NOISE = 3;
     
-    transient SourceDataLine sourceDL;
+    private transient SourceDataLine sourceDL;
     
     byte[] masterBuffer = new byte[6 * SAMPLES_PER_FRAME];
     byte[] tempBuffer = new byte[3 * SAMPLES_PER_FRAME];
@@ -44,14 +44,13 @@ class SoundChip implements Serializable {
     
     public void setSourceDL(SourceDataLine sourceDL){
         this.sourceDL = sourceDL;
-        this.totalSamplesWritten = sourceDL.getLongFramePosition();
     }
     
     public SourceDataLine getSourceDL(){
         return this.sourceDL;
     }
 
-    SoundChip() {
+    public SoundChip() {
         try {
             sourceDL = AudioSystem.getSourceDataLine(AUDIO_FORMAT);
             sourceDL.open(AUDIO_FORMAT);
@@ -59,6 +58,10 @@ class SoundChip implements Serializable {
         } catch (LineUnavailableException e) {
             e.printStackTrace();
         }
+    }
+    
+    public SoundChip(SourceDataLine sourceDL) {
+        this.sourceDL = sourceDL;
     }
     
     //handle the NR51 register
@@ -85,6 +88,10 @@ class SoundChip implements Serializable {
         int samplesToWrite = Math.max(0, (int)(3 * SAMPLES_PER_FRAME - residualSamples)); //try to keep 3 frames buffered at all times
         samplesToWrite = Math.min(sourceDL.available() / 2, Math.min(3 * SAMPLES_PER_FRAME, samplesToWrite)); //never want to block here
         totalSamplesWritten += samplesToWrite;
+        if(totalSamplesWritten < sourceDL.getLongFramePosition()) {
+            sourceDL.drain();
+            totalSamplesWritten = sourceDL.getLongFramePosition();
+        }
         
         Arrays.fill(masterBuffer, (byte) 0);
         

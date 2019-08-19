@@ -261,7 +261,7 @@ public class GameBoy extends JFrame{
         this.sourceDL = mmu.soundChip.getSourceDL();
         this.romFileName = newRom;
         if(mmu != null) mmu.cleanUp();
-        mmu = new MMU(newRom);
+        mmu = new MMU(newRom, sourceDL);
         this.isCGB = mmu.isCGB();
         cpu = new CPU(mmu);
         if (isCGB) {
@@ -275,7 +275,6 @@ public class GameBoy extends JFrame{
             ppu = new PPU(mmu, gbs);
         }
         mmu.setPPU(ppu);
-        mmu.soundChip.setSourceDL(this.sourceDL);
         cable = new LinkCable(mmu, cpu.interruptHandler);
         joypad = new Joypad(mmu, cpu.interruptHandler);
         gbs.addKeyListener(joypad);
