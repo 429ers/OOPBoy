@@ -13,7 +13,7 @@ class Rom implements Cartridge {
     
     public int readByte(int location){
         if (location > rom.length) {
-            throw new IllegalArgumentException("Memory does not exist");
+            return 0xff;
         }
         return rom[location] & 0xff;
     }

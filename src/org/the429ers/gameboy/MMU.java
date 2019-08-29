@@ -3,6 +3,8 @@ package org.the429ers.gameboy;
 import javax.sound.sampled.SourceDataLine;
 import java.io.Serializable;
 import java.util.Base64;
+import java.util.LinkedList;
+import java.util.List;
 
 public class MMU implements Serializable {
     private byte[] mem = new byte[0xFFFF+1];
@@ -513,5 +515,43 @@ public class MMU implements Serializable {
         int address = slowReadWord(pc.read()+1);
         
         return new Location(address);
+    }
+    
+    public void writeBytes(int location, byte[] sequence) {
+        for(int i = 0; i < sequence.length; i++){
+            writeByte(location + i, sequence[i]);
+        }
+    }
+    
+    public boolean match(int location, byte[] sequence) {
+        for(int i = 0; i < sequence.length; i++){
+            if(location + i > 0xffff) {
+                return false;
+            }
+            if(readByte(location + i) != sequence[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    public List<Integer> search(byte[] sequence) {
+        LinkedList<Integer> candidates = new LinkedList<>();
+        for(int i = 0; i <= 0xffff; i++) {
+            if (match(i, sequence)) {
+                candidates.addLast(i);
+            }
+        }
+        return candidates;
+    }
+    
+    public List<Integer> filter(List<Integer> candidates, byte[] sequence) {
+        LinkedList<Integer> result = new LinkedList<>();
+        for(int location : candidates) {
+            if(match(location, sequence)) {
+                result.add(location);
+            }
+        }
+        return result;
     }
 }

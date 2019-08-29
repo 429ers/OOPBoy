@@ -6,6 +6,7 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.List;
 
 import javax.sound.sampled.SourceDataLine;
 import javax.swing.*;
@@ -224,6 +225,8 @@ public class GameBoy extends JFrame{
     InputStream loadFile = null;
     LinkedList<ByteArrayOutputStream> autoSaves = new LinkedList<>();
     
+    List<Integer> hexEditorCandidates = null;
+    
     SourceDataLine sourceDL;
     
     private static GameBoy gb;
@@ -357,6 +360,14 @@ public class GameBoy extends JFrame{
         this.mmu.soundChip.setSourceDL(this.sourceDL);
     }
     
+    public byte[] hexStringToBytes(String sequenceStr) {
+        byte[] sequence = new byte[sequenceStr.length() / 2];
+        for(int i = 0; i < sequenceStr.length(); i+=2) {
+            sequence[i / 2] = (byte)Integer.parseInt(sequenceStr.substring(i, i+2), 16);
+        }
+        return sequence;
+    } 
+    
     public void tick() {
         gbs.setFocusable(true);
         //ignore breakpoints while nm is used
@@ -364,36 +375,66 @@ public class GameBoy extends JFrame{
             breaked = true;
         }
 
-        if(breaked){
+        if(breaked) {
             System.out.print("Suspended at " + Integer.toString(cpu.regs.PC.read(), 16) + ": ");
             String cmd = fin.next();
-            if(cmd.equals("b")){
+            if (cmd.equals("b")) {
                 breakPoints.add(fin.nextInt(16));
                 return;
-            }else if(cmd.equals("d")){
+            } else if (cmd.equals("d")) {
                 breakPoints.remove(fin.nextInt(16));
                 return;
-            }else if(cmd.equals("c")) {
+            } else if (cmd.equals("c")) {
                 breaked = false;
-            }else if(cmd.equals("xc")){
+            } else if (cmd.equals("xc")) {
                 cpu.coreDump();
                 return;
-            }else if(cmd.equals("xm")){
+            } else if (cmd.equals("xm")) {
                 mmu.memdump(fin.nextInt(16), fin.nextInt());
                 return;
-            }else if(cmd.equals("sm")) {
-                mmu.writeByte(fin.nextInt(16), fin.nextInt(16));
+            } else if (cmd.equals("sm")) {
+                mmu.writeBytes(fin.nextInt(16), hexStringToBytes(fin.next()));
                 return;
-            }else if(cmd.equals("nm")) {
+            } else if (cmd.equals("nm")) {
                 breaked = false;
                 numInstructonsUntilBreak = fin.nextInt();
-            }else if(cmd.equals("xh")) {
-                for(int i : history){
+            } else if (cmd.equals("xh")) {
+                for (int i : history) {
                     System.out.printf("%x ", i);
                 }
                 System.out.println();
                 return;
-            }else if(!cmd.equals("n")){
+            } else if (cmd.equals("hes")) {
+                String sequenceStr = fin.next();
+                if (sequenceStr.length() % 2 != 0) {
+                    System.out.println("Must give an integral number of bytes");
+                    return;
+                }
+                byte[] sequence = hexStringToBytes(sequenceStr);
+                
+                System.out.println(Arrays.toString(sequence));
+
+                if (hexEditorCandidates != null) {
+                    hexEditorCandidates = mmu.filter(hexEditorCandidates, sequence);
+                } else {
+                    hexEditorCandidates = mmu.search(sequence);
+                }
+
+                System.out.println(hexEditorCandidates.size() + " candidates remaining. Type her to reset or hec to view candidates");
+                return;
+            } else if (cmd.equals("her")){
+                hexEditorCandidates = null;
+                return;
+            } else if(cmd.equals("hec")) {
+                if(hexEditorCandidates == null){
+                    System.out.println("A search has not yet been performed. Use hes to perform a search.");
+                }
+                for(int candidate: hexEditorCandidates){
+                    System.out.printf("%04x ", candidate);
+                }
+                System.out.println();
+                return;
+            } else if(!cmd.equals("n")){
                 System.out.println("Command not recognized");
                 return;
             }
