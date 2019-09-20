@@ -1,6 +1,8 @@
 package org.the429ers.gameboy;
 
-public class SpriteManager {
+import java.io.Serializable;
+
+public class SpriteManager implements Serializable {
     private IColorSprite[] sprites;
     private TileSetManager tileSetManager;
     private LCDControl lcd;
