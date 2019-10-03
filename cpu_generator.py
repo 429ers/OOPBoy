@@ -1,7 +1,7 @@
 import re
 
 special_operands = {
-    "r8": "cpu.d8()", #sign is handled in CPU code
+    "r8": "cpu.r8()", #sign is handled in CPU code
     "d8": "cpu.d8()",
     "a8": "cpu.a8()",
     "d16": "cpu.d16()",
@@ -16,7 +16,7 @@ special_operands = {
     "(C)": "cpu.mem.shortRegisterLocation(cpu.regs.C)",
     "(HL+)": "cpu.mem.registerLocation(selfIncrement(cpu.regs.HL))",
     "(HL-)": "cpu.mem.registerLocation(selfDecrement(cpu.regs.HL))",
-    "SP+r8": "cpu.SPr16()",
+    "SP+r8": "cpu.SPr8()",
 }
 
 registers = ['A', 'B', 'D', 'H', 'F', 'C', 'E', 'L', 'AF', 'BC', 'DE', 'HL', 'SP', 'PC']
