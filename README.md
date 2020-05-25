@@ -90,6 +90,7 @@ The following games play with major graphical glitches:
 - Donkey Kong
 
 The following games do not play at all:
+- Animal Crossing: New Horizons
 - Please wait for me to test more games
 
 ## Compiling the emulator
